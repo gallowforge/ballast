@@ -1,0 +1,10 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import PageHeader from '@/components/frame/PageHeader.astro';
+import PlanScreen from '@/components/screens/PlanScreen';
+---
+
+<AppLayout title="Plan" section="plan" description="Your monthly salary from savings, budgets that keep pace, and every recurring cost before it lands.">
+  <PageHeader title="Plan" subtitle="Your salary, your budgets and what repeats." icon="plan" />
+  <PlanScreen client:load />
+</AppLayout>

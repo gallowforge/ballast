@@ -1,0 +1,10 @@
+dist
+node_modules
+.astro
+package-lock.json
+public/samples
+tests/fixtures
+docs/readme
+coverage
+playwright-report
+test-results

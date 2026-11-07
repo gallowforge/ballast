@@ -1,0 +1,10 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import PageHeader from '@/components/frame/PageHeader.astro';
+import ImportScreen from '@/components/screens/ImportScreen';
+---
+
+<AppLayout title="Import" section="import" description="Import a PDF or CSV bank statement on your device. Every row is checked against the running balance; nothing is uploaded.">
+  <PageHeader title="Import" subtitle="PDF or CSV statements, read on this device." icon="import" />
+  <ImportScreen client:load />
+</AppLayout>

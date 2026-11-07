@@ -1,0 +1,23 @@
+---
+interface Props {
+  size?: number;
+  word?: boolean;
+  class?: string;
+}
+const { size = 32, word = true, class: cls = '' } = Astro.props;
+---
+
+<span class={`inline-flex items-center gap-2.5 ${cls}`}>
+  <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+    <defs>
+      <linearGradient id="lg-gold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F7D47A"></stop>
+        <stop offset="1" stop-color="#D88A2A"></stop>
+      </linearGradient>
+    </defs>
+    <rect width="32" height="32" rx="9" fill="url(#lg-gold)"></rect>
+    <path d="M11 8.5v13.5h11.5" fill="none" stroke="#2B1D0C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+    <path d="M15.5 12.5h6M15.5 17.25h4" fill="none" stroke="#2B1D0C" stroke-opacity=".45" stroke-width="2.2" stroke-linecap="round"></path>
+  </svg>
+  {word && <span class="text-[1.15rem] font-extrabold tracking-tight">Ledger</span>}
+</span>

@@ -1,0 +1,10 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import PageHeader from '@/components/frame/PageHeader.astro';
+import ActivityScreen from '@/components/screens/ActivityScreen';
+---
+
+<AppLayout title="Activity" section="activity" description="Every transaction, month by month: search, sort and tidy up in bulk.">
+  <PageHeader title="Activity" subtitle="Every transaction, month by month. Press / to search." icon="activity" />
+  <ActivityScreen client:load />
+</AppLayout>

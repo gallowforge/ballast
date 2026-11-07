@@ -1,0 +1,10 @@
+---
+import AppLayout from '@/layouts/AppLayout.astro';
+import PageHeader from '@/components/frame/PageHeader.astro';
+import InsightsScreen from '@/components/screens/InsightsScreen';
+---
+
+<AppLayout title="Insights" section="insights" description="Where your money went, month by month, with plain observations worth acting on.">
+  <PageHeader title="Insights" subtitle="Where it went, and what is worth knowing." icon="insights" />
+  <InsightsScreen client:load />
+</AppLayout>

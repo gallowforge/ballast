@@ -1,0 +1,23 @@
+# build
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# tests
+test-results/
+playwright-report/
+coverage/
+.lighthouseci/
+
+# env
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store
+*.log
+docs/readme/.raw/
+RESUME.md
