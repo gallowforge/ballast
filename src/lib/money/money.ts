@@ -4,6 +4,7 @@ import { currency } from './currency';
 export type Minor = number;
 
 const GROUP = /\B(?=(\d{3})+(?!\d))/g;
+const GROUPING = new RegExp('[\\s,\\u066C]', 'g');
 
 /**
  * Parses a decimal string into minor units without ever touching floating point.
@@ -11,7 +12,8 @@ const GROUP = /\B(?=(\d{3})+(?!\d))/g;
  * string has more decimals than the currency allows ("1.2345" for KWD).
  */
 export function parseMinor(input: string, exp: number): Minor | null {
-  const s = input.trim().replace(/[\s,٬]/g, '');
+  // Spaces, commas and the Arabic thousands separator (U+066C) are all grouping marks.
+  const s = input.trim().replace(GROUPING, '');
   const m = /^([+-])?(\d*)(?:\.(\d*))?$/.exec(s);
   if (!m) return null;
   const [, sign, whole = '', frac = ''] = m;

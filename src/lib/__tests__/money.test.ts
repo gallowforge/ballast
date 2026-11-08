@@ -137,3 +137,9 @@ describe('exchange rates', () => {
     expect(impliedRate(0, 'USD', 10, 'KWD')).toBe('0');
   });
 });
+
+describe('grouping marks', () => {
+  it('accepts the Arabic thousands separator as a grouping mark', () => {
+    expect(parseMinor(`1${String.fromCharCode(0x66c)}234.5`, 3)).toBe(1234500);
+  });
+});
