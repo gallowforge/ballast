@@ -5,12 +5,15 @@ export interface Persistence {
   load(): Promise<unknown>;
   save(data: LedgerData): Promise<void>;
   clear(): Promise<void>;
+  /** Last resort when the page is closing with a write still in flight: synchronous, survives unload. */
+  saveSync?(data: LedgerData): void;
 }
 
 const DB = 'ledger';
 const STORE = 'kv';
 const KEY = 'data';
 const LS_KEY = 'ledger:data:v1';
+const PENDING = 'ledger:pending:v1';
 
 function open(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -38,6 +41,20 @@ export function browserPersistence(): Persistence {
   const hasIDB = typeof indexedDB !== 'undefined';
   return {
     async load() {
+      // A snapshot saved while the page was closing is newer than anything in IndexedDB.
+      try {
+        const pending = localStorage.getItem(PENDING);
+        if (pending) {
+          const data = JSON.parse(pending) as LedgerData;
+          if (hasIDB) {
+            await tx(await db(), 'readwrite', (s) => s.put(data, KEY));
+            localStorage.removeItem(PENDING);
+          }
+          return data;
+        }
+      } catch {
+        /* unreadable snapshot: fall back to IndexedDB */
+      }
       if (hasIDB) {
         try {
           return await tx(await db(), 'readonly', (s) => s.get(KEY));
@@ -63,9 +80,17 @@ export function browserPersistence(): Persistence {
       }
       localStorage.setItem(LS_KEY, JSON.stringify(data));
     },
+    saveSync(data) {
+      try {
+        localStorage.setItem(PENDING, JSON.stringify(data));
+      } catch {
+        /* storage full or blocked: nothing more can be done while closing */
+      }
+    },
     async clear() {
       try {
         localStorage.removeItem(LS_KEY);
+        localStorage.removeItem(PENDING);
       } catch {
         /* ignore */
       }

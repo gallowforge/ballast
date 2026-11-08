@@ -2,13 +2,17 @@
 import { today } from './dates';
 import { buildDemo } from './demo';
 import { browserPersistence } from './store/persist';
-import { apply, getState, start } from './store/store';
+import { apply, flushSync, getState, start } from './store/store';
 import { replaceAll } from './store/ops';
 
 let booted: Promise<void> | null = null;
 
 export function boot(): Promise<void> {
   if (typeof window === 'undefined') return Promise.resolve();
+  if (!booted) {
+    addEventListener('pagehide', flushSync);
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flushSync());
+  }
   booted ??= start(browserPersistence()).then(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('demo') === '1') {

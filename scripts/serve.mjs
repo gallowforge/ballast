@@ -2,6 +2,7 @@
 // Mirrors a static host: directory index.html, 404 → dist/404.html, immutable hashed assets.
 import { createServer } from 'node:http';
 import { createReadStream, existsSync, statSync } from 'node:fs';
+import { createGzip } from 'node:zlib';
 import { extname, join, normalize } from 'node:path';
 
 const root = process.argv[2] ?? 'dist';
@@ -40,11 +41,14 @@ createServer((req, res) => {
       return;
     }
   }
+  const type = types[extname(file)] ?? 'application/octet-stream';
+  // Compress text like a real static host (GitHub Pages does), so Lighthouse measures fairly.
+  const gzip = /text|javascript|json|xml|svg|manifest/.test(type) && /\bgzip\b/.test(req.headers['accept-encoding'] ?? '');
   res.writeHead(status, {
-    'content-type': types[extname(file)] ?? 'application/octet-stream',
-    'cache-control': path.startsWith('/_astro/')
-      ? 'public, max-age=31536000, immutable'
-      : 'no-cache',
+    'content-type': type,
+    ...(gzip ? { 'content-encoding': 'gzip', vary: 'Accept-Encoding' } : {}),
+    'cache-control': path.startsWith('/_astro/') ? 'public, max-age=31536000, immutable' : 'no-cache',
   });
-  createReadStream(file).pipe(res);
+  const stream = createReadStream(file);
+  (gzip ? stream.pipe(createGzip()) : stream).pipe(res);
 }).listen(port, () => console.log(`Serving ${root} at http://localhost:${port}`));

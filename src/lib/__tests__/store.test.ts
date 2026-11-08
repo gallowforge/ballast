@@ -145,3 +145,27 @@ describe('backups', () => {
     expect(rows[1]).toEqual(['2026-11-02', 'expense', 'Current', '', 'Talabat', 'Food delivery', '-4.250', 'KWD', '-4.250', 'lunch, "big"']);
   });
 });
+
+describe('closing mid-write', () => {
+  it('keeps a synchronous copy only while a write is in flight', async () => {
+    let release: () => void = () => undefined;
+    const synced: unknown[] = [];
+    const slow = {
+      load: async () => undefined,
+      save: () => new Promise<void>((r) => (release = r)),
+      clear: async () => undefined,
+      saveSync: (d: unknown) => synced.push(d),
+    };
+    await store.start(slow, () => '2026-11-08');
+    store.flushSync();
+    expect(synced).toHaveLength(0);
+    store.apply(setSettings({ name: 'Mid' }));
+    store.flushSync();
+    expect(synced).toHaveLength(1);
+    await new Promise((r) => setTimeout(r, 0)); // let the queued write start
+    release();
+    await store.flush();
+    store.flushSync();
+    expect(synced).toHaveLength(1);
+  });
+});

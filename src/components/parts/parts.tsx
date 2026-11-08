@@ -38,7 +38,7 @@ export function TxnRow({ t, data, cats, accounts, today, showDate = false }: { t
       ? `${acct?.name ?? 'Account'} → ${to?.name ?? 'Account'}`
       : [cat?.name ?? 'Uncategorised', acct && acct.role !== 'spending' ? acct.name : null].filter(Boolean).join(' · ');
   return (
-    <button type="button" class="row-link" onClick={() => openTxn({ id: t.id })} aria-label={`${t.payee || 'Untitled'}, ${formatMoney(t.amount, code)}, ${formatShort(t.date)}. Edit`}>
+    <button type="button" class="row-link" onClick={() => openTxn({ id: t.id })}>
       {t.kind === 'transfer' ? (
         <span class="tile" style={{ '--tile': 'var(--subtle)' }} aria-hidden="true">
           <Icon name="swap" size={19} />

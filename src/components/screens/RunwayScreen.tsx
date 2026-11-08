@@ -31,7 +31,7 @@ export default function RunwayScreen() {
   if (plan.mode === 'none')
     return (
       <div class="card">
-        <Empty icon="runway" title="Nothing to project yet" body="Add your savings and a monthly salary, and Ledger shows how long they last and what you can afford until a date that matters.">
+        <Empty level={2} icon="runway" title="Nothing to project yet" body="Add your savings and a monthly salary, and Ledger shows how long they last and what you can afford until a date that matters.">
           <a class="btn btn-gold btn-sm" href={url('home/')}>
             Set up
           </a>
@@ -71,7 +71,7 @@ export default function RunwayScreen() {
       : `At your average month (${formatMoney(view.monthly, base)} more out than in), money falls below your floor in ${formatMonth(view.runOut ?? today)}.`;
 
   return (
-    <div class="grid gap-6">
+    <div class="grid grid-cols-1 gap-6">
       <section class="card card-pad card-glow animate-rise" aria-labelledby="rw-title">
         <div class="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>

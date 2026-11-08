@@ -184,6 +184,7 @@
 @layer components {
   .card {
     position: relative;
+    min-width: 0;
     background: var(--raised);
     border: 1px solid var(--line);
     border-radius: var(--radius-3xl);
@@ -331,7 +332,12 @@
   }
 
   .seg {
+    position: relative;
     display: inline-grid;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
     padding: 0.25rem;
@@ -341,6 +347,7 @@
     border: 1px solid var(--line);
   }
   .seg button {
+    white-space: nowrap;
     min-height: 2.25rem;
     padding: 0 0.9rem;
     border-radius: 999px;
@@ -444,7 +451,9 @@
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
   }
   .divide > * + * { border-top: 1px solid var(--line); }
-  .scroll-x { overflow-x: auto; scrollbar-width: none; }
+  /* position: relative keeps absolutely positioned children (screen-reader labels) inside the scroller,
+     otherwise they stretch the page on phones. */
+  .scroll-x { position: relative; overflow-x: auto; scrollbar-width: none; }
   .scroll-x::-webkit-scrollbar { display: none; }
 }
 
@@ -457,8 +466,11 @@
 
 /* Money: dinars strong, fils lighter, the unit small. */
 .money { white-space: nowrap; font-variant-numeric: tabular-nums lining-nums; }
-.money .f { opacity: 0.55; font-weight: inherit; }
-.money .u { font-size: 0.62em; font-weight: 650; opacity: 0.6; margin-left: 0.2em; letter-spacing: 0.02em; font-family: var(--font-sans); }
+.money .f { font-weight: 500; }
+.money .u { font-size: 0.62em; font-weight: 650; margin-left: 0.2em; letter-spacing: 0.02em; font-family: var(--font-sans); }
+/* Large display numbers can soften the fils and unit and still clear the 3:1 large-text bar. */
+.display .money .f { font-weight: inherit; opacity: 0.6; }
+.display .money .u { opacity: 0.72; }
 
 /* App shell */
 .rail {
@@ -602,8 +614,10 @@
 .toast .btn { min-height: 2.1rem; background: oklch(from var(--bg) l c h / 0.14); color: var(--bg); }
 
 /* Page transitions (Astro view transitions). */
-::view-transition-old(main) { animation: 0.18s ease-in both vt-out; }
-::view-transition-new(main) { animation: 0.42s var(--ease-out-quint) both vt-in; }
+/* Only the page content moves; the rail, top bar, tab bar and add button have their own names, so
+   they stay put. (A name on <main> itself would trap every sheet under the tab bar on phones.) */
+::view-transition-old(root) { animation: 0.18s ease-in both vt-out; }
+::view-transition-new(root) { animation: 0.42s var(--ease-out-quint) both vt-in; }
 @keyframes vt-out { to { opacity: 0; transform: translateY(-4px); } }
 @keyframes vt-in { from { opacity: 0; transform: translateY(10px); } }
 

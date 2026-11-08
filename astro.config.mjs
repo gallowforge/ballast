@@ -19,7 +19,8 @@ export default defineConfig({
   trailingSlash: 'always',
   compressHTML: true,
   build: {
-    inlineStylesheets: 'auto',
+    // One request fewer on a cold load; the service worker serves repeat visits locally anyway.
+    inlineStylesheets: 'always',
     format: 'directory',
   },
   prefetch: {

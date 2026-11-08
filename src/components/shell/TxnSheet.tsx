@@ -380,9 +380,7 @@ export function TxnSheet({ data, today }: Props) {
             {problems.join(' ')}
           </div>
         )}
-        <button type="submit" class="sr-only" tabIndex={-1}>
-          Save
-        </button>
+        <button type="submit" hidden aria-hidden="true" tabIndex={-1} />
       </form>
     </Sheet>
   );

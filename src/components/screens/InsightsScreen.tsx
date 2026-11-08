@@ -74,7 +74,7 @@ export default function InsightsScreen() {
   if (!data.txns.length)
     return (
       <div class="card">
-        <Empty icon="insights" title="Charts need some history" body="Add transactions or import a statement. Charts fill in as soon as there is something to show." />
+        <Empty level={2} icon="insights" title="Charts need some history" body="Add transactions or import a statement. Charts fill in as soon as there is something to show." />
       </div>
     );
 
@@ -87,7 +87,7 @@ export default function InsightsScreen() {
   const wdMax = Math.max(1, ...view.weekdays);
 
   return (
-    <div class="grid gap-6">
+    <div class="grid grid-cols-1 gap-6">
       <div class="flex flex-wrap items-center justify-between gap-3 animate-rise">
         <Segmented
           label="Period"

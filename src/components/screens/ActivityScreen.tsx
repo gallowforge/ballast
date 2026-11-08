@@ -123,7 +123,7 @@ export default function ActivityScreen() {
   };
 
   return (
-    <div class="grid gap-4">
+    <div class="grid grid-cols-1 gap-4">
       <div class="card card-pad grid gap-4 animate-rise">
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative min-w-[14rem] flex-1">
@@ -206,7 +206,7 @@ export default function ActivityScreen() {
       {groups.length === 0 ? (
         <div class="card">
           {data.txns.length === 0 ? (
-            <Empty icon="activity" title="No transactions yet" body="Add one with the + button or press N. Or import a bank statement to bring in months at once.">
+            <Empty level={2} icon="activity" title="No transactions yet" body="Add one with the + button or press N. Or import a bank statement to bring in months at once.">
               <button type="button" class="btn btn-gold btn-sm" onClick={() => openTxn()}>
                 <Icon name="plus" size={16} /> Add a transaction
               </button>
@@ -215,7 +215,7 @@ export default function ActivityScreen() {
               </a>
             </Empty>
           ) : (
-            <Empty icon="search" title="Nothing matches" body={searching ? `No transaction mentions “${query}”.` : 'Nothing here for this month and filter.'} />
+            <Empty level={2} icon="search" title="Nothing matches" body={searching ? `No transaction mentions “${query}”.` : 'Nothing here for this month and filter.'} />
           )}
         </div>
       ) : (

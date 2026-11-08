@@ -27,17 +27,19 @@ export default function Shell() {
 
   useEffect(() => {
     if (!import.meta.env.PROD || !('serviceWorker' in navigator)) return;
-    let reloading = false;
+    // Reload only when the person asked for the new version. The very first install also fires
+    // controllerchange, and reloading then would interrupt whatever they are doing.
+    let wanted = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (reloading) return;
-      reloading = true;
+      if (!wanted) return;
+      wanted = false;
       location.reload();
     });
     navigator.serviceWorker
       .register(url('sw.js'), { scope: url() })
       .then((reg) => {
         const offer = (w: ServiceWorker) =>
-          toast({ message: 'A new version of Ledger is ready.', action: { label: 'Reload', run: () => w.postMessage({ type: 'skip-waiting' }) }, ms: Infinity });
+          toast({ message: 'A new version of Ledger is ready.', action: { label: 'Reload', run: () => ((wanted = true), w.postMessage({ type: 'skip-waiting' })) }, ms: Infinity });
         if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
         reg.addEventListener('updatefound', () => {
           const w = reg.installing;

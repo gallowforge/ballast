@@ -27,10 +27,10 @@ export function Heatmap({ days, code, today }: { days: Map<ISODate, number>; cod
               key={c.date}
               title={`${formatShort(c.date)}: ${formatMoney(c.value, code)}`}
               aria-label={`${DAY_NAMES[weekday(c.date)]} ${formatShort(c.date)}: ${c.value ? formatMoney(c.value, code) : 'nothing spent'}`}
-              class={`relative grid aspect-square place-items-center rounded-lg text-[11px] font-bold ${c.date > today ? 'opacity-35' : ''} ${c.date === today ? 'ring-2 ring-gold' : ''}`}
+              class={`relative grid aspect-square place-items-center rounded-lg text-[11px] font-bold ${c.date > today ? 'border border-dashed border-line-strong' : ''} ${c.date === today ? 'ring-2 ring-gold' : ''}`}
               style={{
-                background: c.value ? `oklch(from var(--gold) l c h / ${0.12 + 0.78 * Math.sqrt(c.value / max)})` : 'var(--sunken)',
-                color: c.value / max > 0.45 ? 'var(--on-gold)' : 'var(--muted)',
+                background: c.date > today ? 'transparent' : c.value ? `oklch(from var(--gold) l c h / ${0.12 + 0.78 * Math.sqrt(c.value / max)})` : 'var(--sunken)',
+                color: c.value / max > 0.45 ? 'var(--on-gold)' : c.value / max > 0.2 ? 'var(--fg)' : 'var(--muted)',
               }}
             >
               {parts(c.date).d}

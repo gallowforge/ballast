@@ -167,13 +167,14 @@ export function CategoryPicker({
   );
 }
 
-export function Empty({ icon, title, body, children }: { icon: string; title: string; body: string; children?: ComponentChildren }) {
+export function Empty({ icon, title, body, children, level = 3 }: { icon: string; title: string; body: string; children?: ComponentChildren; level?: 2 | 3 }) {
+  const H = level === 2 ? 'h2' : 'h3';
   return (
     <div class="grid justify-items-center gap-3 px-4 py-10 text-center">
       <span class="tile tile-lg">
         <Icon name={icon} size={24} />
       </span>
-      <h3 class="text-base font-bold">{title}</h3>
+      <H class="text-base font-bold">{title}</H>
       <p class="max-w-sm text-sm text-muted">{body}</p>
       {children && <div class="mt-1 flex flex-wrap justify-center gap-2">{children}</div>}
     </div>
@@ -181,5 +182,5 @@ export function Empty({ icon, title, body, children }: { icon: string; title: st
 }
 
 export function Skeleton({ class: cls = '' }: { class?: string }) {
-  return <div class={`skeleton ${cls}`} aria-hidden="true" />;
+  return <div class={`skeleton ${cls}`} />;
 }

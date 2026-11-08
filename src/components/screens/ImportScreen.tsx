@@ -159,7 +159,7 @@ export default function ImportScreen() {
   const stepIndex = Math.max(0, steps.findIndex((s) => s.id === (step === 'password' ? 'pick' : step)));
 
   return (
-    <div class="grid gap-6">
+    <div class="grid grid-cols-1 gap-6">
       <ol class="flex flex-wrap items-center gap-2 text-sm font-semibold animate-rise" aria-label="Import steps">
         {steps.map((s, i) => (
           <li key={s.id} class="flex items-center gap-2" aria-current={i === stepIndex ? 'step' : undefined}>
@@ -217,7 +217,7 @@ export default function ImportScreen() {
                   </span>
                   <span class="font-bold">{busy ? 'Reading the statement…' : 'Drop a statement here, or choose a file'}</span>
                   <span class="text-sm text-subtle">PDF or CSV, up to 25 MB</span>
-                  <input ref={inputRef} type="file" class="sr-only" accept=".pdf,.csv,.txt,application/pdf,text/csv" aria-label="Choose a statement file" onChange={(e) => void choose((e.target as HTMLInputElement).files?.[0])} />
+                  <input ref={inputRef} type="file" class="sr-only" accept=".pdf,.csv,.txt,application/pdf,text/csv" onChange={(e) => void choose((e.target as HTMLInputElement).files?.[0])} />
                 </label>
                 <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">
                   <span class="text-muted">No statement to hand?</span>

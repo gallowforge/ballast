@@ -70,7 +70,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <div class="grid gap-6">
+    <div class="grid grid-cols-1 gap-6">
       <section class="card card-pad animate-rise" aria-labelledby="gen-title" id="general">
         <h2 id="gen-title" class="text-lg font-bold">
           General
@@ -271,7 +271,7 @@ export default function SettingsScreen() {
           <button type="button" class="btn btn-danger h-auto flex-col items-start gap-1 rounded-2xl p-4 text-left whitespace-normal" onClick={() => setConfirmWipe(true)}>
             <Icon name="trash" size={20} />
             <span class="font-bold">Delete everything</span>
-            <span class="text-xs font-medium opacity-80">From this device, for good</span>
+            <span class="text-xs font-medium">From this device, for good</span>
           </button>
         </div>
         <div class="mt-4 flex flex-wrap items-center gap-2 text-sm">

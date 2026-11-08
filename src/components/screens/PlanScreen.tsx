@@ -43,7 +43,7 @@ export default function PlanScreen() {
   const soon = upcoming(data, today, addDays(today, 30));
 
   return (
-    <div class="grid gap-6">
+    <div class="grid grid-cols-1 gap-6">
       <section class="card card-pad card-glow animate-rise" aria-labelledby="salary-title" id="salary">
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -120,7 +120,7 @@ export default function PlanScreen() {
           {states.length ? (
             <div class="grid gap-x-10 gap-y-6 md:grid-cols-2">
               {states.map((b) => (
-                <button type="button" key={b.budget.categoryId} class="-m-2 rounded-2xl p-2 text-left transition hover:bg-sunken" onClick={() => setBudgetFor(b.budget.categoryId)} aria-label={`Edit the ${cats.get(b.budget.categoryId)?.name} budget`}>
+                <button type="button" key={b.budget.categoryId} class="-m-2 rounded-2xl p-2 text-left transition hover:bg-sunken" onClick={() => setBudgetFor(b.budget.categoryId)}>
                   <BudgetRow b={b} cat={cats.get(b.budget.categoryId)} code={base} />
                   {b.carry !== 0 && <p class="mt-1 text-xs text-subtle">Includes {formatMoney(b.carry, base, { sign: 'always' })} rolled over</p>}
                 </button>

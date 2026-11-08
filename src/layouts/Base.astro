@@ -2,6 +2,8 @@
 import { ClientRouter } from 'astro:transitions';
 import '@/styles/global.css';
 import { SITE, url } from '@/lib/site';
+import manrope from '../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
+import fraunces from '../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url';
 
 interface Props {
   title?: string;
@@ -25,6 +27,8 @@ const og = new URL(url('og.png'), Astro.site);
       content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     />
     <meta name="referrer" content="no-referrer" />
+    <link rel="preload" href={manrope} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fraunces} as="font" type="font/woff2" crossorigin />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}

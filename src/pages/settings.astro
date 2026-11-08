@@ -4,7 +4,7 @@ import PageHeader from '@/components/frame/PageHeader.astro';
 import SettingsScreen from '@/components/screens/SettingsScreen';
 ---
 
-<AppLayout title="Settings" section="settings" description="Accounts, categories, exchange rates, backups and deleting everything.">
+<AppLayout title="Settings" section="settings" fab={false} description="Accounts, categories, exchange rates, backups and deleting everything.">
   <PageHeader title="Settings" subtitle="Accounts, categories, rates and your data." icon="settings" />
   <SettingsScreen client:load />
 </AppLayout>

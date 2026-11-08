@@ -13,6 +13,7 @@ let persistence: Persistence | null = null;
 let starting: Promise<void> | null = null;
 let channel: BroadcastChannel | null = null;
 let saving: Promise<void> = Promise.resolve();
+let inFlight = 0;
 const listeners = new Set<Listener>();
 const history: { data: LedgerData; label: string }[] = [];
 
@@ -35,11 +36,18 @@ export function subscribe(fn: Listener): () => void {
 
 function persist() {
   const snapshot = state;
+  inFlight++;
   saving = saving
     .then(() => persistence?.save(snapshot))
     .then(() => channel?.postMessage({ type: 'saved' }))
-    .catch((err) => console.error('Ledger could not save', err));
+    .catch((err) => console.error('Ledger could not save', err))
+    .finally(() => inFlight--);
   return saving;
+}
+
+/** Called as the page hides or closes: if a write has not finished, keep a synchronous copy. */
+export function flushSync(): void {
+  if (inFlight > 0) persistence?.saveSync?.(state);
 }
 
 /** Loads saved data once, posts anything that fell due, and starts listening to other tabs. */
@@ -121,4 +129,5 @@ export function __reset(): void {
   history.length = 0;
   listeners.clear();
   saving = Promise.resolve();
+  inFlight = 0;
 }

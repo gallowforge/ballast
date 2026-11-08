@@ -58,7 +58,7 @@ export default function HomeScreen() {
   const payday = s.source === 'salary' ? addDays(s.cycle.end, 1) : null;
 
   return (
-    <div class="grid gap-5 lg:gap-6">
+    <div class="grid grid-cols-1 gap-5 lg:gap-6">
       {data.settings.demo && <DemoBanner />}
       <div class="flex flex-wrap items-end justify-between gap-3 animate-rise">
         <div>
