@@ -7,7 +7,13 @@ import { gzipSync } from 'node:zlib';
 
 const DIST = 'dist';
 const BUDGET = { site: 12, app: 65 }; // KB gzip per page
-const SITE_PAGES = new Set(['index.html', 'about/index.html', 'privacy/index.html', 'offline/index.html', '404.html']);
+const SITE_PAGES = new Set([
+  'index.html',
+  'about/index.html',
+  'privacy/index.html',
+  'offline/index.html',
+  '404.html',
+]);
 
 function pages(dir, base = '') {
   return readdirSync(dir).flatMap((f) => {
@@ -29,7 +35,9 @@ function deps(file, seen) {
   seen.add(file);
   const code = readFileSync(join(DIST, file), 'utf8');
   // Static imports only: `import ... from "./x.js"` and `import "./x.js"`, not `import("./x.js")`.
-  for (const m of code.matchAll(/(?:^|[;\s}])import\s*(?:[\w${},*\s]+from\s*)?["']([^"']+\.js)["']/g)) {
+  for (const m of code.matchAll(
+    /(?:^|[;\s}])import\s*(?:[\w${},*\s]+from\s*)?["']([^"']+\.js)["']/g,
+  )) {
     deps(posix.normalize(posix.join(dirname(file), m[1])), seen);
   }
 }
@@ -40,15 +48,19 @@ const rows = [];
 for (const page of pages(DIST).sort()) {
   const html = readFileSync(join(DIST, page), 'utf8');
   const entries = new Set();
-  for (const m of html.matchAll(/(?:src|component-url|renderer-url)="([^"]+\.js)"/g)) entries.add(m[1].replace(base, ''));
-  for (const m of html.matchAll(/import\s*["']([^"']+\.js)["']/g)) entries.add(m[1].replace(base, ''));
+  for (const m of html.matchAll(/(?:src|component-url|renderer-url)="([^"]+\.js)"/g))
+    entries.add(m[1].replace(base, ''));
+  for (const m of html.matchAll(/import\s*["']([^"']+\.js)["']/g))
+    entries.add(m[1].replace(base, ''));
   const seen = new Set();
   for (const e of entries) deps(e.replace(/^\//, ''), seen);
   const total = [...seen].reduce((s, f) => s + gz(f), 0) / 1024;
   const budget = SITE_PAGES.has(page) ? BUDGET.site : BUDGET.app;
   const ok = total <= budget;
   if (!ok) failed = true;
-  rows.push(`${ok ? 'ok  ' : 'OVER'} ${page.padEnd(26)} ${total.toFixed(1).padStart(6)} KB of ${budget} KB`);
+  rows.push(
+    `${ok ? 'ok  ' : 'OVER'} ${page.padEnd(26)} ${total.toFixed(1).padStart(6)} KB of ${budget} KB`,
+  );
 }
 console.log(rows.join('\n'));
 if (failed) {

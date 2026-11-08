@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { backupJSON, backupFileName, mergeData, parseBackup, sanitize, transactionsCSV } from '../backup';
+import {
+  backupJSON,
+  backupFileName,
+  mergeData,
+  parseBackup,
+  sanitize,
+  transactionsCSV,
+} from '../backup';
 import { emptyData } from '../defaults';
 import { parseCSV } from '../import/csv';
 import { addTxn, setSettings } from '../store/ops';
@@ -11,7 +18,10 @@ beforeEach(() => store.__reset());
 
 describe('the store', () => {
   it('starts empty, then loads what was saved', async () => {
-    const saved = data({ accounts: [spending], settings: { ...emptyData().settings, name: 'Sam' } });
+    const saved = data({
+      accounts: [spending],
+      settings: { ...emptyData().settings, name: 'Sam' },
+    });
     await store.start(memoryPersistence(saved), () => '2026-11-08');
     expect(store.isReady()).toBe(true);
     expect(store.getState().settings.name).toBe('Sam');
@@ -19,7 +29,17 @@ describe('the store', () => {
 
   it('posts what fell due while it was closed, and saves that', async () => {
     const p = memoryPersistence(
-      data({ accounts: [savings, spending], salary: { active: true, amount: 100_000, fromAccountId: 'sav', toAccountId: 'cur', autoPost: true, startedOn: '2026-11-01' } }),
+      data({
+        accounts: [savings, spending],
+        salary: {
+          active: true,
+          amount: 100_000,
+          fromAccountId: 'sav',
+          toAccountId: 'cur',
+          autoPost: true,
+          startedOn: '2026-11-01',
+        },
+      }),
     );
     await store.start(p, () => '2026-11-08');
     expect(store.getState().txns).toHaveLength(1);
@@ -76,8 +96,21 @@ describe('the store', () => {
 
 describe('backups', () => {
   const full = () =>
-    addTxn({ date: '2026-11-02', kind: 'expense', accountId: 'cur', amount: 4_250, payee: 'Talabat', categoryId: 'delivery', source: 'manual', note: 'lunch, "big"' })(
-      data({ accounts: [savings, spending, wallet], rates: { USD: { rate: '0.3', on: '2026-11-01' } }, target: { date: '2028-06-01', floor: 500_000, label: 'Graduation' } }),
+    addTxn({
+      date: '2026-11-02',
+      kind: 'expense',
+      accountId: 'cur',
+      amount: 4_250,
+      payee: 'Talabat',
+      categoryId: 'delivery',
+      source: 'manual',
+      note: 'lunch, "big"',
+    })(
+      data({
+        accounts: [savings, spending, wallet],
+        rates: { USD: { rate: '0.3', on: '2026-11-01' } },
+        target: { date: '2028-06-01', floor: 500_000, label: 'Graduation' },
+      }),
     );
 
   it('round-trips through a backup file', () => {
@@ -91,7 +124,8 @@ describe('backups', () => {
     }
   });
 
-  it('names the file with the date', () => expect(backupFileName('2026-11-08')).toBe('ledger-backup-2026-11-08.json'));
+  it('names the file with the date', () =>
+    expect(backupFileName('2026-11-08')).toBe('ledger-backup-2026-11-08.json'));
 
   it.each([
     ['not json', 'not valid JSON'],
@@ -107,8 +141,20 @@ describe('backups', () => {
     const d = full();
     const raw = JSON.parse(JSON.stringify(d));
     raw.txns.push({ id: 'bad', date: '2026-02-31', amount: 5, kind: 'expense', accountId: 'cur' });
-    raw.txns.push({ id: 'float', date: '2026-11-01', amount: 1.5, kind: 'expense', accountId: 'cur' });
-    raw.txns.push({ id: 'orphan', date: '2026-11-01', amount: 1, kind: 'expense', accountId: 'nope' });
+    raw.txns.push({
+      id: 'float',
+      date: '2026-11-01',
+      amount: 1.5,
+      kind: 'expense',
+      accountId: 'cur',
+    });
+    raw.txns.push({
+      id: 'orphan',
+      date: '2026-11-01',
+      amount: 1,
+      kind: 'expense',
+      accountId: 'nope',
+    });
     raw.accounts.push('junk');
     raw.rates.XYZ = { rate: '1', on: '2026-11-01' };
     raw.salary = { amount: 1 };
@@ -126,7 +172,14 @@ describe('backups', () => {
 
   it('merges a backup into existing data without duplicating', () => {
     const d = full();
-    const other = addTxn({ date: '2026-11-05', kind: 'expense', accountId: 'cur', amount: 1, payee: 'New', source: 'manual' })(d);
+    const other = addTxn({
+      date: '2026-11-05',
+      kind: 'expense',
+      accountId: 'cur',
+      amount: 1,
+      payee: 'New',
+      source: 'manual',
+    })(d);
     const merged = mergeData(d, other);
     expect(merged.txns).toHaveLength(2);
     expect(mergeData(merged, other).txns).toHaveLength(2);
@@ -134,15 +187,43 @@ describe('backups', () => {
   });
 
   it('skips imported lines already present under another id', () => {
-    const d = { ...full(), txns: [txn({ id: 'a', date: '2026-11-01', amount: 1, fingerprint: 'fp#1' })] };
-    const incoming = { ...full(), txns: [txn({ id: 'b', date: '2026-11-01', amount: 1, fingerprint: 'fp#1' })] };
+    const d = {
+      ...full(),
+      txns: [txn({ id: 'a', date: '2026-11-01', amount: 1, fingerprint: 'fp#1' })],
+    };
+    const incoming = {
+      ...full(),
+      txns: [txn({ id: 'b', date: '2026-11-01', amount: 1, fingerprint: 'fp#1' })],
+    };
     expect(mergeData(d, incoming).txns.map((t) => t.id)).toEqual(['a']);
   });
 
   it('exports transactions as a spreadsheet-friendly CSV', () => {
     const rows = parseCSV(transactionsCSV(full()));
-    expect(rows[0]).toEqual(['Date', 'Type', 'Account', 'To account', 'Payee', 'Category', 'Amount', 'Currency', 'Amount (KWD)', 'Note']);
-    expect(rows[1]).toEqual(['2026-11-02', 'expense', 'Current', '', 'Talabat', 'Food delivery', '-4.250', 'KWD', '-4.250', 'lunch, "big"']);
+    expect(rows[0]).toEqual([
+      'Date',
+      'Type',
+      'Account',
+      'To account',
+      'Payee',
+      'Category',
+      'Amount',
+      'Currency',
+      'Amount (KWD)',
+      'Note',
+    ]);
+    expect(rows[1]).toEqual([
+      '2026-11-02',
+      'expense',
+      'Current',
+      '',
+      'Talabat',
+      'Food delivery',
+      '-4.250',
+      'KWD',
+      '-4.250',
+      'lunch, "big"',
+    ]);
   });
 });
 

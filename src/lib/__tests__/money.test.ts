@@ -52,8 +52,11 @@ describe('parseMinor', () => {
 });
 
 describe('parseAmountInput', () => {
-  it('accepts a positive amount in the currency', () => expect(parseAmountInput('4.750', 'KWD')).toBe(4750));
-  it.each(['0', '-1', '0.000', 'x', '1.234', ''])('rejects %j for USD', (s) => expect(parseAmountInput(s, 'USD')).toBeNull());
+  it('accepts a positive amount in the currency', () =>
+    expect(parseAmountInput('4.750', 'KWD')).toBe(4750));
+  it.each(['0', '-1', '0.000', 'x', '1.234', ''])('rejects %j for USD', (s) =>
+    expect(parseAmountInput(s, 'USD')).toBeNull(),
+  );
 });
 
 describe('formatting', () => {
@@ -73,7 +76,12 @@ describe('formatting', () => {
   });
   it('labels dinars as KD', () => expect(formatMoney(12500, 'KWD')).toBe('12.500 KD'));
   it('splits an amount for typography', () => {
-    expect(moneyParts(-1234567, 'KWD')).toEqual({ sign: '−', whole: '1,234', fraction: '567', unit: 'KD' });
+    expect(moneyParts(-1234567, 'KWD')).toEqual({
+      sign: '−',
+      whole: '1,234',
+      fraction: '567',
+      unit: 'KD',
+    });
     expect(moneyParts(500, 'JPY')).toEqual({ sign: '', whole: '500', fraction: '', unit: 'JPY' });
   });
   it.each([
@@ -118,8 +126,10 @@ describe('exchange rates', () => {
   it('converts dinars to yen across exponents', () => {
     expect(convert(1000, 'KWD', 'JPY', '490.5')).toBe(491);
   });
-  it('keeps negative amounts symmetric', () => expect(convert(-1299, 'USD', 'KWD', '0.30705')).toBe(-3989));
-  it('is the identity for the same currency', () => expect(convert(123, 'KWD', 'KWD', 'x')).toBe(123));
+  it('keeps negative amounts symmetric', () =>
+    expect(convert(-1299, 'USD', 'KWD', '0.30705')).toBe(-3989));
+  it('is the identity for the same currency', () =>
+    expect(convert(123, 'KWD', 'KWD', 'x')).toBe(123));
   it('returns null for a bad rate', () => expect(convert(100, 'USD', 'KWD', '')).toBeNull());
   it('works out the rate a statement implies', () => {
     expect(impliedRate(1299, 'USD', 3989, 'KWD')).toBe('0.307082');

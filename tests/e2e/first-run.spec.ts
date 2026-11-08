@@ -35,7 +35,10 @@ test('demo data can be explored and cleared', async ({ page }) => {
   await expect(page.getByText('Demo data for a made-up person.')).toBeVisible();
   await open(page, 'settings/');
   await page.getByRole('button', { name: /Delete everything/ }).click();
-  await page.getByRole('dialog', { name: 'Delete everything?' }).getByRole('button', { name: 'Delete everything' }).click();
+  await page
+    .getByRole('dialog', { name: 'Delete everything?' })
+    .getByRole('button', { name: 'Delete everything' })
+    .click();
   await expect(page.getByRole('status')).toContainText('Everything was deleted');
   await open(page, 'home/');
   await expect(page.getByRole('button', { name: /Set up in a minute/ })).toBeVisible();

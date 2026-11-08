@@ -1,4 +1,13 @@
-import { addDays, cycleAt, cycleOf, diffDays, formatWeekday, ordinal, plural, type ISODate } from '../dates';
+import {
+  addDays,
+  cycleAt,
+  cycleOf,
+  diffDays,
+  formatWeekday,
+  ordinal,
+  plural,
+  type ISODate,
+} from '../dates';
 import { formatMoney, type Minor } from '../money/money';
 import type { LedgerData, Recurring, Txn, Unit } from '../model';
 import { categoryMap } from '../ledger';
@@ -81,7 +90,8 @@ export function detectRecurring(data: LedgerData, today: ISODate): RecurringSugg
     const amounts = list.map((t) => t.amount);
     const mid = median(amounts.slice(-4));
     const recent = list.slice(-3);
-    if (recent.some((t) => Math.abs(t.amount - mid) > mid * 0.1 && t !== list[list.length - 1])) continue;
+    if (recent.some((t) => Math.abs(t.amount - mid) > mid * 0.1 && t !== list[list.length - 1]))
+      continue;
     const last = list[list.length - 1]!;
     if (diffDays(last.date, today) > gap * 1.6) continue;
     if (tracked(data.recurring, last.payee, last.amount)) continue;
@@ -146,12 +156,15 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
       }
       // The category that moved most.
       const nowCats = byCategory(data, cur.start, today);
-      const thenCats = new Map(byCategory(data, prev.start, prevSameDay).map((c) => [c.categoryId, c.total]));
+      const thenCats = new Map(
+        byCategory(data, prev.start, prevSameDay).map((c) => [c.categoryId, c.total]),
+      );
       let best: { id: string; diff: Minor; now: Minor; then: Minor } | null = null;
       for (const c of nowCats) {
         if (!c.categoryId) continue;
         const diff = c.total - (thenCats.get(c.categoryId) ?? 0);
-        if (!best || diff > best.diff) best = { id: c.categoryId, diff, now: c.total, then: thenCats.get(c.categoryId) ?? 0 };
+        if (!best || diff > best.diff)
+          best = { id: c.categoryId, diff, now: c.total, then: thenCats.get(c.categoryId) ?? 0 };
       }
       if (best && best.diff > 0 && best.diff >= now * 0.08) {
         out.push({
@@ -185,7 +198,9 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
   }
 
   // A purchase much bigger than usual for its category, in the last week.
-  const recent = data.txns.filter((t) => t.kind === 'expense' && diffDays(t.date, today) <= 7 && t.date <= today);
+  const recent = data.txns.filter(
+    (t) => t.kind === 'expense' && diffDays(t.date, today) <= 7 && t.date <= today,
+  );
   for (const t of recent.sort((a, b) => b.base - a.base).slice(0, 1)) {
     const peers = data.txns
       .filter((x) => x.kind === 'expense' && x.categoryId === t.categoryId && x.id !== t.id)
@@ -203,13 +218,17 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
   }
 
   // Recurring costs, as a year.
-  const costs = data.recurring.filter((r) => r.kind === 'expense' && (!r.endOn || r.endOn >= today));
+  const costs = data.recurring.filter(
+    (r) => r.kind === 'expense' && (!r.endOn || r.endOn >= today),
+  );
   if (costs.length >= 2) {
     const year = costs.reduce((s, r) => s + yearlyEquivalent(r), 0);
     const month = costs.reduce((s, r) => s + monthlyEquivalent(r), 0);
     const salary = data.salary?.active ? data.salary.amount : 0;
     const savingsIds = new Set(data.accounts.filter((x) => x.role === 'savings').map((x) => x.id));
-    const fromSalary = costs.filter((r) => !savingsIds.has(r.accountId)).reduce((s, r) => s + monthlyEquivalent(r), 0);
+    const fromSalary = costs
+      .filter((r) => !savingsIds.has(r.accountId))
+      .reduce((s, r) => s + monthlyEquivalent(r), 0);
     out.push({
       id: `fixed:${year}`,
       tone: 'neutral',
@@ -217,7 +236,9 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
       title: `Your ${costs.length} recurring costs add up to ${money(year)} a year`,
       body:
         `That is ${money(month)} a month` +
-        (salary && fromSalary ? `; the ones paid from your spending account take ${Math.round((fromSalary / salary) * 100)}% of your salary.` : '.'),
+        (salary && fromSalary
+          ? `; the ones paid from your spending account take ${Math.round((fromSalary / salary) * 100)}% of your salary.`
+          : '.'),
       action: { kind: 'link', label: 'Review them', href: 'plan/#recurring' },
     });
   }
@@ -232,7 +253,10 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
         id: `kept:${prev.start}`,
         tone: kept >= 0 ? 'good' : 'neutral',
         icon: 'piggy',
-        title: kept >= 0 ? `You kept ${kept}% of what came in last month` : `Last month cost ${money(out_ - inc)} more than came in`,
+        title:
+          kept >= 0
+            ? `You kept ${kept}% of what came in last month`
+            : `Last month cost ${money(out_ - inc)} more than came in`,
         body: `${money(inc)} in, ${money(out_)} out.`,
       });
     }
@@ -275,7 +299,8 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
 
 function nextWeekday(from: ISODate, w: number): ISODate {
   let d = from;
-  for (let i = 0; i < 7; i++, d = addDays(d, 1)) if (new Date(`${d}T00:00:00Z`).getUTCDay() === w) return d;
+  for (let i = 0; i < 7; i++, d = addDays(d, 1))
+    if (new Date(`${d}T00:00:00Z`).getUTCDay() === w) return d;
   return from;
 }
 

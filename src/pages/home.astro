@@ -3,6 +3,10 @@ import AppLayout from '@/layouts/AppLayout.astro';
 import HomeScreen from '@/components/screens/HomeScreen';
 ---
 
-<AppLayout title="Home" section="home" description="What is safe to spend today, how long your savings last, and what is coming up.">
+<AppLayout
+  title="Home"
+  section="home"
+  description="What is safe to spend today, how long your savings last, and what is coming up."
+>
   <HomeScreen client:load />
 </AppLayout>

@@ -61,11 +61,15 @@ function toCells(items: TextItem[]): Cell[] {
     const last = cells[cells.length - 1];
     const gap = last ? it.x - last.x1 : Infinity;
     if (last && gap < Math.max(2.5, charW * 1.3)) {
-      last.text += (gap > charW * 0.2 && !last.text.endsWith(' ') && !it.str.startsWith(' ') ? ' ' : '') + it.str;
+      last.text +=
+        (gap > charW * 0.2 && !last.text.endsWith(' ') && !it.str.startsWith(' ') ? ' ' : '') +
+        it.str;
       last.x1 = Math.max(last.x1, it.x + it.w);
     } else cells.push({ text: it.str, x0: it.x, x1: it.x + it.w });
   }
-  return cells.map((c) => ({ ...c, text: c.text.replace(/\s+/g, ' ').trim() })).filter((c) => c.text);
+  return cells
+    .map((c) => ({ ...c, text: c.text.replace(/\s+/g, ' ').trim() }))
+    .filter((c) => c.text);
 }
 
 interface Column {
@@ -114,14 +118,18 @@ export function linesToTable(lines: readonly Line[]): string[][] | null {
 
   if (!cols.some((c) => c.role === 'description')) {
     // Give text a home: the gap after the last date column.
-    const lastDate = Math.max(...cols.filter((c) => c.role === 'date' || c.role === 'valueDate').map((c) => c.x1));
+    const lastDate = Math.max(
+      ...cols.filter((c) => c.role === 'date' || c.role === 'valueDate').map((c) => c.x1),
+    );
     cols.push({ role: 'description', name: 'Description', x0: lastDate + 1, x1: lastDate + 2 });
   }
   cols.sort((a, b) => a.x0 - b.x0);
   const out: string[][] = [cols.map((c) => c.name)];
   const index = (role: Role) => cols!.findIndex((c) => c.role === role);
   const descIdx = index('description');
-  const dateCols = cols.map((c, i) => (c.role === 'date' || c.role === 'valueDate' ? i : -1)).filter((i) => i >= 0);
+  const dateCols = cols
+    .map((c, i) => (c.role === 'date' || c.role === 'valueDate' ? i : -1))
+    .filter((i) => i >= 0);
   const numCols = cols.map((c, i) => (NUMERIC.includes(c.role) ? i : -1)).filter((i) => i >= 0);
   const refIdx = index('reference');
   const curIdx = index('currency');
@@ -147,7 +155,10 @@ export function linesToTable(lines: readonly Line[]): string[][] | null {
         let bestD = Infinity;
         for (const i of numCols) {
           const c = cols[i]!;
-          const d = Math.min(Math.abs(cell.x1 - c.x1), Math.abs((cell.x0 + cell.x1) / 2 - (c.x0 + c.x1) / 2));
+          const d = Math.min(
+            Math.abs(cell.x1 - c.x1),
+            Math.abs((cell.x0 + cell.x1) / 2 - (c.x0 + c.x1) / 2),
+          );
           if (d < bestD) {
             best = i;
             bestD = d;
@@ -158,15 +169,26 @@ export function linesToTable(lines: readonly Line[]): string[][] | null {
         continue;
       }
       const center = (cell.x0 + cell.x1) / 2;
-      if (refIdx >= 0 && center >= cols[refIdx]!.x0 - 4 && center <= cols[refIdx]!.x1 + 30) cells[refIdx] = cell.text;
-      else if (curIdx >= 0 && /^[A-Z]{3}$/.test(cell.text) && Math.abs(center - (cols[curIdx]!.x0 + cols[curIdx]!.x1) / 2) < 30)
+      if (refIdx >= 0 && center >= cols[refIdx]!.x0 - 4 && center <= cols[refIdx]!.x1 + 30)
+        cells[refIdx] = cell.text;
+      else if (
+        curIdx >= 0 &&
+        /^[A-Z]{3}$/.test(cell.text) &&
+        Math.abs(center - (cols[curIdx]!.x0 + cols[curIdx]!.x1) / 2) < 30
+      )
         cells[curIdx] = cell.text;
       else cells[descIdx] = `${cells[descIdx]} ${cell.text}`.trim();
     }
     if (dates > 0) {
       row = cells;
       out.push(row);
-    } else if (row && numbers === 0 && cells[descIdx] && line.page === lastPage && line.y - lastY < line.h * 2.6) {
+    } else if (
+      row &&
+      numbers === 0 &&
+      cells[descIdx] &&
+      line.page === lastPage &&
+      line.y - lastY < line.h * 2.6
+    ) {
       row[descIdx] = `${row[descIdx]} ${cells[descIdx]}`.trim();
     } else if (numbers > 0 || cells[descIdx]) {
       // Opening and closing balance lines keep their place so the parser can read them.
@@ -187,7 +209,9 @@ function clusterTable(lines: readonly Line[]): string[][] | null {
   const rows = lines.filter((l) => l.cells[0] && looksLikeDate(l.cells[0].text));
   if (rows.length < 2) return null;
   const edges: number[] = [];
-  for (const l of rows) for (const c of l.cells.slice(1)) if (looksLikeAmount(c.text) && /[.,]\d/.test(c.text)) edges.push(c.x1);
+  for (const l of rows)
+    for (const c of l.cells.slice(1))
+      if (looksLikeAmount(c.text) && /[.,]\d/.test(c.text)) edges.push(c.x1);
   edges.sort((a, b) => a - b);
   const clusters: number[][] = [];
   for (const e of edges) {
@@ -195,7 +219,9 @@ function clusterTable(lines: readonly Line[]): string[][] | null {
     if (last && e - last[last.length - 1]! < 18) last.push(e);
     else clusters.push([e]);
   }
-  const centers = clusters.filter((c) => c.length >= Math.max(2, rows.length * 0.15)).map((c) => c.reduce((s, v) => s + v, 0) / c.length);
+  const centers = clusters
+    .filter((c) => c.length >= Math.max(2, rows.length * 0.15))
+    .map((c) => c.reduce((s, v) => s + v, 0) / c.length);
   if (!centers.length) return null;
   const names =
     centers.length >= 3

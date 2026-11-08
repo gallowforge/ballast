@@ -8,7 +8,19 @@ export interface Slice {
 }
 
 /** A ring of shares with something meaningful in the middle. */
-export function Donut({ slices, size = 200, thickness = 22, children, label }: { slices: Slice[]; size?: number; thickness?: number; children?: ComponentChildren; label: string }) {
+export function Donut({
+  slices,
+  size = 200,
+  thickness = 22,
+  children,
+  label,
+}: {
+  slices: Slice[];
+  size?: number;
+  thickness?: number;
+  children?: ComponentChildren;
+  label: string;
+}) {
   const total = slices.reduce((s, x) => s + x.value, 0) || 1;
   const r = (size - thickness) / 2;
   const c = 2 * Math.PI * r;
@@ -16,8 +28,22 @@ export function Donut({ slices, size = 200, thickness = 22, children, label }: {
   let offset = 0;
   return (
     <div class="relative grid place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={label} class="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" style={{ stroke: 'var(--sunken)' }} stroke-width={thickness} />
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        role="img"
+        aria-label={label}
+        class="-rotate-90"
+      >
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          style={{ stroke: 'var(--sunken)' }}
+          stroke-width={thickness}
+        />
         {slices.map((s, i) => {
           const len = (s.value / total) * c;
           const dash = Math.max(0, len - gap);

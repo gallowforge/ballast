@@ -13,11 +13,20 @@ interface Props {
 }
 
 /** An amount with the fils drawn lighter than the dinars, and the unit small. */
-export function Money({ value, code, sign = 'auto', tone = 'none', count = false, unit = true, class: cls = '' }: Props) {
+export function Money({
+  value,
+  code,
+  sign = 'auto',
+  tone = 'none',
+  count = false,
+  unit = true,
+  class: cls = '',
+}: Props) {
   const counted = useCountUp(value);
   const shown = count ? counted : value;
   const p = moneyParts(shown, code, { sign });
-  const colour = tone === 'income' || (tone === 'auto' && value > 0 && sign === 'always') ? 'text-good' : '';
+  const colour =
+    tone === 'income' || (tone === 'auto' && value > 0 && sign === 'always') ? 'text-good' : '';
   return (
     <span class={`money ${colour} ${cls}`}>
       {p.sign}

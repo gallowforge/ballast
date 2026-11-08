@@ -12,7 +12,8 @@ interface Props {
   footer?: ComponentChildren;
 }
 
-const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 /** A modal sheet: bottom sheet on phones, centred dialog on wider screens. Traps focus, closes on
  *  Escape or a tap outside, and gives focus back to whatever opened it. */
@@ -24,7 +25,8 @@ export function Sheet({ open, onClose, title, description, wide, children, foote
     if (!open) return;
     const before = document.activeElement as HTMLElement | null;
     const el = ref.current!;
-    const first = el.querySelector<HTMLElement>('[data-autofocus]') ?? el.querySelector<HTMLElement>(FOCUSABLE);
+    const first =
+      el.querySelector<HTMLElement>('[data-autofocus]') ?? el.querySelector<HTMLElement>(FOCUSABLE);
     first?.focus({ preventScroll: true });
     const prevOverflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = 'hidden';
@@ -33,7 +35,9 @@ export function Sheet({ open, onClose, title, description, wide, children, foote
         e.stopPropagation();
         onClose();
       } else if (e.key === 'Tab') {
-        const items = [...el.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((n) => n.offsetParent !== null);
+        const items = [...el.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+          (n) => n.offsetParent !== null,
+        );
         if (!items.length) return;
         const firstItem = items[0]!;
         const last = items[items.length - 1]!;
@@ -72,18 +76,23 @@ export function Sheet({ open, onClose, title, description, wide, children, foote
               {title}
             </h2>
             {description && (
-              <p id={descId} class="mt-1 text-sm text-muted">
+              <p id={descId} class="text-muted mt-1 text-sm">
                 {description}
               </p>
             )}
           </div>
-          <button type="button" class="btn btn-ghost btn-sm btn-icon -mr-2" onClick={onClose} aria-label="Close">
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm btn-icon -mr-2"
+            onClick={onClose}
+            aria-label="Close"
+          >
             <Icon name="x" />
           </button>
         </div>
         <div class="px-5 pt-4 pb-5 sm:px-6 sm:pb-6">{children}</div>
         {footer && (
-          <div class="sticky bottom-0 flex flex-wrap items-center justify-end gap-2 border-t border-line bg-raised/95 px-5 py-3 backdrop-blur sm:px-6">
+          <div class="border-line bg-raised/95 sticky bottom-0 flex flex-wrap items-center justify-end gap-2 border-t px-5 py-3 backdrop-blur sm:px-6">
             {footer}
           </div>
         )}

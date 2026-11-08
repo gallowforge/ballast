@@ -2,7 +2,36 @@
  * Turns raw statement text into a readable payee: "POS PURCHASE 4111XXXXXXXX1234 TALABAT KUWAIT KW
  * 08/11 14:32" becomes "Talabat". Conservative: when in doubt it keeps words.
  */
-const ACRONYMS = new Set(['ATM', 'KNPC', 'KNET', 'POS', 'KFH', 'NBK', 'STC', 'IKEA', 'H&M', 'USA', 'UK', 'UAE', 'BBQ', 'KFC', 'TGI', 'HSBC', 'IBAN', 'DHL', 'UPS', 'PS', 'TV', 'ID', 'MOI', 'PACI', 'KSA', 'AUB', 'CBK', 'GCC']);
+const ACRONYMS = new Set([
+  'ATM',
+  'KNPC',
+  'KNET',
+  'POS',
+  'KFH',
+  'NBK',
+  'STC',
+  'IKEA',
+  'H&M',
+  'USA',
+  'UK',
+  'UAE',
+  'BBQ',
+  'KFC',
+  'TGI',
+  'HSBC',
+  'IBAN',
+  'DHL',
+  'UPS',
+  'PS',
+  'TV',
+  'ID',
+  'MOI',
+  'PACI',
+  'KSA',
+  'AUB',
+  'CBK',
+  'GCC',
+]);
 
 const LEADING = [
   /^(POS|ECOM|E-COM|E-COMMERCE|ONLINE|CONTACTLESS|APPLE ?PAY|GOOGLE ?PAY|SAMSUNG ?PAY)\b[\s:-]*/,
@@ -58,7 +87,10 @@ export function cleanPayee(raw: string): string {
     for (const re of TRAILING) s = s.replace(re, '').trim();
     if (s === before || s.split(' ').length <= 1) break;
   }
-  s = s.replace(/[*_]+/g, ' ').replace(/\s+/g, ' ').replace(/^[\s\-:,.]+|[\s\-:,.]+$/g, '');
+  s = s
+    .replace(/[*_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^[\s\-:,.]+|[\s\-:,.]+$/g, '');
   if (s.length < 2) return original.length ? titleCase(original.slice(0, 40)) : 'Unknown';
   return titleCase(s.slice(0, 48)).trim();
 }

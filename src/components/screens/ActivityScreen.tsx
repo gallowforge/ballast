@@ -111,7 +111,10 @@ export default function ActivityScreen() {
     apply(deleteTxns([...picked]), 'Delete');
     setPicked(new Set());
     setSelecting(false);
-    toast({ message: `Deleted ${plural(n, 'transaction')}`, action: { label: 'Undo', run: () => undo() } });
+    toast({
+      message: `Deleted ${plural(n, 'transaction')}`,
+      action: { label: 'Undo', run: () => undo() },
+    });
   };
   const bulkCategory = (categoryId: string) => {
     if (!categoryId) return;
@@ -119,15 +122,23 @@ export default function ActivityScreen() {
     apply(categorizeTxns([...picked], categoryId), 'Categorise');
     setPicked(new Set());
     setSelecting(false);
-    toast({ message: `Moved ${plural(n, 'transaction')} to ${cats.get(categoryId)?.name}`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
+    toast({
+      message: `Moved ${plural(n, 'transaction')} to ${cats.get(categoryId)?.name}`,
+      tone: 'good',
+      action: { label: 'Undo', run: () => undo() },
+    });
   };
 
   return (
     <div class="grid grid-cols-1 gap-4">
-      <div class="card card-pad grid gap-4 animate-rise">
+      <div class="card card-pad animate-rise grid gap-4">
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative min-w-[14rem] flex-1">
-            <Icon name="search" size={18} class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-subtle" />
+            <Icon
+              name="search"
+              size={18}
+              class="text-subtle pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2"
+            />
             <input
               id="activity-search"
               class="input pl-10"
@@ -139,7 +150,12 @@ export default function ActivityScreen() {
             />
           </div>
           {data.accounts.length > 1 && (
-            <select class="select w-auto min-w-[11rem]" aria-label="Account" value={account} onChange={(e) => setAccount((e.target as HTMLSelectElement).value)}>
+            <select
+              class="select w-auto min-w-[11rem]"
+              aria-label="Account"
+              value={account}
+              onChange={(e) => setAccount((e.target as HTMLSelectElement).value)}
+            >
               <option value="all">All accounts</option>
               {data.accounts.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -150,13 +166,24 @@ export default function ActivityScreen() {
           )}
           {!searching && (
             <div class="flex items-center gap-1" role="group" aria-label="Month">
-              <button type="button" class="btn btn-soft btn-sm btn-icon" aria-label="Previous month" onClick={() => setOffset(offset - 1)}>
+              <button
+                type="button"
+                class="btn btn-soft btn-sm btn-icon"
+                aria-label="Previous month"
+                onClick={() => setOffset(offset - 1)}
+              >
                 <Icon name="chevron-left" size={18} />
               </button>
               <span class="min-w-[9.5rem] text-center font-bold" aria-live="polite">
                 {offset === 0 ? 'This month' : formatMonth(cycle.start)}
               </span>
-              <button type="button" class="btn btn-soft btn-sm btn-icon" aria-label="Next month" disabled={offset >= 0} onClick={() => setOffset(offset + 1)}>
+              <button
+                type="button"
+                class="btn btn-soft btn-sm btn-icon"
+                aria-label="Next month"
+                disabled={offset >= 0}
+                onClick={() => setOffset(offset + 1)}
+              >
                 <Icon name="chevron-right" size={18} />
               </button>
             </div>
@@ -164,20 +191,31 @@ export default function ActivityScreen() {
         </div>
         <div class="scroll-x -mx-1 flex gap-2 px-1" role="group" aria-label="Show">
           {FILTERS.map((f) => (
-            <button type="button" key={f.id} class="chip" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
+            <button
+              type="button"
+              key={f.id}
+              class="chip"
+              aria-pressed={filter === f.id}
+              onClick={() => setFilter(f.id)}
+            >
               {f.label}
             </button>
           ))}
-          <button type="button" class="chip ml-auto" aria-pressed={selecting} onClick={() => (setSelecting(!selecting), setPicked(new Set()))}>
+          <button
+            type="button"
+            class="chip ml-auto"
+            aria-pressed={selecting}
+            onClick={() => (setSelecting(!selecting), setPicked(new Set()))}
+          >
             <Icon name="check" size={15} /> Select
           </button>
         </div>
-        <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted" aria-live="polite">
+        <div class="text-muted flex flex-wrap gap-x-6 gap-y-1 text-sm" aria-live="polite">
           <span>
-            Spent <Money value={spent} code={base} class="font-bold text-fg" />
+            Spent <Money value={spent} code={base} class="text-fg font-bold" />
           </span>
           <span>
-            Money in <Money value={earned} code={base} class="font-bold text-good" />
+            Money in <Money value={earned} code={base} class="text-good font-bold" />
           </span>
           <span>{plural(list.length, 'transaction')}</span>
           {searching && <span>across all time</span>}
@@ -185,9 +223,18 @@ export default function ActivityScreen() {
       </div>
 
       {selecting && picked.size > 0 && (
-        <div class="card sticky top-[4.5rem] z-10 flex flex-wrap items-center gap-2 px-4 py-3 animate-pop" role="region" aria-label="Selected transactions">
+        <div
+          class="card animate-pop sticky top-[4.5rem] z-10 flex flex-wrap items-center gap-2 px-4 py-3"
+          role="region"
+          aria-label="Selected transactions"
+        >
           <span class="mr-auto font-bold">{plural(picked.size, 'selected', 'selected')}</span>
-          <select class="select w-auto" aria-label="Set a category for the selected transactions" onChange={(e) => bulkCategory((e.target as HTMLSelectElement).value)} value="">
+          <select
+            class="select w-auto"
+            aria-label="Set a category for the selected transactions"
+            onChange={(e) => bulkCategory((e.target as HTMLSelectElement).value)}
+            value=""
+          >
             <option value="">Set category…</option>
             {data.categories
               .filter((c) => !c.archived)
@@ -206,7 +253,12 @@ export default function ActivityScreen() {
       {groups.length === 0 ? (
         <div class="card">
           {data.txns.length === 0 ? (
-            <Empty level={2} icon="activity" title="No transactions yet" body="Add one with the + button or press N. Or import a bank statement to bring in months at once.">
+            <Empty
+              level={2}
+              icon="activity"
+              title="No transactions yet"
+              body="Add one with the + button or press N. Or import a bank statement to bring in months at once."
+            >
               <button type="button" class="btn btn-gold btn-sm" onClick={() => openTxn()}>
                 <Icon name="plus" size={16} /> Add a transaction
               </button>
@@ -215,43 +267,76 @@ export default function ActivityScreen() {
               </a>
             </Empty>
           ) : (
-            <Empty level={2} icon="search" title="Nothing matches" body={searching ? `No transaction mentions “${query}”.` : 'Nothing here for this month and filter.'} />
+            <Empty
+              level={2}
+              icon="search"
+              title="Nothing matches"
+              body={
+                searching
+                  ? `No transaction mentions “${query}”.`
+                  : 'Nothing here for this month and filter.'
+              }
+            />
           )}
         </div>
       ) : (
         <div class="grid gap-4">
           {groups.map((g, gi) => (
-            <section key={g.date} class="card card-pad animate-row" style={{ animationDelay: `${Math.min(gi, 8) * 35}ms` }} aria-label={formatDay(g.date)}>
+            <section
+              key={g.date}
+              class="card card-pad animate-row"
+              style={{ animationDelay: `${Math.min(gi, 8) * 35}ms` }}
+              aria-label={formatDay(g.date)}
+            >
               <div class="mb-1 flex items-baseline justify-between">
                 <h2 class="text-sm font-bold">
                   {/^[A-Z][a-z]+$/.test(formatRelative(g.date, today)) ? (
                     <>
                       {formatRelative(g.date, today)}
-                      <span class="ml-2 font-semibold text-subtle">{formatDay(g.date)}</span>
+                      <span class="text-subtle ml-2 font-semibold">{formatDay(g.date)}</span>
                     </>
                   ) : (
                     formatDay(g.date)
                   )}
                 </h2>
-                {g.spent > 0 && <span class="text-sm text-subtle">{formatMoney(g.spent, base)}</span>}
+                {g.spent > 0 && (
+                  <span class="text-subtle text-sm">{formatMoney(g.spent, base)}</span>
+                )}
               </div>
               <div class="grid">
                 {g.items.map((t) =>
                   selecting ? (
                     <label key={t.id} class="flex cursor-pointer items-center gap-3">
-                      <input type="checkbox" class="size-5 flex-none accent-[var(--gold)]" checked={picked.has(t.id)} onChange={() => toggle(t.id)} aria-label={`Select ${t.payee}`} />
+                      <input
+                        type="checkbox"
+                        class="size-5 flex-none accent-[var(--gold)]"
+                        checked={picked.has(t.id)}
+                        onChange={() => toggle(t.id)}
+                        aria-label={`Select ${t.payee}`}
+                      />
                       <div class="pointer-events-none min-w-0 flex-1">
                         <TxnRow t={t} data={data} cats={cats} accounts={accounts} today={today} />
                       </div>
                     </label>
                   ) : (
-                    <TxnRow key={t.id} t={t} data={data} cats={cats} accounts={accounts} today={today} />
+                    <TxnRow
+                      key={t.id}
+                      t={t}
+                      data={data}
+                      cats={cats}
+                      accounts={accounts}
+                      today={today}
+                    />
                   ),
                 )}
               </div>
             </section>
           ))}
-          {list.length > LIMIT && <p class="text-center text-sm text-muted">Showing the newest {LIMIT} of {list.length}. Narrow the search to see the rest.</p>}
+          {list.length > LIMIT && (
+            <p class="text-muted text-center text-sm">
+              Showing the newest {LIMIT} of {list.length}. Narrow the search to see the rest.
+            </p>
+          )}
         </div>
       )}
     </div>

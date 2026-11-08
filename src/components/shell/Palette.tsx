@@ -48,25 +48,43 @@ export function Palette({ data }: { data: LedgerData }) {
     const go = (href: string) => () => navigate(url(href));
     const all: Cmd[] = [
       { id: 'add', label: 'Add a transaction', hint: 'N', icon: 'plus', run: () => openTxn() },
-      ...[...NAV, ...NAV_MORE].map((n) => ({ id: n.href, label: `Go to ${n.label}`, icon: n.icon, run: go(n.href) })),
+      ...[...NAV, ...NAV_MORE].map((n) => ({
+        id: n.href,
+        label: `Go to ${n.label}`,
+        icon: n.icon,
+        run: go(n.href),
+      })),
       { id: 'import', label: 'Import a bank statement', icon: 'upload', run: go('import/') },
       { id: 'backup', label: 'Export a backup', icon: 'download', run: go('settings/#data') },
       { id: 'light', label: 'Use the light theme', icon: 'sun', run: () => setTheme('light') },
       { id: 'dark', label: 'Use the dark theme', icon: 'moon', run: () => setTheme('dark') },
-      { id: 'system', label: 'Match the system theme', icon: 'monitor', run: () => setTheme('system') },
+      {
+        id: 'system',
+        label: 'Match the system theme',
+        icon: 'monitor',
+        run: () => setTheme('system'),
+      },
     ];
     const needle = q.trim().toLowerCase();
     if (!needle) return all;
     const hits = all.filter((c) => c.label.toLowerCase().includes(needle));
     const txns = data.txns
-      .filter((t) => t.payee.toLowerCase().includes(needle) || (t.note ?? '').toLowerCase().includes(needle))
+      .filter(
+        (t) =>
+          t.payee.toLowerCase().includes(needle) || (t.note ?? '').toLowerCase().includes(needle),
+      )
       .sort((a, b) => (a.date < b.date ? 1 : -1))
       .slice(0, 8)
       .map<Cmd>((t) => ({
         id: t.id,
         label: t.payee || 'Untitled',
         hint: `${formatShort(t.date)} · ${formatMoney(t.base, base)}`,
-        icon: t.kind === 'income' ? 'arrow-down-left' : t.kind === 'transfer' ? 'swap' : 'arrow-up-right',
+        icon:
+          t.kind === 'income'
+            ? 'arrow-down-left'
+            : t.kind === 'transfer'
+              ? 'swap'
+              : 'arrow-up-right',
         run: () => openTxn({ id: t.id }),
       }));
     return [...hits, ...txns];
@@ -86,7 +104,11 @@ export function Palette({ data }: { data: LedgerData }) {
     <Sheet open={open} onClose={() => setOpen(false)} title="Quick launcher">
       <div class="grid gap-3">
         <div class="relative">
-          <Icon name="search" size={18} class="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-subtle" />
+          <Icon
+            name="search"
+            size={18}
+            class="text-subtle pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2"
+          />
           <input
             data-autofocus
             class="input pl-10"
@@ -115,7 +137,13 @@ export function Palette({ data }: { data: LedgerData }) {
             }}
           />
         </div>
-        <ul id="palette-list" ref={listRef} role="listbox" aria-label="Results" class="-mx-2 max-h-[50vh] overflow-y-auto">
+        <ul
+          id="palette-list"
+          ref={listRef}
+          role="listbox"
+          aria-label="Results"
+          class="-mx-2 max-h-[50vh] overflow-y-auto"
+        >
           {cmds.map((c, i) => (
             <li
               key={c.id}
@@ -130,10 +158,12 @@ export function Palette({ data }: { data: LedgerData }) {
                 <Icon name={c.icon} size={16} />
               </span>
               <span class="flex-1 font-semibold">{c.label}</span>
-              {c.hint && <span class="text-sm text-subtle">{c.hint}</span>}
+              {c.hint && <span class="text-subtle text-sm">{c.hint}</span>}
             </li>
           ))}
-          {!cmds.length && <li class="px-3 py-6 text-center text-sm text-muted">Nothing matches “{q}”.</li>}
+          {!cmds.length && (
+            <li class="text-muted px-3 py-6 text-center text-sm">Nothing matches “{q}”.</li>
+          )}
         </ul>
       </div>
     </Sheet>

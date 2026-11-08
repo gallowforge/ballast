@@ -39,7 +39,13 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
       if (num[3] && isCurrency(num[3].toUpperCase())) code = num[3].toUpperCase();
       continue;
     }
-    if (amountText !== null && !code && /^[a-z]{3}$/.test(t) && isCurrency(t.toUpperCase()) && t !== 'the') {
+    if (
+      amountText !== null &&
+      !code &&
+      /^[a-z]{3}$/.test(t) &&
+      isCurrency(t.toUpperCase()) &&
+      t !== 'the'
+    ) {
       code = t.toUpperCase();
       continue;
     }
@@ -50,7 +56,11 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
       continue;
     }
     const dayIdx = DAYS.indexOf(t.slice(0, 3));
-    if (dayIdx >= 0 && /^(sun|mon|tue|wed|thu|fri|sat)[a-z]*$/.test(t) && DAYS[dayIdx] === t.slice(0, 3)) {
+    if (
+      dayIdx >= 0 &&
+      /^(sun|mon|tue|wed|thu|fri|sat)[a-z]*$/.test(t) &&
+      DAYS[dayIdx] === t.slice(0, 3)
+    ) {
       const back = (weekday(today) - dayIdx + 7) % 7;
       date = addDays(today, -back);
       continue;
@@ -63,14 +73,18 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
   }
   if (amountText === null) return null;
   const exp = currency(code ?? data.settings.base).exp;
-  const amount = parseMinor(amountText, exp) ?? parseMinor(Number(amountText.replace(/,/g, '')).toFixed(exp), exp);
+  const amount =
+    parseMinor(amountText, exp) ??
+    parseMinor(Number(amountText.replace(/,/g, '')).toFixed(exp), exp);
   if (!amount || amount <= 0) return null;
   const phrase = words.join(' ');
   const kind = income ? 'income' : 'expense';
   let categoryId: string | undefined;
   let payee = phrase ? titleCase(phrase) : '';
   if (phrase) {
-    const byName = data.categories.find((c) => c.kind === kind && c.name.toLowerCase() === phrase.toLowerCase());
+    const byName = data.categories.find(
+      (c) => c.kind === kind && c.name.toLowerCase() === phrase.toLowerCase(),
+    );
     if (byName) categoryId = byName.id;
     else {
       const guess = categorize(phrase, income ? 'in' : 'out', data.rules);
@@ -78,5 +92,12 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
       payee = guess.payee;
     }
   }
-  return { amount, currency: code && code !== data.settings.base ? code : undefined, kind, payee, categoryId, date };
+  return {
+    amount,
+    currency: code && code !== data.settings.base ? code : undefined,
+    kind,
+    payee,
+    categoryId,
+    date,
+  };
 }

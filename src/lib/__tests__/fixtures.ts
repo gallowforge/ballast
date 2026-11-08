@@ -4,12 +4,37 @@ import type { Account, LedgerData, Recurring, Txn } from '../model';
 let n = 0;
 
 export function data(patch: Partial<LedgerData> = {}): LedgerData {
-  return { ...emptyData(), ...patch, settings: { ...emptyData().settings, onboarded: true, ...patch.settings } };
+  return {
+    ...emptyData(),
+    ...patch,
+    settings: { ...emptyData().settings, onboarded: true, ...patch.settings },
+  };
 }
 
-export const savings: Account = { id: 'sav', name: 'Savings', role: 'savings', currency: 'KWD', opening: 3_000_000, openedOn: '2026-01-01' };
-export const spending: Account = { id: 'cur', name: 'Current', role: 'spending', currency: 'KWD', opening: 0, openedOn: '2026-01-01' };
-export const wallet: Account = { id: 'usd', name: 'Wallet', role: 'other', currency: 'USD', opening: 0, openedOn: '2026-01-01' };
+export const savings: Account = {
+  id: 'sav',
+  name: 'Savings',
+  role: 'savings',
+  currency: 'KWD',
+  opening: 3_000_000,
+  openedOn: '2026-01-01',
+};
+export const spending: Account = {
+  id: 'cur',
+  name: 'Current',
+  role: 'spending',
+  currency: 'KWD',
+  opening: 0,
+  openedOn: '2026-01-01',
+};
+export const wallet: Account = {
+  id: 'usd',
+  name: 'Wallet',
+  role: 'other',
+  currency: 'USD',
+  opening: 0,
+  openedOn: '2026-01-01',
+};
 
 export function txn(p: Partial<Txn> & Pick<Txn, 'date' | 'amount'>): Txn {
   n++;

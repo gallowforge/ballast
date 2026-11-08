@@ -11,7 +11,10 @@ export function boot(): Promise<void> {
   if (typeof window === 'undefined') return Promise.resolve();
   if (!booted) {
     addEventListener('pagehide', flushSync);
-    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flushSync());
+    document.addEventListener(
+      'visibilitychange',
+      () => document.visibilityState === 'hidden' && flushSync(),
+    );
   }
   booted ??= start(browserPersistence()).then(() => {
     const params = new URLSearchParams(location.search);
@@ -20,7 +23,11 @@ export function boot(): Promise<void> {
       if (!d.txns.length || d.settings.demo) apply(replaceAll(buildDemo(today())));
       params.delete('demo');
       const q = params.toString();
-      history.replaceState(history.state, '', location.pathname + (q ? `?${q}` : '') + location.hash);
+      history.replaceState(
+        history.state,
+        '',
+        location.pathname + (q ? `?${q}` : '') + location.hash,
+      );
     }
     if (getState().txns.length) void protect();
   });

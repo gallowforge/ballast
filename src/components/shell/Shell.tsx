@@ -39,7 +39,14 @@ export default function Shell() {
       .register(url('sw.js'), { scope: url() })
       .then((reg) => {
         const offer = (w: ServiceWorker) =>
-          toast({ message: 'A new version of Ledger is ready.', action: { label: 'Reload', run: () => ((wanted = true), w.postMessage({ type: 'skip-waiting' })) }, ms: Infinity });
+          toast({
+            message: 'A new version of Ledger is ready.',
+            action: {
+              label: 'Reload',
+              run: () => ((wanted = true), w.postMessage({ type: 'skip-waiting' })),
+            },
+            ms: Infinity,
+          });
         if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
         reg.addEventListener('updatefound', () => {
           const w = reg.installing;

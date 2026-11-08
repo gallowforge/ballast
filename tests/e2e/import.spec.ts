@@ -12,10 +12,18 @@ async function importIntoNewAccount(page: Page, file: string) {
   await choose(page, file);
   await expect(page.getByRole('heading', { name: 'Check the columns' })).toBeVisible();
   await page.getByLabel('Import into').selectOption({ label: 'A new account…' });
-  await page.getByRole('button', { name: new RegExp(`Review ${expected.rows} transactions`) }).click();
-  await expect(page.getByText(`All ${expected.rows} rows match the statement's running balance`)).toBeVisible();
-  await page.getByRole('button', { name: new RegExp(`Import ${expected.rows} transactions`) }).click();
-  await expect(page.getByRole('heading', { name: `${expected.rows} transactions imported` })).toBeVisible();
+  await page
+    .getByRole('button', { name: new RegExp(`Review ${expected.rows} transactions`) })
+    .click();
+  await expect(
+    page.getByText(`All ${expected.rows} rows match the statement's running balance`),
+  ).toBeVisible();
+  await page
+    .getByRole('button', { name: new RegExp(`Import ${expected.rows} transactions`) })
+    .click();
+  await expect(
+    page.getByRole('heading', { name: `${expected.rows} transactions imported` }),
+  ).toBeVisible();
   await expect(page.getByText('Balances match.')).toBeVisible();
 }
 

@@ -25,28 +25,44 @@ const features = [
     tile: 'oklch(80% 0.13 78)',
     title: 'Know what is safe to spend today',
     body: 'Pay yourself a monthly salary from your savings. Ledger moves it on payday, keeps the bills still to come aside, and turns the rest into one number for today.',
-    points: ['A month that follows your payday, not the calendar', 'Pace against an even month, without counting fixed bills as overspending', 'Budgets that show where an even pace would be today'],
+    points: [
+      'A month that follows your payday, not the calendar',
+      'Pace against an even month, without counting fixed bills as overspending',
+      'Budgets that show where an even pace would be today',
+    ],
   },
   {
     icon: 'runway',
     tile: 'oklch(74% 0.14 30)',
     title: 'See exactly how long your savings last',
     body: 'Every payday, known income and yearly cost is laid out as a staircase to the date that matters to you, so you see the month the money runs out, years ahead.',
-    points: ['The largest salary that still reaches your date', 'Drag a slider to try a different salary', 'A floor the plan never touches'],
+    points: [
+      'The largest salary that still reaches your date',
+      'Drag a slider to try a different salary',
+      'A floor the plan never touches',
+    ],
   },
   {
     icon: 'file',
     tile: 'oklch(74% 0.11 200)',
     title: 'Bring in a statement in seconds',
     body: 'Drop in a PDF or CSV from your bank. National Bank of Kuwait statements are recognised, password-protected PDFs open on the device, and any bank works through column matching.',
-    points: ['Every row checked against the running balance, to the fils', 'Import the same statement twice and nothing doubles', 'Payees tidied, categories guessed, one tap to undo'],
+    points: [
+      'Every row checked against the running balance, to the fils',
+      'Import the same statement twice and nothing doubles',
+      'Payees tidied, categories guessed, one tap to undo',
+    ],
   },
   {
     icon: 'shield',
     tile: 'oklch(76% 0.12 160)',
     title: 'Yours alone, on your device',
     body: 'No account, no server, no analytics. A security policy blocks every connection to another site, so Ledger could not send your money data anywhere even if it tried.',
-    points: ['Works with no connection once opened', 'Installs like an app on phones and computers', 'Export, restore or delete everything in one tap'],
+    points: [
+      'Works with no connection once opened',
+      'Installs like an app on phones and computers',
+      'Export, restore or delete everything in one tap',
+    ],
   },
 ];
 ---
@@ -56,87 +72,179 @@ const features = [
   <main id="main">
     <section class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-12 pb-8 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
       <div class="animate-rise">
-        <span class="pill pill-gold"><Icon name="shield" size={14} /> Free, private, works offline</span>
+        <span class="pill pill-gold">
+          <Icon name="shield" size={14} /> Free, private, works offline
+        </span>
         <h1 class="display mt-5 text-[3rem] leading-[0.98] sm:text-[4.4rem]">
           Pay yourself a salary that <span class="text-gold-ink italic">lasts.</span>
         </h1>
         <p class="mt-6 max-w-xl text-lg text-muted">
-          Ledger plans your money a month at a time: a salary from your savings, what is safe to spend today, and the month your savings would run out. Bank statements are read on your device. Nothing leaves it.
+          Ledger plans your money a month at a time: a salary from your savings, what is safe to
+          spend today, and the month your savings would run out. Bank statements are read on your
+          device. Nothing leaves it.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href={url('home/')} class="btn btn-gold">Open Ledger <Icon name="arrow-right" size={18} /></a>
-          <a href={url('home/?demo=1')} class="btn btn-soft">Explore with demo data</a>
+          <a href={url('home/')} class="btn btn-gold">
+            Open Ledger <Icon name="arrow-right" size={18} />
+          </a>
+          <a href={url('home/?demo=1')} class="btn btn-soft">
+            Explore with demo data
+          </a>
         </div>
-        <p class="mt-5 text-sm text-subtle">No sign-up. Amounts in Kuwaiti dinars to the fils, with other currencies alongside.</p>
+        <p class="mt-5 text-sm text-subtle">
+          No sign-up. Amounts in Kuwaiti dinars to the fils, with other currencies alongside.
+        </p>
       </div>
 
-      <div class="relative mx-auto w-full max-w-[34rem] animate-rise" style="animation-delay: 120ms" aria-label="A preview of Ledger with made-up numbers" role="img">
+      <div
+        class="relative mx-auto w-full max-w-[34rem] animate-rise"
+        style="animation-delay: 120ms"
+        aria-label="A preview of Ledger with made-up numbers"
+        role="img"
+      >
         <div class="card card-pad card-glow relative z-10">
           <div class="eyebrow">Safe to spend today</div>
           <div class="mt-2 flex items-end justify-between gap-4">
-            <p class="display text-[3.2rem] leading-none"><Money value={s.perDay} code="KWD" /></p>
-            <span class={`pill ${s.pace <= 0 ? 'pill-good' : 'pill-warn'} mb-2`}>{s.pace <= 0 ? 'Under pace' : 'Ahead of pace'}</span>
+            <p class="display text-[3.2rem] leading-none">
+              <Money value={s.perDay} code="KWD" />
+            </p>
+            <span class={`pill ${s.pace <= 0 ? 'pill-good' : 'pill-warn'} mb-2`}>
+              {s.pace <= 0 ? 'Under pace' : 'Ahead of pace'}
+            </span>
           </div>
-          <p class="mt-2 text-sm text-muted">a day for {plural(s.daysLeft, 'day')}, {formatMoney(Math.max(0, s.left), 'KWD')} left of the salary</p>
-          <div class="mt-3"><BurnDown cycle={s.cycle} allowance={s.allowance} actual={s.actual} projectedEnd={s.projectedEnd} code="KWD" height={120} fallbackWidth={460} /></div>
+          <p class="mt-2 text-sm text-muted">
+            a day for {plural(s.daysLeft, 'day')}, {formatMoney(Math.max(0, s.left), 'KWD')} left of
+            the salary
+          </p>
+          <div class="mt-3">
+            <BurnDown
+              cycle={s.cycle}
+              allowance={s.allowance}
+              actual={s.actual}
+              projectedEnd={s.projectedEnd}
+              code="KWD"
+              height={120}
+              fallbackWidth={460}
+            />
+          </div>
         </div>
         <div class="card card-pad relative z-20 -mt-6 ml-10 mr-[-0.5rem] sm:ml-20">
           <div class="flex items-center justify-between">
             <span class="eyebrow">Runway</span>
-            <span class={`pill ${r.target?.status === 'reaches' ? 'pill-good' : 'pill-warn'}`}>{r.target?.status === 'reaches' ? 'Reaches the target' : 'Short of the target'}</span>
+            <span class={`pill ${r.target?.status === 'reaches' ? 'pill-good' : 'pill-warn'}`}>
+              {r.target?.status === 'reaches' ? 'Reaches the target' : 'Short of the target'}
+            </span>
           </div>
           <p class="display mt-2 text-[2rem]">{plural(r.periods, 'salary', 'salaries')} left</p>
-          <div class="mt-2"><RunwayChart points={r.points} floor={r.floor} target={r.target} runOut={r.runOut} code="KWD" height={96} label="Savings over time" compact fallbackWidth={400} /></div>
+          <div class="mt-2">
+            <RunwayChart
+              points={r.points}
+              floor={r.floor}
+              target={r.target}
+              runOut={r.runOut}
+              code="KWD"
+              height={96}
+              label="Savings over time"
+              compact
+              fallbackWidth={400}
+            />
+          </div>
         </div>
         <div class="card relative z-30 -mt-5 mr-12 flex items-center gap-3 px-4 py-3 sm:mr-24">
-          <span class="tile tile-sm" style="--tile: var(--good)"><Icon name="check" size={16} stroke={2.4} /></span>
-          <span class="text-sm font-semibold">All 33 rows match the running balance, to the last fils.</span>
+          <span class="tile tile-sm" style="--tile: var(--good)">
+            <Icon name="check" size={16} stroke={2.4} />
+          </span>
+          <span class="text-sm font-semibold">
+            All 33 rows match the running balance, to the last fils.
+          </span>
         </div>
       </div>
     </section>
 
     <section class="mx-auto mt-16 max-w-6xl px-4 sm:px-6" aria-labelledby="features-title">
-      <h2 id="features-title" class="sr-only">What Ledger does</h2>
+      <h2 id="features-title" class="sr-only">
+        What Ledger does
+      </h2>
       <div class="grid gap-5 md:grid-cols-2">
-        {
-          features.map((f, i) => (
-            <article class="card card-pad animate-rise" style={`animation-delay:${160 + i * 60}ms`}>
-              <span class="tile tile-lg" style={`--tile:${f.tile}`}>
-                <Icon name={f.icon} size={24} />
-              </span>
-              <h3 class="display mt-5 text-[1.7rem]">{f.title}</h3>
-              <p class="mt-3 text-muted">{f.body}</p>
-              <ul class="mt-4 grid gap-2 text-sm">
-                {f.points.map((p) => (
-                  <li class="flex gap-2.5">
-                    <Icon name="check" size={17} class="mt-0.5 flex-none text-gold-ink" stroke={2.4} />
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))
-        }
+        {features.map((f, i) => (
+          <article class="card card-pad animate-rise" style={`animation-delay:${160 + i * 60}ms`}>
+            <span class="tile tile-lg" style={`--tile:${f.tile}`}>
+              <Icon name={f.icon} size={24} />
+            </span>
+            <h3 class="display mt-5 text-[1.7rem]">{f.title}</h3>
+            <p class="mt-3 text-muted">{f.body}</p>
+            <ul class="mt-4 grid gap-2 text-sm">
+              {f.points.map((p) => (
+                <li class="flex gap-2.5">
+                  <Icon
+                    name="check"
+                    size={17}
+                    class="mt-0.5 flex-none text-gold-ink"
+                    stroke={2.4}
+                  />
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </article>
+        ))}
       </div>
     </section>
 
     <section class="mx-auto mt-20 max-w-4xl px-4 sm:px-6" aria-labelledby="diff-title">
-      <h2 id="diff-title" class="display text-center text-[2.2rem]">Built for living on savings</h2>
-      <p class="mx-auto mt-3 max-w-2xl text-center text-muted">Most money apps assume a paycheck and a bank login. Ledger starts from what you have and the date you need it to reach.</p>
+      <h2 id="diff-title" class="display text-center text-[2.2rem]">
+        Built for living on savings
+      </h2>
+      <p class="mx-auto mt-3 max-w-2xl text-center text-muted">
+        Most money apps assume a paycheck and a bank login. Ledger starts from what you have and the
+        date you need it to reach.
+      </p>
       <div class="card mt-8 overflow-hidden">
         <table class="w-full text-left text-sm">
           <caption class="sr-only">Ledger compared with typical money apps</caption>
           <thead>
-            <tr class="bg-sunken"><th class="p-4"></th><th class="p-4 font-bold">Ledger</th><th class="p-4 font-semibold text-muted">Typical apps</th></tr>
+            <tr class="bg-sunken">
+              <th class="p-4"></th>
+              <th class="p-4 font-bold">Ledger</th>
+              <th class="p-4 font-semibold text-muted">Typical apps</th>
+            </tr>
           </thead>
           <tbody class="divide">
-            <tr><th class="p-4 font-semibold">Account</th><td class="p-4">None</td><td class="p-4 text-muted">Required</td></tr>
-            <tr><th class="p-4 font-semibold">Your data</th><td class="p-4">On your device only</td><td class="p-4 text-muted">On their servers</td></tr>
-            <tr><th class="p-4 font-semibold">Bank statements</th><td class="p-4">Read on the device, checked row by row</td><td class="p-4 text-muted">A bank login handed to a third party</td></tr>
-            <tr><th class="p-4 font-semibold">Living on savings</th><td class="p-4">A salary, a runway and a target date</td><td class="p-4 text-muted">Not modelled</td></tr>
-            <tr><th class="p-4 font-semibold">Kuwaiti dinar</th><td class="p-4">Exact to the fils</td><td class="p-4 text-muted">Often rounded to two decimals</td></tr>
-            <tr><th class="p-4 font-semibold">Without a connection</th><td class="p-4">Everything works</td><td class="p-4 text-muted">Read-only or nothing</td></tr>
-            <tr><th class="p-4 font-semibold">Price</th><td class="p-4">Free, open source</td><td class="p-4 text-muted">A subscription</td></tr>
+            <tr>
+              <th class="p-4 font-semibold">Account</th>
+              <td class="p-4">None</td>
+              <td class="p-4 text-muted">Required</td>
+            </tr>
+            <tr>
+              <th class="p-4 font-semibold">Your data</th>
+              <td class="p-4">On your device only</td>
+              <td class="p-4 text-muted">On their servers</td>
+            </tr>
+            <tr>
+              <th class="p-4 font-semibold">Bank statements</th>
+              <td class="p-4">Read on the device, checked row by row</td>
+              <td class="p-4 text-muted">A bank login handed to a third party</td>
+            </tr>
+            <tr>
+              <th class="p-4 font-semibold">Living on savings</th>
+              <td class="p-4">A salary, a runway and a target date</td>
+              <td class="p-4 text-muted">Not modelled</td>
+            </tr>
+            <tr>
+              <th class="p-4 font-semibold">Kuwaiti dinar</th>
+              <td class="p-4">Exact to the fils</td>
+              <td class="p-4 text-muted">Often rounded to two decimals</td>
+            </tr>
+            <tr>
+              <th class="p-4 font-semibold">Without a connection</th>
+              <td class="p-4">Everything works</td>
+              <td class="p-4 text-muted">Read-only or nothing</td>
+            </tr>
+            <tr>
+              <th class="p-4 font-semibold">Price</th>
+              <td class="p-4">Free, open source</td>
+              <td class="p-4 text-muted">A subscription</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -144,10 +252,16 @@ const features = [
 
     <section class="mx-auto mt-20 max-w-3xl px-4 text-center sm:px-6">
       <h2 class="display text-[2.4rem]">Start in a minute</h2>
-      <p class="mt-3 text-muted">Two balances, a salary and a date. Or import a statement and let the past months fill in.</p>
+      <p class="mt-3 text-muted">
+        Two balances, a salary and a date. Or import a statement and let the past months fill in.
+      </p>
       <div class="mt-7 flex flex-wrap justify-center gap-3">
-        <a href={url('home/')} class="btn btn-gold">Open Ledger <Icon name="arrow-right" size={18} /></a>
-        <a href={url('about/')} class="btn btn-soft">How it works</a>
+        <a href={url('home/')} class="btn btn-gold">
+          Open Ledger <Icon name="arrow-right" size={18} />
+        </a>
+        <a href={url('about/')} class="btn btn-soft">
+          How it works
+        </a>
       </div>
     </section>
   </main>

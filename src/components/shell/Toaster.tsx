@@ -16,7 +16,8 @@ export function Toaster() {
       const id = next++;
       setItems((list) => [...list.slice(-2), { ...t, id }]);
       const ms = t.ms ?? (t.action ? 7000 : 4000);
-      if (Number.isFinite(ms)) window.setTimeout(() => setItems((list) => list.filter((x) => x.id !== id)), ms);
+      if (Number.isFinite(ms))
+        window.setTimeout(() => setItems((list) => list.filter((x) => x.id !== id)), ms);
     };
     window.addEventListener('ledger:toast', on);
     return () => window.removeEventListener('ledger:toast', on);
@@ -41,7 +42,12 @@ export function Toaster() {
               {t.action.label}
             </button>
           )}
-          <button type="button" class="btn btn-sm btn-icon" aria-label="Dismiss" onClick={() => close(t.id)}>
+          <button
+            type="button"
+            class="btn btn-sm btn-icon"
+            aria-label="Dismiss"
+            onClick={() => close(t.id)}
+          >
             <Icon name="x" size={16} />
           </button>
         </div>

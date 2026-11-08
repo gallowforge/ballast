@@ -2,15 +2,25 @@
 import Icon from '@/components/ui/Icon.astro';
 ---
 
-<button type="button" class="btn btn-ghost btn-sm btn-icon" data-theme-toggle aria-label="Switch between light and dark">
-  <span class="hidden dark:inline"><Icon name="sun" size={18} /></span>
-  <span class="dark:hidden"><Icon name="moon" size={18} /></span>
+<button
+  type="button"
+  class="btn btn-ghost btn-sm btn-icon"
+  data-theme-toggle
+  aria-label="Switch between light and dark"
+>
+  <span class="hidden dark:inline">
+    <Icon name="sun" size={18} />
+  </span>
+  <span class="dark:hidden">
+    <Icon name="moon" size={18} />
+  </span>
 </button>
 <script>
   import { setTheme } from '@/components/shell/theme';
   const wire = () =>
     document.querySelectorAll<HTMLElement>('[data-theme-toggle]').forEach((b) => {
-      b.onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+      b.onclick = () =>
+        setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     });
   wire();
   document.addEventListener('astro:page-load', wire);

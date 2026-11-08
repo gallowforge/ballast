@@ -1,7 +1,19 @@
 import { expect, test } from '@playwright/test';
 import { hydrated } from './helpers';
 
-const PAGES = ['', 'home/', 'activity/', 'plan/', 'runway/', 'insights/', 'import/', 'settings/', 'about/', 'privacy/', 'offline/'];
+const PAGES = [
+  '',
+  'home/',
+  'activity/',
+  'plan/',
+  'runway/',
+  'insights/',
+  'import/',
+  'settings/',
+  'about/',
+  'privacy/',
+  'offline/',
+];
 
 for (const path of PAGES) {
   test(`/${path} loads cleanly`, async ({ page }) => {
@@ -25,19 +37,24 @@ test('unknown pages get the 404 page', async ({ page }) => {
 test('the manifest makes it installable', async ({ request }) => {
   const m = await (await request.get('manifest.webmanifest')).json();
   expect(m).toMatchObject({ name: 'Ledger', display: 'standalone' });
-  expect(m.icons.map((i: { sizes: string }) => i.sizes)).toEqual(expect.arrayContaining(['192x192', '512x512']));
+  expect(m.icons.map((i: { sizes: string }) => i.sizes)).toEqual(
+    expect.arrayContaining(['192x192', '512x512']),
+  );
   for (const icon of m.icons) expect((await request.get(icon.src)).status()).toBe(200);
 });
 
 test('the service worker precaches every page', async ({ request }) => {
   const sw = await (await request.get('sw.js')).text();
-  for (const p of ['home/', 'runway/', 'import/', 'offline/', 'samples/sample-statement.pdf']) expect(sw).toContain(`"${p}"`);
+  for (const p of ['home/', 'runway/', 'import/', 'offline/', 'samples/sample-statement.pdf'])
+    expect(sw).toContain(`"${p}"`);
   expect(sw).not.toContain('__PRECACHE__');
 });
 
 test('every page forbids connections to other sites', async ({ page }) => {
   await page.goto('home/');
-  const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
+  const csp = await page
+    .locator('meta[http-equiv="Content-Security-Policy"]')
+    .getAttribute('content');
   expect(csp).toContain("connect-src 'self'");
   expect(csp).toContain("default-src 'self'");
 });

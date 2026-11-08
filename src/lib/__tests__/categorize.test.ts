@@ -17,8 +17,10 @@ describe('payee cleanup', () => {
     ['12345678', '12345678'],
     ['', 'Unknown'],
   ])('%j → %j', (raw, out) => expect(cleanPayee(raw)).toBe(out));
-  it('keeps acronyms upper case', () => expect(titleCase('knpc station and the atm')).toBe('KNPC Station and the ATM'));
-  it('builds a letters-only key', () => expect(merchantKey('POS PURCHASE TALABAT 123 KW')).toBe('TALABAT'));
+  it('keeps acronyms upper case', () =>
+    expect(titleCase('knpc station and the atm')).toBe('KNPC Station and the ATM'));
+  it('builds a letters-only key', () =>
+    expect(merchantKey('POS PURCHASE TALABAT 123 KW')).toBe('TALABAT'));
 });
 
 describe('categories from statement text', () => {
@@ -42,15 +44,31 @@ describe('categories from statement text', () => {
   it('lets your own rule win, longest match first', () => {
     const rules: Rule[] = [
       { id: 'a', match: 'TALABAT', categoryId: 'eating-out', createdAt: 1 },
-      { id: 'b', match: 'TALABAT GENERAL', categoryId: 'groceries', payee: 'Talabat Mart', createdAt: 2 },
+      {
+        id: 'b',
+        match: 'TALABAT GENERAL',
+        categoryId: 'groceries',
+        payee: 'Talabat Mart',
+        createdAt: 2,
+      },
     ];
-    expect(categorize('POS TALABAT GENERAL TRADING', 'out', rules)).toMatchObject({ categoryId: 'groceries', payee: 'Talabat Mart', ruleId: 'b' });
+    expect(categorize('POS TALABAT GENERAL TRADING', 'out', rules)).toMatchObject({
+      categoryId: 'groceries',
+      payee: 'Talabat Mart',
+      ruleId: 'b',
+    });
   });
   it('spots transfers between your own accounts', () => {
     expect(categorize('TRANSFER FROM SAVINGS OWN ACCOUNT 0021', 'in', []).transfer).toBe(true);
     expect(categorize('POS COFFEE', 'out', []).transfer).toBe(false);
   });
-  it('does not call money in a cash withdrawal', () => expect(categorize('ATM DEPOSIT', 'in', []).categoryId).toBeUndefined());
-  it('leaves the unknown uncategorised with a tidy name', () => expect(categorize('POS PURCHASE BLUE DOOR', 'out', [])).toEqual({ payee: 'Blue Door', transfer: false }));
-  it('makes rule keys from the first two words', () => expect(ruleKey('POS PURCHASE TALABAT GENERAL TRADING KW')).toBe('TALABAT GENERAL'));
+  it('does not call money in a cash withdrawal', () =>
+    expect(categorize('ATM DEPOSIT', 'in', []).categoryId).toBeUndefined());
+  it('leaves the unknown uncategorised with a tidy name', () =>
+    expect(categorize('POS PURCHASE BLUE DOOR', 'out', [])).toEqual({
+      payee: 'Blue Door',
+      transfer: false,
+    }));
+  it('makes rule keys from the first two words', () =>
+    expect(ruleKey('POS PURCHASE TALABAT GENERAL TRADING KW')).toBe('TALABAT GENERAL'));
 });

@@ -13,7 +13,9 @@ export async function open(page: Page, path: string) {
 /** Loads the made-up demo data and lands on Home. */
 export async function demo(page: Page, path = 'home/') {
   await open(page, 'home/?demo=1');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText(/Good (morning|afternoon|evening)/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(
+    /Good (morning|afternoon|evening)/,
+  );
   if (path !== 'home/') await open(page, path);
 }
 

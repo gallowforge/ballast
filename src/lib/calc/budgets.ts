@@ -87,12 +87,22 @@ export function budgetTotals(data: LedgerData, today: ISODate): BudgetTotals {
   return {
     budgeted: states.reduce((s, b) => s + b.available, 0),
     spent: states.reduce((s, b) => s + b.spent, 0),
-    unbudgeted: spending(data, cycle.start, cycle.end, (t) => !t.categoryId || !ids.has(t.categoryId)),
+    unbudgeted: spending(
+      data,
+      cycle.start,
+      cycle.end,
+      (t) => !t.categoryId || !ids.has(t.categoryId),
+    ),
   };
 }
 
 /** A suggested budget: the average of the last three full months, rounded up to a whole unit. */
-export function suggestBudget(data: LedgerData, categoryId: string, today: ISODate, unit = 1000): Minor {
+export function suggestBudget(
+  data: LedgerData,
+  categoryId: string,
+  today: ISODate,
+  unit = 1000,
+): Minor {
   const day = data.settings.cycleDay;
   let total = 0;
   let months = 0;

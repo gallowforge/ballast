@@ -3,7 +3,15 @@ import { cycleAt, formatMonth, formatShort, formatWeekday, addDays, type Cycle }
 import { formatMinor, formatMoney } from '@/lib/money/money';
 import { currency } from '@/lib/money/currency';
 import { insights } from '@/lib/calc/insights';
-import { byCategory, byDay, byWeekday, cashflow, income, spending, topPayees } from '@/lib/calc/stats';
+import {
+  byCategory,
+  byDay,
+  byWeekday,
+  cashflow,
+  income,
+  spending,
+  topPayees,
+} from '@/lib/calc/stats';
 import { categoryMap } from '@/lib/ledger';
 import { Cashflow } from '../charts/Cashflow';
 import { Donut } from '../charts/Donut';
@@ -31,7 +39,13 @@ export default function InsightsScreen() {
     if (range === '0') {
       period = { start: cur.start, end: today, label: 'this month so far', months: 1 };
       const p = cycleAt(today, day, -1);
-      prev = { start: p.start, end: addDays(p.start, Math.min(p.days - 1, Math.round((Date.parse(today) - Date.parse(cur.start)) / 864e5))) };
+      prev = {
+        start: p.start,
+        end: addDays(
+          p.start,
+          Math.min(p.days - 1, Math.round((Date.parse(today) - Date.parse(cur.start)) / 864e5)),
+        ),
+      };
     } else if (range === '-1') {
       const p = cycleAt(today, day, -1);
       period = { start: p.start, end: p.end, label: formatMonth(p.start), months: 1 };
@@ -46,12 +60,20 @@ export default function InsightsScreen() {
       prev = { start: pf.start, end: addDays(first.start, -1) };
     }
     const cats = byCategory(data, period.start, period.end);
-    const prevCats = new Map(byCategory(data, prev.start, prev.end).map((c) => [c.categoryId, c.total]));
+    const prevCats = new Map(
+      byCategory(data, prev.start, prev.end).map((c) => [c.categoryId, c.total]),
+    );
     const out = spending(data, period.start, period.end);
     const inc = income(data, period.start, period.end);
     const cycles: Cycle[] = Array.from({ length: 12 }, (_, i) => cycleAt(today, day, i - 11));
-    const firstTxn = data.txns.reduce<string | null>((m, t) => (!m || t.date < m ? t.date : m), null);
-    const flow = cashflow(data, cycles.filter((c) => firstTxn && c.end >= firstTxn));
+    const firstTxn = data.txns.reduce<string | null>(
+      (m, t) => (!m || t.date < m ? t.date : m),
+      null,
+    );
+    const flow = cashflow(
+      data,
+      cycles.filter((c) => firstTxn && c.end >= firstTxn),
+    );
     const heatCycle = range === '-1' ? cycleAt(today, day, -1) : cur;
     return {
       period,
@@ -74,21 +96,33 @@ export default function InsightsScreen() {
   if (!data.txns.length)
     return (
       <div class="card">
-        <Empty level={2} icon="insights" title="Charts need some history" body="Add transactions or import a statement. Charts fill in as soon as there is something to show." />
+        <Empty
+          level={2}
+          icon="insights"
+          title="Charts need some history"
+          body="Add transactions or import a statement. Charts fill in as soon as there is something to show."
+        />
       </div>
     );
 
   const { cats, catMap, prevCats } = view;
-  const colour = (id: string) => (id ? `oklch(70% 0.13 ${catMap.get(id)?.hue ?? 80})` : 'var(--subtle)');
-  const slices = cats.slice(0, 7).map((c) => ({ id: c.categoryId, label: catMap.get(c.categoryId)?.name ?? 'Uncategorised', value: c.total, color: colour(c.categoryId) }));
+  const colour = (id: string) =>
+    id ? `oklch(70% 0.13 ${catMap.get(id)?.hue ?? 80})` : 'var(--subtle)';
+  const slices = cats.slice(0, 7).map((c) => ({
+    id: c.categoryId,
+    label: catMap.get(c.categoryId)?.name ?? 'Uncategorised',
+    value: c.total,
+    color: colour(c.categoryId),
+  }));
   const rest = cats.slice(7).reduce((s, c) => s + c.total, 0);
-  if (rest) slices.push({ id: 'rest', label: 'Everything else', value: rest, color: 'var(--line-strong)' });
+  if (rest)
+    slices.push({ id: 'rest', label: 'Everything else', value: rest, color: 'var(--line-strong)' });
   const change = view.prevOut ? Math.round(((view.out - view.prevOut) / view.prevOut) * 100) : null;
   const wdMax = Math.max(1, ...view.weekdays);
 
   return (
     <div class="grid grid-cols-1 gap-6">
-      <div class="flex flex-wrap items-center justify-between gap-3 animate-rise">
+      <div class="animate-rise flex flex-wrap items-center justify-between gap-3">
         <Segmented
           label="Period"
           value={range}
@@ -110,9 +144,14 @@ export default function InsightsScreen() {
       <section class="card card-pad animate-rise" aria-labelledby="where-title">
         <div class="grid items-center gap-8 lg:grid-cols-[auto_1fr]">
           <div class="justify-self-center">
-            <Donut slices={slices} size={230} thickness={24} label={`Spending by category for ${view.period.label}: ${slices.map((s) => `${s.label} ${formatMoney(s.value, base)}`).join(', ')}`}>
+            <Donut
+              slices={slices}
+              size={230}
+              thickness={24}
+              label={`Spending by category for ${view.period.label}: ${slices.map((s) => `${s.label} ${formatMoney(s.value, base)}`).join(', ')}`}
+            >
               <div>
-                <div class="text-xs font-semibold text-subtle">Spent</div>
+                <div class="text-subtle text-xs font-semibold">Spent</div>
                 <div class="display text-[1.75rem]">
                   <Money value={view.out} code={base} count />
                 </div>
@@ -128,11 +167,12 @@ export default function InsightsScreen() {
             <h2 id="where-title" class="text-lg font-bold">
               Where it went
             </h2>
-            <p class="mb-4 text-sm text-muted">
+            <p class="text-muted mb-4 text-sm">
               Spending for {view.period.label}
               {view.inc ? (
                 <>
-                  , against <Money value={view.inc} code={base} class="font-semibold text-good" /> coming in
+                  , against <Money value={view.inc} code={base} class="text-good font-semibold" />{' '}
+                  coming in
                 </>
               ) : null}
               .
@@ -146,14 +186,29 @@ export default function InsightsScreen() {
                     <CategoryTile category={catMap.get(c.categoryId)} size="sm" />
                     <div class="min-w-0 flex-1">
                       <div class="flex justify-between gap-2">
-                        <span class="truncate font-semibold">{catMap.get(c.categoryId)?.name ?? 'Uncategorised'}</span>
+                        <span class="truncate font-semibold">
+                          {catMap.get(c.categoryId)?.name ?? 'Uncategorised'}
+                        </span>
                         <Money value={c.total} code={base} class="font-bold" />
                       </div>
                       <div class="mt-1 flex items-center gap-2">
                         <div class="bar h-1.5 flex-1">
-                          <span style={{ width: `${(c.total / Math.max(1, cats[0]!.total)) * 100}%`, background: colour(c.categoryId) }} />
+                          <span
+                            style={{
+                              width: `${(c.total / Math.max(1, cats[0]!.total)) * 100}%`,
+                              background: colour(c.categoryId),
+                            }}
+                          />
                         </div>
-                        <span class={`w-20 text-right text-xs font-semibold ${diff > 0 ? 'text-warn' : 'text-subtle'}`}>{!before ? 'new' : diff === 0 ? 'same' : formatMinor(diff, currency(base).exp, { sign: 'always' })}</span>
+                        <span
+                          class={`w-20 text-right text-xs font-semibold ${diff > 0 ? 'text-warn' : 'text-subtle'}`}
+                        >
+                          {!before
+                            ? 'new'
+                            : diff === 0
+                              ? 'same'
+                              : formatMinor(diff, currency(base).exp, { sign: 'always' })}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -165,20 +220,26 @@ export default function InsightsScreen() {
       </section>
 
       {view.flow.length > 1 && (
-        <section class="card card-pad animate-rise" aria-labelledby="flow-title" style={{ animationDelay: '60ms' }}>
+        <section
+          class="card card-pad animate-rise"
+          aria-labelledby="flow-title"
+          style={{ animationDelay: '60ms' }}
+        >
           <div class="mb-4 flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 id="flow-title" class="text-lg font-bold">
                 Money in and out
               </h2>
-              <p class="text-sm text-muted">Month by month. Transfers between your own accounts are left out.</p>
+              <p class="text-muted text-sm">
+                Month by month. Transfers between your own accounts are left out.
+              </p>
             </div>
-            <div class="flex gap-4 text-xs font-semibold text-subtle">
+            <div class="text-subtle flex gap-4 text-xs font-semibold">
               <span class="inline-flex items-center gap-1.5">
-                <i class="size-2.5 rounded-full bg-good" /> In
+                <i class="bg-good size-2.5 rounded-full" /> In
               </span>
               <span class="inline-flex items-center gap-1.5">
-                <i class="size-2.5 rounded-full bg-gold" /> Out
+                <i class="bg-gold size-2.5 rounded-full" /> Out
               </span>
             </div>
           </div>
@@ -187,45 +248,83 @@ export default function InsightsScreen() {
       )}
 
       <div class="grid gap-6 lg:grid-cols-3">
-        <section class="card card-pad animate-rise" aria-labelledby="cal-title" style={{ animationDelay: '100ms' }}>
+        <section
+          class="card card-pad animate-rise"
+          aria-labelledby="cal-title"
+          style={{ animationDelay: '100ms' }}
+        >
           <SectionTitle id="cal-title" title={`Day by day · ${view.heatLabel}`} />
           <Heatmap days={view.heat} code={base} today={today} />
         </section>
-        <section class="card card-pad animate-rise" aria-labelledby="payee-title" style={{ animationDelay: '140ms' }}>
+        <section
+          class="card card-pad animate-rise"
+          aria-labelledby="payee-title"
+          style={{ animationDelay: '140ms' }}
+        >
           <SectionTitle id="payee-title" title="Where you spend most" />
           <ol class="grid gap-3">
             {view.payees.map((p, i) => (
               <li key={p.payee} class="flex items-center gap-3">
-                <span class="w-5 text-sm font-bold text-subtle">{i + 1}</span>
+                <span class="text-subtle w-5 text-sm font-bold">{i + 1}</span>
                 <CategoryTile category={p.categoryId ? catMap.get(p.categoryId) : null} size="sm" />
                 <span class="min-w-0 flex-1">
                   <span class="block truncate font-semibold">{p.payee}</span>
-                  <span class="text-xs text-subtle">{p.count === 1 ? 'once' : `${p.count} times`}</span>
+                  <span class="text-subtle text-xs">
+                    {p.count === 1 ? 'once' : `${p.count} times`}
+                  </span>
                 </span>
                 <Money value={p.total} code={base} class="font-bold" />
               </li>
             ))}
           </ol>
         </section>
-        <section class="card card-pad animate-rise" aria-labelledby="wd-title" style={{ animationDelay: '180ms' }}>
+        <section
+          class="card card-pad animate-rise"
+          aria-labelledby="wd-title"
+          style={{ animationDelay: '180ms' }}
+        >
           <SectionTitle id="wd-title" title="By day of the week" />
-          <div class="flex h-40 items-end gap-2" role="list" aria-label="Average spending by day of the week">
+          <div
+            class="flex h-40 items-end gap-2"
+            role="list"
+            aria-label="Average spending by day of the week"
+          >
             {view.weekdays.map((v, i) => {
               const d = addDays('2026-01-04', i); // any Sunday: only the weekday name is used
               return (
-                <div key={i} role="listitem" class="flex h-full flex-1 flex-col items-center justify-end gap-1.5" aria-label={`${formatWeekday(d)}: ${formatMoney(v, base)} on average`}>
-                  <div class="w-full rounded-lg bg-gold" style={{ height: `${Math.max(4, (v / wdMax) * 100)}%`, opacity: v === wdMax ? 1 : 0.45, animation: `rise .6s var(--ease-out-quint) ${i * 40}ms backwards` }} />
-                  <span class="text-xs font-bold text-subtle">{formatWeekday(d, true).slice(0, 2)}</span>
+                <div
+                  key={i}
+                  role="listitem"
+                  class="flex h-full flex-1 flex-col items-center justify-end gap-1.5"
+                  aria-label={`${formatWeekday(d)}: ${formatMoney(v, base)} on average`}
+                >
+                  <div
+                    class="bg-gold w-full rounded-lg"
+                    style={{
+                      height: `${Math.max(4, (v / wdMax) * 100)}%`,
+                      opacity: v === wdMax ? 1 : 0.45,
+                      animation: `rise .6s var(--ease-out-quint) ${i * 40}ms backwards`,
+                    }}
+                  />
+                  <span class="text-subtle text-xs font-bold">
+                    {formatWeekday(d, true).slice(0, 2)}
+                  </span>
                 </div>
               );
             })}
           </div>
-          <p class="mt-3 text-xs text-subtle">Average a day, {view.period.label}. From {formatShort(view.period.start)}.</p>
+          <p class="text-subtle mt-3 text-xs">
+            Average a day, {view.period.label}. From {formatShort(view.period.start)}.
+          </p>
         </section>
       </div>
 
       {view.tips.length > 0 && (
-        <section aria-labelledby="tips-title" class="animate-rise" style={{ animationDelay: '220ms' }}>
+        <section
+          aria-labelledby="tips-title"
+          class="animate-rise"
+          style={{ animationDelay: '220ms' }}
+        >
           <h2 id="tips-title" class="mb-3 text-lg font-bold">
             Worth knowing
           </h2>

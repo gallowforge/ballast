@@ -55,9 +55,12 @@ const og = new URL(url('og.png'), Astro.site);
           try {
             t = localStorage.getItem('ledger:theme');
           } catch {}
-          const dark = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
+          const dark =
+            t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
           document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-          document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1b1712' : '#fbf8f1');
+          document
+            .querySelector('meta[name="theme-color"]')
+            ?.setAttribute('content', dark ? '#1b1712' : '#fbf8f1');
         };
         apply();
         document.addEventListener('astro:after-swap', apply);

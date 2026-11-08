@@ -30,21 +30,48 @@ function stepPath(pts: RunwayPoint[], x: (d: ISODate) => number, y: (v: number) 
 }
 
 /** Savings over time as a staircase: each step is a payday or a known income or cost. */
-export function RunwayChart({ points, compare, floor, target, runOut, code, height = 280, label, compact, fallbackWidth = 720 }: Props) {
+export function RunwayChart({
+  points,
+  compare,
+  floor,
+  target,
+  runOut,
+  code,
+  height = 280,
+  label,
+  compact,
+  fallbackWidth = 720,
+}: Props) {
   const [ref, width] = useWidth<HTMLDivElement>(fallbackWidth);
   const [hover, setHover] = useState<number | null>(null);
-  const pad = { l: compact ? 8 : 52, r: compact ? 8 : 18, t: compact ? 10 : 30, b: compact ? 8 : 28 };
+  const pad = {
+    l: compact ? 8 : 52,
+    r: compact ? 8 : 18,
+    t: compact ? 10 : 30,
+    b: compact ? 8 : 28,
+  };
   const from = points[0]?.date;
   const to = points[points.length - 1]?.date;
 
   const geo = useMemo(() => {
     if (!from || !to) return null;
-    const max = Math.max(floor, ...points.map((p) => p.balance), ...(compare ?? []).map((p) => p.balance), 1);
+    const max = Math.max(
+      floor,
+      ...points.map((p) => p.balance),
+      ...(compare ?? []).map((p) => p.balance),
+      1,
+    );
     const ticks = niceTicks(max, compact ? 2 : 4);
     const top = ticks[ticks.length - 1]!;
     const x = dayScale(from, to, pad.l, width - pad.r);
     const y = linear(0, top, height - pad.b, pad.t);
-    return { x, y, ticks, line: stepPath(points, x, y), cmp: compare ? stepPath(compare, x, y) : '' };
+    return {
+      x,
+      y,
+      ticks,
+      line: stepPath(points, x, y),
+      cmp: compare ? stepPath(compare, x, y) : '',
+    };
   }, [points, compare, width, height, floor]);
 
   if (!geo || !from || !to) return <div ref={ref} style={{ height }} />;
@@ -79,12 +106,16 @@ export function RunwayChart({ points, compare, floor, target, runOut, code, heig
         role="group"
         aria-label={summary}
         tabIndex={compact ? -1 : 0}
-        onPointerMove={(e) => onMove(e.clientX, (e.currentTarget as SVGElement).getBoundingClientRect())}
+        onPointerMove={(e) =>
+          onMove(e.clientX, (e.currentTarget as SVGElement).getBoundingClientRect())
+        }
         onPointerLeave={() => setHover(null)}
         onKeyDown={(e) => {
           if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
           e.preventDefault();
-          setHover((h) => Math.max(0, Math.min(points.length - 1, (h ?? 0) + (e.key === 'ArrowRight' ? 1 : -1))));
+          setHover((h) =>
+            Math.max(0, Math.min(points.length - 1, (h ?? 0) + (e.key === 'ArrowRight' ? 1 : -1))),
+          );
         }}
         onBlur={() => setHover(null)}
       >
@@ -109,8 +140,22 @@ export function RunwayChart({ points, compare, floor, target, runOut, code, heig
           ))}
         {floor > 0 && (
           <g>
-            <rect x={pad.l} y={y(floor)} width={width - pad.l - pad.r} height={y(0) - y(floor)} fill="url(#rw-danger)" />
-            <line x1={pad.l} x2={width - pad.r} y1={y(floor)} y2={y(floor)} style={{ stroke: 'var(--bad)' }} stroke-opacity="0.55" stroke-dasharray="4 5" />
+            <rect
+              x={pad.l}
+              y={y(floor)}
+              width={width - pad.l - pad.r}
+              height={y(0) - y(floor)}
+              fill="url(#rw-danger)"
+            />
+            <line
+              x1={pad.l}
+              x2={width - pad.r}
+              y1={y(floor)}
+              y2={y(floor)}
+              style={{ stroke: 'var(--bad)' }}
+              stroke-opacity="0.55"
+              stroke-dasharray="4 5"
+            />
             {!compact && (
               <text x={pad.l + 6} y={y(floor) - 6} style={{ fill: 'var(--bad)' }}>
                 Floor {formatCompact(floor, code)}
@@ -119,16 +164,47 @@ export function RunwayChart({ points, compare, floor, target, runOut, code, heig
           </g>
         )}
         <path d={area} fill="url(#rw-fill)" class="reveal" />
-        {geo.cmp && <path d={geo.cmp} fill="none" style={{ stroke: 'var(--fg)' }} stroke-opacity="0.55" stroke-width="1.75" stroke-dasharray="5 5" />}
-        <path d={line} fill="none" style={{ stroke: 'var(--gold)' }} stroke-width={compact ? 2 : 2.5} stroke-linejoin="round" pathLength={1} class="draw" />
+        {geo.cmp && (
+          <path
+            d={geo.cmp}
+            fill="none"
+            style={{ stroke: 'var(--fg)' }}
+            stroke-opacity="0.55"
+            stroke-width="1.75"
+            stroke-dasharray="5 5"
+          />
+        )}
+        <path
+          d={line}
+          fill="none"
+          style={{ stroke: 'var(--gold)' }}
+          stroke-width={compact ? 2 : 2.5}
+          stroke-linejoin="round"
+          pathLength={1}
+          class="draw"
+        />
         {target && target.date >= from && target.date <= to && (
           <g>
-            <line x1={x(target.date)} x2={x(target.date)} y1={pad.t - (compact ? 0 : 14)} y2={y(0)} style={{ stroke: 'var(--fg)' }} stroke-opacity="0.45" stroke-dasharray="2 4" />
+            <line
+              x1={x(target.date)}
+              x2={x(target.date)}
+              y1={pad.t - (compact ? 0 : 14)}
+              y2={y(0)}
+              style={{ stroke: 'var(--fg)' }}
+              stroke-opacity="0.45"
+              stroke-dasharray="2 4"
+            />
             {!compact && (
               <text
                 x={x(target.date)}
                 y={pad.t - 18}
-                text-anchor={x(target.date) > width - 120 ? 'end' : x(target.date) < pad.l + 80 ? 'start' : 'middle'}
+                text-anchor={
+                  x(target.date) > width - 120
+                    ? 'end'
+                    : x(target.date) < pad.l + 80
+                      ? 'start'
+                      : 'middle'
+                }
                 style={{ fill: 'var(--fg)', fontWeight: 700 }}
               >
                 {target.label} · {formatShort(target.date)}
@@ -136,30 +212,65 @@ export function RunwayChart({ points, compare, floor, target, runOut, code, heig
             )}
           </g>
         )}
-        {runOut && runOut >= from && runOut <= to && (() => {
-          const p = points.find((pt) => pt.date >= runOut) ?? points[points.length - 1]!;
-          return <circle cx={x(runOut)} cy={y(p.balance)} r={compact ? 3.5 : 5} style={{ fill: 'var(--bad)', stroke: 'var(--raised)' }} stroke-width="2" />;
-        })()}
-        <circle cx={x(from)} cy={y(points[0]!.balance)} r={compact ? 3.5 : 5} style={{ fill: 'var(--gold)', stroke: 'var(--raised)' }} stroke-width="2" />
+        {runOut &&
+          runOut >= from &&
+          runOut <= to &&
+          (() => {
+            const p = points.find((pt) => pt.date >= runOut) ?? points[points.length - 1]!;
+            return (
+              <circle
+                cx={x(runOut)}
+                cy={y(p.balance)}
+                r={compact ? 3.5 : 5}
+                style={{ fill: 'var(--bad)', stroke: 'var(--raised)' }}
+                stroke-width="2"
+              />
+            );
+          })()}
+        <circle
+          cx={x(from)}
+          cy={y(points[0]!.balance)}
+          r={compact ? 3.5 : 5}
+          style={{ fill: 'var(--gold)', stroke: 'var(--raised)' }}
+          stroke-width="2"
+        />
         {months.map((m) => (
-          <text key={m} x={x(m)} y={height - 8} text-anchor={x(m) > width - pad.r - 30 ? 'end' : x(m) < pad.l + 30 ? 'start' : 'middle'}>
+          <text
+            key={m}
+            x={x(m)}
+            y={height - 8}
+            text-anchor={x(m) > width - pad.r - 30 ? 'end' : x(m) < pad.l + 30 ? 'start' : 'middle'}
+          >
             {parts(m).m === 1 || m === months[0] ? formatMonthShort(m, true) : formatMonthShort(m)}
           </text>
         ))}
         {active && (
           <g>
-            <line x1={x(active.date)} x2={x(active.date)} y1={pad.t} y2={y(0)} style={{ stroke: 'var(--fg)' }} stroke-opacity="0.25" />
-            <circle cx={x(active.date)} cy={y(active.balance)} r="5.5" style={{ fill: 'var(--raised)', stroke: 'var(--gold)' }} stroke-width="2.5" />
+            <line
+              x1={x(active.date)}
+              x2={x(active.date)}
+              y1={pad.t}
+              y2={y(0)}
+              style={{ stroke: 'var(--fg)' }}
+              stroke-opacity="0.25"
+            />
+            <circle
+              cx={x(active.date)}
+              cy={y(active.balance)}
+              r="5.5"
+              style={{ fill: 'var(--raised)', stroke: 'var(--gold)' }}
+              stroke-width="2.5"
+            />
           </g>
         )}
       </svg>
       {active && (
         <div
-          class="pointer-events-none absolute top-1 rounded-xl border border-line bg-raised px-3 py-2 text-sm shadow-lg"
+          class="border-line bg-raised pointer-events-none absolute top-1 rounded-xl border px-3 py-2 text-sm shadow-lg"
           style={{ left: Math.min(Math.max(x(active.date) - 80, 0), width - 170), width: 160 }}
           aria-live="polite"
         >
-          <div class="text-xs font-semibold text-subtle">{formatShort(active.date)}</div>
+          <div class="text-subtle text-xs font-semibold">{formatShort(active.date)}</div>
           <div class="font-bold">{formatMoney(active.balance, code)}</div>
         </div>
       )}

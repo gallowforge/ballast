@@ -3,7 +3,15 @@ import { averageBurn, runway } from '../calc/runway';
 import type { LedgerData, Salary } from '../model';
 import { data, rec, savings, spending, txn } from './fixtures';
 
-const salary: Salary = { active: true, amount: 200_000, fromAccountId: 'sav', toAccountId: 'cur', autoPost: true, startedOn: '2026-11-01', lastPostedOn: '2026-11-01' };
+const salary: Salary = {
+  active: true,
+  amount: 200_000,
+  fromAccountId: 'sav',
+  toAccountId: 'cur',
+  autoPost: true,
+  startedOn: '2026-11-01',
+  lastPostedOn: '2026-11-01',
+};
 
 function plan(p: Partial<LedgerData> = {}) {
   return data({ accounts: [{ ...savings, opening: 1_000_000 }, spending], salary, ...p });
@@ -28,7 +36,10 @@ describe('runway with a salary from savings', () => {
   });
 
   it('keeps the floor out of reach', () => {
-    const r = runway(plan({ target: { date: '2027-12-01', floor: 300_000, label: 'Goal' } }), '2026-11-10');
+    const r = runway(
+      plan({ target: { date: '2027-12-01', floor: 300_000, label: 'Goal' } }),
+      '2026-11-10',
+    );
     expect(r.periods).toBe(3);
     expect(r.runOut).toBe('2027-03-01');
   });
@@ -42,8 +53,22 @@ describe('runway with a salary from savings', () => {
     const r = runway(
       plan({
         recurring: [
-          rec({ id: 'job', name: 'Job', kind: 'income', amount: 150_000, accountId: 'sav', startOn: '2026-12-15' }),
-          rec({ id: 'ins', name: 'Insurance', amount: 90_000, accountId: 'sav', unit: 'year', startOn: '2027-01-20' }),
+          rec({
+            id: 'job',
+            name: 'Job',
+            kind: 'income',
+            amount: 150_000,
+            accountId: 'sav',
+            startOn: '2026-12-15',
+          }),
+          rec({
+            id: 'ins',
+            name: 'Insurance',
+            amount: 90_000,
+            accountId: 'sav',
+            unit: 'year',
+            startOn: '2027-01-20',
+          }),
         ],
       }),
       '2026-11-10',
@@ -54,7 +79,14 @@ describe('runway with a salary from savings', () => {
   });
 
   it('lasts forever when income covers the salary', () => {
-    const r = runway(plan({ recurring: [rec({ kind: 'income', amount: 250_000, accountId: 'sav', startOn: '2026-11-20' })] }), '2026-11-10');
+    const r = runway(
+      plan({
+        recurring: [
+          rec({ kind: 'income', amount: 250_000, accountId: 'sav', startOn: '2026-11-20' }),
+        ],
+      }),
+      '2026-11-10',
+    );
     expect(r.lasts).toBe(true);
     expect(r.runOut).toBeNull();
   });
@@ -64,41 +96,69 @@ describe('runway with a salary from savings', () => {
   });
 
   it('works out the largest salary that reaches the target', () => {
-    const r = runway(plan({ target: { date: '2027-11-01', floor: 100_000, label: 'Graduation' } }), '2026-11-10');
+    const r = runway(
+      plan({ target: { date: '2027-11-01', floor: 100_000, label: 'Graduation' } }),
+      '2026-11-10',
+    );
     const t = r.target!;
     expect(t.periods).toBe(12);
     expect(t.status).toBe('short');
     expect(t.balanceAt).toBe(1_000_000 - 12 * 200_000);
     expect(t.sustainable).toBe(Math.floor(900_000 / 12));
     expect(t.periodsShort).toBe(8);
-    const fixed = runway(plan({ target: t && { date: t.date, floor: 100_000, label: 'x' } }), '2026-11-10', { salary: t.sustainable! });
+    const fixed = runway(
+      plan({ target: t && { date: t.date, floor: 100_000, label: 'x' } }),
+      '2026-11-10',
+      { salary: t.sustainable! },
+    );
     expect(fixed.target!.status).toBe('reaches');
     expect(fixed.target!.surplus).toBeGreaterThanOrEqual(0);
   });
 
   it('reports the spare money when the target is reached', () => {
-    const r = runway(plan({ target: { date: '2027-02-01', floor: 0, label: 'Soon' } }), '2026-11-10');
-    expect(r.target).toMatchObject({ status: 'reaches', periods: 3, surplus: 400_000, periodsShort: 0 });
+    const r = runway(
+      plan({ target: { date: '2027-02-01', floor: 0, label: 'Soon' } }),
+      '2026-11-10',
+    );
+    expect(r.target).toMatchObject({
+      status: 'reaches',
+      periods: 3,
+      surplus: 400_000,
+      periodsShort: 0,
+    });
   });
 
   it('can try another target date', () => {
-    const r = runway(plan({ target: { date: '2027-02-01', floor: 0, label: 'Soon' } }), '2026-11-10', { targetDate: '2027-06-01' });
+    const r = runway(
+      plan({ target: { date: '2027-02-01', floor: 0, label: 'Soon' } }),
+      '2026-11-10',
+      { targetDate: '2027-06-01' },
+    );
     expect(r.target!.date).toBe('2027-06-01');
     expect(r.target!.status).toBe('short');
   });
 
   it('shows enough of the future to tell the story', () => {
-    const r = runway(plan({ target: { date: '2028-06-01', floor: 0, label: 'Far' } }), '2026-11-10');
+    const r = runway(
+      plan({ target: { date: '2028-06-01', floor: 0, label: 'Far' } }),
+      '2026-11-10',
+    );
     expect(r.horizon >= '2028-08-01').toBe(true);
     expect(r.points[r.points.length - 1]!.date).toBe(r.horizon);
   });
 
   it('leaves out savings in a currency without a rate, and says so', () => {
     const usdSavings = { ...savings, id: 'usdsav', currency: 'USD', opening: 100_000 };
-    const r = runway(plan({ accounts: [{ ...savings, opening: 1_000_000 }, spending, usdSavings] }), '2026-11-10');
+    const r = runway(
+      plan({ accounts: [{ ...savings, opening: 1_000_000 }, spending, usdSavings] }),
+      '2026-11-10',
+    );
     expect(r.missing.map((a) => a.id)).toEqual(['usdsav']);
     const withRate = runway(
-      plan({ accounts: [{ ...savings, opening: 1_000_000 }, spending, usdSavings], rates: { USD: { rate: '0.3', on: '2026-11-01' } } }),
+      plan({
+        accounts: [{ ...savings, opening: 1_000_000 }, spending, usdSavings],
+        rates: { USD: { rate: '0.3', on: '2026-11-01' } },
+      }),
       '2026-11-10',
     );
     expect(withRate.start).toBe(1_000_000 + 300_000);
@@ -131,7 +191,10 @@ describe('runway without a salary', () => {
   });
 
   it('lasts when you earn more than you spend', () => {
-    const d = data({ accounts: [{ ...spending, opening: 100_000 }], txns: [txn({ date: '2026-10-10', amount: 50_000, kind: 'income' })] });
+    const d = data({
+      accounts: [{ ...spending, opening: 100_000 }],
+      txns: [txn({ date: '2026-10-10', amount: 50_000, kind: 'income' })],
+    });
     expect(runway(d, '2026-11-10')).toMatchObject({ mode: 'average', lasts: true, runOut: null });
   });
 

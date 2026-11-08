@@ -19,9 +19,19 @@ describe('header words', () => {
     ['', null],
   ])('%j → %s', (cell, role) => expect(roleFor(cell)).toBe(role));
   it('finds the header below a statement banner', () => {
-    const rows = [['Example Bank'], ['Account statement', 'November'], ['Date', 'Description', 'Debit', 'Credit', 'Balance'], ['01/11/2026', 'x', '1.000', '', '9.000']];
+    const rows = [
+      ['Example Bank'],
+      ['Account statement', 'November'],
+      ['Date', 'Description', 'Debit', 'Credit', 'Balance'],
+      ['01/11/2026', 'x', '1.000', '', '9.000'],
+    ];
     expect(findHeader(rows)).toBe(2);
-    expect(findHeader([['a', 'b'], ['1', '2']])).toBe(-1);
+    expect(
+      findHeader([
+        ['a', 'b'],
+        ['1', '2'],
+      ]),
+    ).toBe(-1);
   });
 });
 
@@ -63,7 +73,9 @@ describe('mapping', () => {
     expect(m.columns).toEqual(['date', 'description', 'debit', 'credit', 'balance']);
   });
   it('explains what is missing', () => {
-    expect(mappingProblems({ header: -1, columns: ['ignore'], dateOrder: 'dmy', decimal: '.' })).toHaveLength(3);
+    expect(
+      mappingProblems({ header: -1, columns: ['ignore'], dateOrder: 'dmy', decimal: '.' }),
+    ).toHaveLength(3);
   });
   it('detects month-first dates and comma decimals', () => {
     const m = detectMapping([

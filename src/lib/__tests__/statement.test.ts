@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { detectMapping } from '../import/detect';
 import { parseStatement } from '../import/statement';
 
-const parse = (rows: string[][], invert = false) => parseStatement(rows, detectMapping(rows), { exp: 3, invert });
+const parse = (rows: string[][], invert = false) =>
+  parseStatement(rows, detectMapping(rows), { exp: 3, invert });
 
 describe('statement rows', () => {
   it('signs debits and credits and checks every running balance', () => {
@@ -14,7 +15,13 @@ describe('statement rows', () => {
       ['30/11/2026', 'Closing balance', '', '', '996.750'],
     ]);
     expect(s.rows.map((r) => r.amount)).toEqual([-4250, 1000]);
-    expect(s.reconciliation).toMatchObject({ checked: 2, matched: 2, mismatched: [], opening: 1_000_000, closing: 996_750 });
+    expect(s.reconciliation).toMatchObject({
+      checked: 2,
+      matched: 2,
+      mismatched: [],
+      opening: 1_000_000,
+      closing: 996_750,
+    });
     expect(s.from).toBe('2026-11-02');
     expect(s.to).toBe('2026-11-03');
   });
@@ -88,7 +95,15 @@ describe('statement rows', () => {
   });
 
   it('can flip signs for exports that list spending as positive', () => {
-    expect(parse([['Date', 'Description', 'Amount'], ['02/11/2026', 'Coffee', '1.500']], true).rows[0]!.amount).toBe(-1500);
+    expect(
+      parse(
+        [
+          ['Date', 'Description', 'Amount'],
+          ['02/11/2026', 'Coffee', '1.500'],
+        ],
+        true,
+      ).rows[0]!.amount,
+    ).toBe(-1500);
   });
 
   it('works out the closing balance after the last balance it saw', () => {

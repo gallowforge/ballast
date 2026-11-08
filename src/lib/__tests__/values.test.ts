@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { detectDateOrder, detectDecimal, looksLikeAmount, looksLikeDate, parseAmount, parseDate } from '../import/values';
+import {
+  detectDateOrder,
+  detectDecimal,
+  looksLikeAmount,
+  looksLikeDate,
+  parseAmount,
+  parseDate,
+} from '../import/values';
 
 describe('statement dates', () => {
   it.each([
@@ -17,8 +24,9 @@ describe('statement dates', () => {
     ['08/11/2026 14:32', 'dmy', '2026-11-08'],
     ['08/11/2026 2:32 PM', 'dmy', '2026-11-08'],
   ] as const)('%s (%s) → %s', (raw, order, out) => expect(parseDate(raw, order)).toBe(out));
-  it.each(['31/02/2026', '2026-13-01', 'yesterday', '', '12.500', '1234', '08/11'])('rejects %j', (raw) =>
-    expect(parseDate(raw)).toBeNull(),
+  it.each(['31/02/2026', '2026-13-01', 'yesterday', '', '12.500', '1234', '08/11'])(
+    'rejects %j',
+    (raw) => expect(parseDate(raw)).toBeNull(),
   );
   it('detects day-first, month-first and ISO columns', () => {
     expect(detectDateOrder(['01/11/2026', '25/11/2026'])).toBe('dmy');
@@ -50,8 +58,12 @@ describe('statement amounts', () => {
     ['0.0005', 3, '.', 1, false],
     ['0.0004', 3, '.', 0, false],
     ['.75', 2, '.', 75, false],
-  ] as const)('%s → %i', (raw, exp, dec, minor, signed) => expect(parseAmount(raw, exp, dec)).toEqual({ minor, signed }));
-  it.each(['', '-', '—', 'abc', 'N/A'])('rejects %j', (raw) => expect(parseAmount(raw, 3)).toBeNull());
+  ] as const)('%s → %i', (raw, exp, dec, minor, signed) =>
+    expect(parseAmount(raw, exp, dec)).toEqual({ minor, signed }),
+  );
+  it.each(['', '-', '—', 'abc', 'N/A'])('rejects %j', (raw) =>
+    expect(parseAmount(raw, 3)).toBeNull(),
+  );
   it('detects comma decimals', () => {
     expect(detectDecimal(['1.234,56', '12,50', '3,00'])).toBe(',');
     expect(detectDecimal(['1,234.567', '12.500'])).toBe('.');

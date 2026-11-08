@@ -7,8 +7,18 @@ export interface Profile {
   dateOrder: DateOrder;
 }
 
-export const NBK: Profile = { id: 'nbk', name: 'National Bank of Kuwait', currency: 'KWD', dateOrder: 'dmy' };
-export const GENERIC: Profile = { id: 'generic', name: 'Bank statement', currency: 'KWD', dateOrder: 'dmy' };
+export const NBK: Profile = {
+  id: 'nbk',
+  name: 'National Bank of Kuwait',
+  currency: 'KWD',
+  dateOrder: 'dmy',
+};
+export const GENERIC: Profile = {
+  id: 'generic',
+  name: 'Bank statement',
+  currency: 'KWD',
+  dateOrder: 'dmy',
+};
 
 /** Recognises the bank from the statement's own words. */
 export function detectProfile(text: string): Profile {

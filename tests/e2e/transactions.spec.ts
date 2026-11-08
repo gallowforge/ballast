@@ -29,7 +29,10 @@ test('a transaction can be edited, deleted and brought back', async ({ page }) =
   await expect(page.getByRole('button', { name: /Bookworm.*14\.000/ })).toBeVisible();
 
   await page.getByRole('button', { name: /Bookworm.*14\.000/ }).click();
-  await page.getByRole('dialog', { name: 'Edit transaction' }).getByRole('button', { name: 'Delete' }).click();
+  await page
+    .getByRole('dialog', { name: 'Edit transaction' })
+    .getByRole('button', { name: 'Delete' })
+    .click();
   await expect(page.getByRole('button', { name: /Bookworm/ })).toHaveCount(0);
   await page.getByRole('status').getByRole('button', { name: 'Undo' }).last().click();
   await expect(page.getByRole('button', { name: /Bookworm.*14\.000/ })).toBeVisible();

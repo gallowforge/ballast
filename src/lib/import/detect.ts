@@ -1,4 +1,10 @@
-import { detectDateOrder, detectDecimal, looksLikeAmount, looksLikeDate, type DateOrder } from './values';
+import {
+  detectDateOrder,
+  detectDecimal,
+  looksLikeAmount,
+  looksLikeDate,
+  type DateOrder,
+} from './values';
 
 export type Role =
   | 'date'
@@ -32,18 +38,96 @@ const SYNONYMS: [Role, string[]][] = [
   ['valueDate', ['value date', 'val date', 'value dt']],
   [
     'date',
-    ['date', 'transaction date', 'posting date', 'post date', 'posted date', 'txn date', 'trans date', 'tran date', 'booking date', 'entry date'],
+    [
+      'date',
+      'transaction date',
+      'posting date',
+      'post date',
+      'posted date',
+      'txn date',
+      'trans date',
+      'tran date',
+      'booking date',
+      'entry date',
+    ],
   ],
   [
     'description',
-    ['description', 'details', 'transaction details', 'narrative', 'narration', 'particulars', 'remarks', 'memo', 'payee', 'merchant', 'transaction description', 'name', 'transaction'],
+    [
+      'description',
+      'details',
+      'transaction details',
+      'narrative',
+      'narration',
+      'particulars',
+      'remarks',
+      'memo',
+      'payee',
+      'merchant',
+      'transaction description',
+      'name',
+      'transaction',
+    ],
   ],
-  ['debit', ['debit', 'debits', 'withdrawal', 'withdrawals', 'money out', 'paid out', 'dr', 'debit amount', 'amount debit', 'out']],
-  ['credit', ['credit', 'credits', 'deposit', 'deposits', 'money in', 'paid in', 'cr', 'credit amount', 'amount credit', 'in']],
+  [
+    'debit',
+    [
+      'debit',
+      'debits',
+      'withdrawal',
+      'withdrawals',
+      'money out',
+      'paid out',
+      'dr',
+      'debit amount',
+      'amount debit',
+      'out',
+    ],
+  ],
+  [
+    'credit',
+    [
+      'credit',
+      'credits',
+      'deposit',
+      'deposits',
+      'money in',
+      'paid in',
+      'cr',
+      'credit amount',
+      'amount credit',
+      'in',
+    ],
+  ],
   ['amount', ['amount', 'transaction amount', 'value', 'amount kwd', 'amount kd', 'amt']],
-  ['balance', ['balance', 'running balance', 'available balance', 'ledger balance', 'balance kwd', 'balance kd', 'book balance']],
+  [
+    'balance',
+    [
+      'balance',
+      'running balance',
+      'available balance',
+      'ledger balance',
+      'balance kwd',
+      'balance kd',
+      'book balance',
+    ],
+  ],
   ['currency', ['currency', 'ccy', 'curr']],
-  ['reference', ['reference', 'ref', 'ref no', 'reference no', 'reference number', 'cheque no', 'check no', 'transaction id', 'txn id', 'doc no']],
+  [
+    'reference',
+    [
+      'reference',
+      'ref',
+      'ref no',
+      'reference no',
+      'reference number',
+      'cheque no',
+      'check no',
+      'transaction id',
+      'txn id',
+      'doc no',
+    ],
+  ],
   ['type', ['type', 'dr cr', 'debit credit', 'transaction type', 'cr dr', 'd c']],
 ];
 
@@ -135,7 +219,9 @@ export function detectMapping(rows: readonly string[][]): Mapping {
   if (!hasMoney) {
     const numeric = free().filter((c) => {
       const vals = column(body, c);
-      return share(vals, looksLikeAmount) > 0.6 && share(vals, (v) => /[.,]\d{1,3}\b/.test(v)) > 0.3;
+      return (
+        share(vals, looksLikeAmount) > 0.6 && share(vals, (v) => /[.,]\d{1,3}\b/.test(v)) > 0.3
+      );
     });
     if (numeric.length >= 3) {
       const [d, c, b] = numeric.slice(-3) as [number, number, number];
@@ -163,7 +249,9 @@ export function detectMapping(rows: readonly string[][]): Mapping {
   }
 
   const dateCol = columns.indexOf('date');
-  const moneyCols = columns.flatMap((r, i) => (['debit', 'credit', 'amount', 'balance'].includes(r) ? [i] : []));
+  const moneyCols = columns.flatMap((r, i) =>
+    ['debit', 'credit', 'amount', 'balance'].includes(r) ? [i] : [],
+  );
   return {
     header,
     columns,
@@ -176,8 +264,10 @@ export function detectMapping(rows: readonly string[][]): Mapping {
 export function mappingProblems(m: Mapping): string[] {
   const out: string[] = [];
   if (!m.columns.includes('date')) out.push('Choose the column that holds the date.');
-  const money = m.columns.includes('amount') || m.columns.includes('debit') || m.columns.includes('credit');
+  const money =
+    m.columns.includes('amount') || m.columns.includes('debit') || m.columns.includes('credit');
   if (!money) out.push('Choose the amount column, or the money-in and money-out columns.');
-  if (!m.columns.includes('description')) out.push('Choose the column that describes each transaction.');
+  if (!m.columns.includes('description'))
+    out.push('Choose the column that describes each transaction.');
   return out;
 }

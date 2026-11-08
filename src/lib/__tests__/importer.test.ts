@@ -1,7 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { findDuplicates, fingerprint, withOccurrence } from '../import/dedupe';
-import { buildReview, hasHistoryBefore, mappingFor, readStatement, sourceFromCSV, summarize } from '../import/importer';
+import {
+  buildReview,
+  hasHistoryBefore,
+  mappingFor,
+  readStatement,
+  sourceFromCSV,
+  summarize,
+} from '../import/importer';
 import { detectCurrency, detectProfile } from '../import/profiles';
 import { applyImport, undoImport } from '../store/ops';
 import { balance } from '../ledger';
@@ -27,7 +34,9 @@ describe('duplicates', () => {
     expect(withOccurrence(['a', 'b', 'a'])).toEqual(['a#1', 'b#1', 'a#2']);
   });
   it('builds a stable fingerprint', () => {
-    expect(fingerprint('cur', '2026-11-02', -4250, 'Pos Talabat, KW')).toBe('cur|2026-11-02|-4250|POSTALABATKW');
+    expect(fingerprint('cur', '2026-11-02', -4250, 'Pos Talabat, KW')).toBe(
+      'cur|2026-11-02|-4250|POSTALABATKW',
+    );
   });
   it('finds exact repeats and entries added by hand, claiming each once', () => {
     const d = data({
@@ -35,7 +44,14 @@ describe('duplicates', () => {
       txns: [
         txn({ date: '2026-11-02', amount: 4250, fingerprint: 'k1#1' }),
         txn({ id: 'manual', date: '2026-11-04', amount: 1500 }),
-        txn({ id: 'salary', date: '2026-11-01', amount: 200000, kind: 'transfer', accountId: 'sav', toAccountId: 'cur' }),
+        txn({
+          id: 'salary',
+          date: '2026-11-01',
+          amount: 200000,
+          kind: 'transfer',
+          accountId: 'sav',
+          toAccountId: 'cur',
+        }),
       ],
     });
     const dups = findDuplicates(d, 'cur', [
@@ -45,7 +61,13 @@ describe('duplicates', () => {
       { date: '2026-11-01', amount: 200000, fingerprint: 'k3#1' },
       { date: '2026-11-20', amount: -1500, fingerprint: 'k4#1' },
     ]);
-    expect(dups.map((x) => (x.exact ? 'exact' : (x.match?.id ?? 'new')))).toEqual(['exact', 'manual', 'new', 'salary', 'new']);
+    expect(dups.map((x) => (x.exact ? 'exact' : (x.match?.id ?? 'new')))).toEqual([
+      'exact',
+      'manual',
+      'new',
+      'salary',
+      'new',
+    ]);
   });
 });
 
@@ -56,21 +78,47 @@ describe('importing the sample CSV', () => {
 
   it('reads and reconciles it', () => {
     expect(statement.rows).toHaveLength(expected.rows);
-    expect(statement.reconciliation).toMatchObject({ mismatched: [], opening: expected.opening, closing: expected.closing });
+    expect(statement.reconciliation).toMatchObject({
+      mismatched: [],
+      opening: expected.opening,
+      closing: expected.closing,
+    });
   });
 
   it('cleans payees, guesses categories and skips the salary already posted', () => {
     const d = data({
       accounts: [savings, spending],
-      salary: { active: true, amount: 220_000, fromAccountId: 'sav', toAccountId: 'cur', autoPost: true, startedOn: '2026-10-01' },
-      txns: [txn({ id: 'pay', date: '2026-10-01', amount: 220_000, kind: 'transfer', accountId: 'sav', toAccountId: 'cur', source: 'salary' })],
+      salary: {
+        active: true,
+        amount: 220_000,
+        fromAccountId: 'sav',
+        toAccountId: 'cur',
+        autoPost: true,
+        startedOn: '2026-10-01',
+      },
+      txns: [
+        txn({
+          id: 'pay',
+          date: '2026-10-01',
+          amount: 220_000,
+          kind: 'transfer',
+          accountId: 'sav',
+          toAccountId: 'cur',
+          source: 'salary',
+        }),
+      ],
     });
     const rows = buildReview(d, 'cur', statement);
     const first = rows[0]!;
     expect(first).toMatchObject({ kind: 'transfer', include: false, transferHint: true });
     expect(first.duplicate.match?.id).toBe('pay');
     const talabat = rows.find((r) => r.raw.includes('TALABAT'))!;
-    expect(talabat).toMatchObject({ payee: 'Talabat', categoryId: 'delivery', kind: 'expense', include: true });
+    expect(talabat).toMatchObject({
+      payee: 'Talabat',
+      categoryId: 'delivery',
+      kind: 'expense',
+      include: true,
+    });
     const s = summarize(rows);
     expect(s.count).toBe(expected.rows - 1);
     expect(s.duplicates).toBe(1);
@@ -105,11 +153,25 @@ describe('importing the sample CSV', () => {
 
   it('can record a line as a transfer to another account', () => {
     const d = data({ accounts: [savings, spending] });
-    const rows = buildReview(d, 'cur', statement).map((r, i) => (i === 0 ? { ...r, kind: 'transfer' as const, toAccountId: 'sav', include: true } : r));
-    const after = applyImport(rows, { kind: 'csv', profile: 'generic', fileName: 'x', accountId: 'cur', from: '2026-10-01', to: '2026-10-31' }).op(d);
+    const rows = buildReview(d, 'cur', statement).map((r, i) =>
+      i === 0 ? { ...r, kind: 'transfer' as const, toAccountId: 'sav', include: true } : r,
+    );
+    const after = applyImport(rows, {
+      kind: 'csv',
+      profile: 'generic',
+      fileName: 'x',
+      accountId: 'cur',
+      from: '2026-10-01',
+      to: '2026-10-31',
+    }).op(d);
     const t = after.txns[0]!;
     // Money came in to the current account from savings.
-    expect(t).toMatchObject({ kind: 'transfer', accountId: 'sav', toAccountId: 'cur', amount: 220_000 });
+    expect(t).toMatchObject({
+      kind: 'transfer',
+      accountId: 'sav',
+      toAccountId: 'cur',
+      amount: 220_000,
+    });
   });
 
   it('knows when an account already has older history', () => {

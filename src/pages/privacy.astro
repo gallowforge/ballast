@@ -11,30 +11,48 @@ import { SITE } from '@/lib/site';
 >
   <h2>What is stored, and where</h2>
   <p>
-    Your accounts, transactions, budgets, recurring items, rules and settings are kept in your browser's IndexedDB storage for this site, and nowhere else. The light or dark choice is kept in
-    local storage. Ledger asks the browser to keep this data even when space runs low; you can see the answer in Settings.
+    Your accounts, transactions, budgets, recurring items, rules and settings are kept in your
+    browser's IndexedDB storage for this site, and nowhere else. The light or dark choice is kept in
+    local storage. Ledger asks the browser to keep this data even when space runs low; you can see
+    the answer in Settings.
   </p>
 
   <h2>What is sent</h2>
   <p>
-    Nothing. The site is static files. There are no cookies, no analytics, no fonts or scripts from other sites, and no exchange-rate service. Every page carries a Content Security Policy
-    with <code>connect-src 'self'</code>, which tells the browser to block any connection to another site. Bank statements are read in your browser tab; the file is never uploaded and not
-    kept after import. A statement password is used once and never saved.
+    Nothing. The site is static files. There are no cookies, no analytics, no fonts or scripts from
+    other sites, and no exchange-rate service. Every page carries a Content Security Policy with{' '}
+    <code>connect-src 'self'</code>, which tells the browser to block any connection to another
+    site. Bank statements are read in your browser tab; the file is never uploaded and not kept
+    after import. A statement password is used once and never saved.
   </p>
 
   <h2>Your control</h2>
   <ul>
-    <li><strong>Export</strong> everything as a backup file, or your transactions as a CSV for spreadsheets.</li>
-    <li><strong>Restore</strong> a backup on another device, either replacing what is there or adding to it.</li>
-    <li><strong>Delete everything</strong> from Settings. Clearing this site's data in your browser does the same.</li>
+    <li>
+      <strong>Export</strong> everything as a backup file, or your transactions as a CSV for
+      spreadsheets.
+    </li>
+    <li>
+      <strong>Restore</strong> a backup on another device, either replacing what is there or adding
+      to it.
+    </li>
+    <li>
+      <strong>Delete everything</strong> from Settings. Clearing this site's data in your browser
+      does the same.
+    </li>
   </ul>
-  <p>Because nothing is stored anywhere else, nobody else can recover your data either: keep a backup if you might want it back.</p>
+  <p>
+    Because nothing is stored anywhere else, nobody else can recover your data either: keep a backup
+    if you might want it back.
+  </p>
 
   <h2>Hosting</h2>
   <p>
-    The site is served by GitHub Pages, which, like any web host, sees the request for each page (your IP address and browser). It never sees what you enter. The code is open on <a
-      href={SITE.repo}
-      rel="noopener">GitHub</a
-    >.
+    The site is served by GitHub Pages, which, like any web host, sees the request for each page
+    (your IP address and browser). It never sees what you enter. The code is open on{' '}
+    <a href={SITE.repo} rel="noopener">
+      GitHub
+    </a>
+    .
   </p>
 </ProseLayout>

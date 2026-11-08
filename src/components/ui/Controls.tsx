@@ -31,9 +31,14 @@ export function Segmented<T extends string>({
             if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
             e.preventDefault();
             const i = options.findIndex((x) => x.value === value);
-            const next = options[(i + (e.key === 'ArrowRight' ? 1 : options.length - 1)) % options.length]!;
+            const next =
+              options[(i + (e.key === 'ArrowRight' ? 1 : options.length - 1)) % options.length]!;
             onChange(next.value);
-            ((e.currentTarget as HTMLElement).parentElement?.querySelector(`[aria-checked="true"]`) as HTMLElement | null)?.focus();
+            (
+              (e.currentTarget as HTMLElement).parentElement?.querySelector(
+                `[aria-checked="true"]`,
+              ) as HTMLElement | null
+            )?.focus();
           }}
         >
           {o.label}
@@ -43,7 +48,17 @@ export function Segmented<T extends string>({
   );
 }
 
-export function Switch({ checked, onChange, label, hint }: { checked: boolean; onChange: (v: boolean) => void; label: string; hint?: string }) {
+export function Switch({
+  checked,
+  onChange,
+  label,
+  hint,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+  hint?: string;
+}) {
   const id = useId();
   return (
     <div class="flex items-center justify-between gap-4">
@@ -53,12 +68,29 @@ export function Switch({ checked, onChange, label, hint }: { checked: boolean; o
         </div>
         {hint && <div class="hint mt-0.5">{hint}</div>}
       </div>
-      <button type="button" role="switch" aria-checked={checked} aria-labelledby={id} class="switch" onClick={() => onChange(!checked)} />
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-labelledby={id}
+        class="switch"
+        onClick={() => onChange(!checked)}
+      />
     </div>
   );
 }
 
-export function Field({ label, hint, children, id }: { label: string; hint?: string; children: ComponentChildren; id: string }) {
+export function Field({
+  label,
+  hint,
+  children,
+  id,
+}: {
+  label: string;
+  hint?: string;
+  children: ComponentChildren;
+  id: string;
+}) {
   return (
     <div class="field">
       <label class="label" for={id}>
@@ -104,7 +136,9 @@ export function AmountInput({
         aria-label={label}
         onInput={(e) => onInput((e.target as HTMLInputElement).value)}
       />
-      <span class="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm font-bold text-subtle">{c.label}</span>
+      <span class="text-subtle pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm font-bold">
+        {c.label}
+      </span>
     </div>
   );
 }
@@ -119,7 +153,13 @@ export function fromInput(text: string, code: string): number | null {
   return v !== null && v > 0 ? v : null;
 }
 
-export function CategoryTile({ category, size = 'md' }: { category?: Category | null; size?: 'sm' | 'md' | 'lg' }) {
+export function CategoryTile({
+  category,
+  size = 'md',
+}: {
+  category?: Category | null;
+  size?: 'sm' | 'md' | 'lg';
+}) {
   const hue = category?.hue ?? 80;
   const icon = category?.icon ?? 'tag';
   const px = size === 'sm' ? 16 : size === 'lg' ? 24 : 19;
@@ -154,10 +194,19 @@ export function CategoryPicker({
           <label
             key={c.id}
             class={`flex cursor-pointer flex-col items-center gap-1.5 rounded-2xl border px-1 py-2.5 text-center text-xs font-semibold transition ${
-              value === c.id ? 'border-gold bg-gold-soft text-fg' : 'border-line text-muted hover:border-line-strong hover:text-fg'
+              value === c.id
+                ? 'border-gold bg-gold-soft text-fg'
+                : 'border-line text-muted hover:border-line-strong hover:text-fg'
             }`}
           >
-            <input type="radio" class="sr-only" name={name} value={c.id} checked={value === c.id} onChange={() => onChange(c.id)} />
+            <input
+              type="radio"
+              class="sr-only"
+              name={name}
+              value={c.id}
+              checked={value === c.id}
+              onChange={() => onChange(c.id)}
+            />
             <CategoryTile category={c} size="sm" />
             <span class="line-clamp-2 leading-tight">{c.name}</span>
           </label>
@@ -167,7 +216,19 @@ export function CategoryPicker({
   );
 }
 
-export function Empty({ icon, title, body, children, level = 3 }: { icon: string; title: string; body: string; children?: ComponentChildren; level?: 2 | 3 }) {
+export function Empty({
+  icon,
+  title,
+  body,
+  children,
+  level = 3,
+}: {
+  icon: string;
+  title: string;
+  body: string;
+  children?: ComponentChildren;
+  level?: 2 | 3;
+}) {
   const H = level === 2 ? 'h2' : 'h3';
   return (
     <div class="grid justify-items-center gap-3 px-4 py-10 text-center">
@@ -175,7 +236,7 @@ export function Empty({ icon, title, body, children, level = 3 }: { icon: string
         <Icon name={icon} size={24} />
       </span>
       <H class="text-base font-bold">{title}</H>
-      <p class="max-w-sm text-sm text-muted">{body}</p>
+      <p class="text-muted max-w-sm text-sm">{body}</p>
       {children && <div class="mt-1 flex flex-wrap justify-center gap-2">{children}</div>}
     </div>
   );

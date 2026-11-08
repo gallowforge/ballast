@@ -3,8 +3,16 @@ import { effectOn } from '../ledger';
 import type { LedgerData, Txn } from '../model';
 
 /** A stable key for one statement line in one account. */
-export function fingerprint(accountId: string, date: ISODate, amount: number, description: string): string {
-  const text = description.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 40);
+export function fingerprint(
+  accountId: string,
+  date: ISODate,
+  amount: number,
+  description: string,
+): string {
+  const text = description
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .slice(0, 40);
   return `${accountId}|${date}|${amount}|${text}`;
 }
 

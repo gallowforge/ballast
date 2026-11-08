@@ -38,8 +38,10 @@ export interface ParsedStatement {
   descending: boolean;
 }
 
-const OPENING = /\b(opening balance|balance brought forward|brought forward|b\/f|previous balance|balance b\/fwd|start balance)\b/i;
-const CLOSING = /\b(closing balance|balance carried forward|carried forward|c\/f|ending balance|end balance)\b/i;
+const OPENING =
+  /\b(opening balance|balance brought forward|brought forward|b\/f|previous balance|balance b\/fwd|start balance)\b/i;
+const CLOSING =
+  /\b(closing balance|balance carried forward|carried forward|c\/f|ending balance|end balance)\b/i;
 const TOTAL = /^\s*(total|totals|sub ?total|grand total)\b/i;
 
 export interface ParseOptions {
@@ -50,7 +52,11 @@ export interface ParseOptions {
 }
 
 /** Turns a mapped table into dated, signed rows and checks them against the running balance. */
-export function parseStatement(table: readonly string[][], mapping: Mapping, opts: ParseOptions): ParsedStatement {
+export function parseStatement(
+  table: readonly string[][],
+  mapping: Mapping,
+  opts: ParseOptions,
+): ParsedStatement {
   const col = (role: string) => mapping.columns.indexOf(role as Mapping['columns'][number]);
   const c = {
     date: col('date'),
@@ -92,7 +98,8 @@ export function parseStatement(table: readonly string[][], mapping: Mapping, opt
     if (!date) {
       if (TOTAL.test(text)) return;
       const prev = rows[rows.length - 1];
-      const onlyText = desc && [c.debit, c.credit, c.amount, c.balance].every((i) => !amt(cell(r, i)));
+      const onlyText =
+        desc && [c.debit, c.credit, c.amount, c.balance].every((i) => !amt(cell(r, i)));
       if (prev && onlyText) prev.description = `${prev.description} ${desc}`.trim();
       else skipped.push({ line, reason: 'No date' });
       return;
@@ -116,7 +123,9 @@ export function parseStatement(table: readonly string[][], mapping: Mapping, opt
         const type = cell(r, c.type).toLowerCase();
         if (type) {
           signed = true;
-          amount = /^(d|dr|debit|withdrawal|out)/.test(type) ? -Math.abs(a.minor) : Math.abs(a.minor);
+          amount = /^(d|dr|debit|withdrawal|out)/.test(type)
+            ? -Math.abs(a.minor)
+            : Math.abs(a.minor);
         }
       }
     }

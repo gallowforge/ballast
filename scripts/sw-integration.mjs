@@ -28,12 +28,15 @@ async function preload(root, files) {
     if (seen.has(file)) return;
     seen.add(file);
     if (!cache.has(file)) cache.set(file, await readFile(join(root, file), 'utf8').catch(() => ''));
-    for (const m of cache.get(file).matchAll(STATIC_IMPORT)) await deps(posix.normalize(posix.join(posix.dirname(file), m[1])), seen);
+    for (const m of cache.get(file).matchAll(STATIC_IMPORT))
+      await deps(posix.normalize(posix.join(posix.dirname(file), m[1])), seen);
   };
   for (const page of files.filter((f) => f.endsWith('.html'))) {
     const path = join(root, page);
     let html = await readFile(path, 'utf8');
-    const entries = [...html.matchAll(/(?:component-url|renderer-url|src)="([^"]*_astro\/[^"]+\.js)"/g)].map((m) => m[1]);
+    const entries = [
+      ...html.matchAll(/(?:component-url|renderer-url|src)="([^"]*_astro\/[^"]+\.js)"/g),
+    ].map((m) => m[1]);
     if (!entries.length) continue;
     const prefix = entries[0].slice(0, entries[0].indexOf('_astro/'));
     const seen = new Set();
@@ -59,11 +62,17 @@ export function serviceWorker() {
           hash.update(await readFile(join(root, f)));
         }
         const version = hash.digest('hex').slice(0, 12);
-        const urls = files.map((f) => (f === 'index.html' ? './' : f.replace(/(^|\/)index\.html$/, '$1')));
+        const urls = files.map((f) =>
+          f === 'index.html' ? './' : f.replace(/(^|\/)index\.html$/, '$1'),
+        );
         const template = await readFile(new URL('../src/sw/sw.js', import.meta.url), 'utf8');
-        const body = template.replace("'__VERSION__'", JSON.stringify(version)).replace('[/* __PRECACHE__ */]', JSON.stringify(urls));
+        const body = template
+          .replace("'__VERSION__'", JSON.stringify(version))
+          .replace('[/* __PRECACHE__ */]', JSON.stringify(urls));
         await writeFile(join(root, 'sw.js'), body);
-        logger.info(`modulepreload added; service worker ${version}: ${urls.length} files precached`);
+        logger.info(
+          `modulepreload added; service worker ${version}: ${urls.length} files precached`,
+        );
       },
     },
   };

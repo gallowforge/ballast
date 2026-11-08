@@ -1,10 +1,24 @@
 import { describe, expect, it } from 'vitest';
-import { describeCadence, duePosts, monthlyEquivalent, nextDue, nth, occurrences, upcoming, yearlyEquivalent } from '../calc/recurring';
+import {
+  describeCadence,
+  duePosts,
+  monthlyEquivalent,
+  nextDue,
+  nth,
+  occurrences,
+  upcoming,
+  yearlyEquivalent,
+} from '../calc/recurring';
 import { data, rec } from './fixtures';
 
 describe('recurring schedules', () => {
   it('keeps the anchor day through short months', () => {
-    expect([0, 1, 2, 3].map((i) => nth('2026-01-31', 1, 'month', i))).toEqual(['2026-01-31', '2026-02-28', '2026-03-31', '2026-04-30']);
+    expect([0, 1, 2, 3].map((i) => nth('2026-01-31', 1, 'month', i))).toEqual([
+      '2026-01-31',
+      '2026-02-28',
+      '2026-03-31',
+      '2026-04-30',
+    ]);
   });
   it('steps weeks and years', () => {
     expect(nth('2026-11-08', 2, 'week', 3)).toBe('2026-12-20');
@@ -12,7 +26,11 @@ describe('recurring schedules', () => {
   });
   it('lists occurrences in a window, respecting start and end', () => {
     const r = rec({ amount: 1000, startOn: '2026-01-15', endOn: '2026-05-15' });
-    expect(occurrences(r, '2026-03-01', '2026-12-31')).toEqual(['2026-03-15', '2026-04-15', '2026-05-15']);
+    expect(occurrences(r, '2026-03-01', '2026-12-31')).toEqual([
+      '2026-03-15',
+      '2026-04-15',
+      '2026-05-15',
+    ]);
     expect(occurrences(r, '2025-01-01', '2025-12-31')).toEqual([]);
   });
   it('jumps ahead efficiently for old schedules', () => {
@@ -40,7 +58,12 @@ describe('recurring schedules', () => {
     expect(describeCadence({ every: 2, unit: 'week' })).toBe('every 2 weeks');
   });
   it('sorts everything due in a window', () => {
-    const d = data({ recurring: [rec({ id: 'a', amount: 5000, startOn: '2026-01-20' }), rec({ id: 'b', amount: 1000, startOn: '2026-01-09' })] });
+    const d = data({
+      recurring: [
+        rec({ id: 'a', amount: 5000, startOn: '2026-01-20' }),
+        rec({ id: 'b', amount: 1000, startOn: '2026-01-09' }),
+      ],
+    });
     expect(upcoming(d, '2026-11-08', '2026-11-30').map((u) => [u.recurring.id, u.date])).toEqual([
       ['b', '2026-11-09'],
       ['a', '2026-11-20'],

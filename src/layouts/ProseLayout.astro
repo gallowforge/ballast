@@ -17,7 +17,9 @@ const { title, description, lead, eyebrow } = Astro.props;
     <p class="pill pill-gold">{eyebrow}</p>
     <h1 class="display mt-4 text-[2.8rem] sm:text-[3.4rem]">{title}</h1>
     <p class="mt-4 text-xl text-muted">{lead}</p>
-    <article class="prose-ledger mt-6"><slot /></article>
+    <article class="prose-ledger mt-6">
+      <slot />
+    </article>
   </main>
   <SiteFooter />
 </Base>

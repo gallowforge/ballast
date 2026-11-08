@@ -43,11 +43,15 @@ createServer((req, res) => {
   }
   const type = types[extname(file)] ?? 'application/octet-stream';
   // Compress text like a real static host (GitHub Pages does), so Lighthouse measures fairly.
-  const gzip = /text|javascript|json|xml|svg|manifest/.test(type) && /\bgzip\b/.test(req.headers['accept-encoding'] ?? '');
+  const gzip =
+    /text|javascript|json|xml|svg|manifest/.test(type) &&
+    /\bgzip\b/.test(req.headers['accept-encoding'] ?? '');
   res.writeHead(status, {
     'content-type': type,
     ...(gzip ? { 'content-encoding': 'gzip', vary: 'Accept-Encoding' } : {}),
-    'cache-control': path.startsWith('/_astro/') ? 'public, max-age=31536000, immutable' : 'no-cache',
+    'cache-control': path.startsWith('/_astro/')
+      ? 'public, max-age=31536000, immutable'
+      : 'no-cache',
   });
   const stream = createReadStream(file);
   (gzip ? stream.pipe(createGzip()) : stream).pipe(res);

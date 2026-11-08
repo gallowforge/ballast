@@ -4,7 +4,15 @@ import PageHeader from '@/components/frame/PageHeader.astro';
 import RunwayScreen from '@/components/screens/RunwayScreen';
 ---
 
-<AppLayout title="Runway" section="runway" description="How long your savings last at your salary, and the most you can pay yourself to reach a date.">
-  <PageHeader title="Runway" subtitle="How long your savings last, and what gets you to your date." icon="runway" />
+<AppLayout
+  title="Runway"
+  section="runway"
+  description="How long your savings last at your salary, and the most you can pay yourself to reach a date."
+>
+  <PageHeader
+    title="Runway"
+    subtitle="How long your savings last, and what gets you to your date."
+    icon="runway"
+  />
   <RunwayScreen client:load />
 </AppLayout>

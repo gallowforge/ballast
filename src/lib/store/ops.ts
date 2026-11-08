@@ -27,7 +27,11 @@ import type { ReviewRow } from '../import/importer';
 
 export type Op = (data: LedgerData) => LedgerData;
 
-export type TxnInput = Omit<Txn, 'id' | 'createdAt' | 'base'> & { base?: Minor; id?: string; createdAt?: number };
+export type TxnInput = Omit<Txn, 'id' | 'createdAt' | 'base'> & {
+  base?: Minor;
+  id?: string;
+  createdAt?: number;
+};
 
 function accountCurrency(data: LedgerData, id: string): string {
   return data.accounts.find((a) => a.id === id)?.currency ?? data.settings.base;
@@ -37,7 +41,12 @@ function accountCurrency(data: LedgerData, id: string): string {
 export function completeTxn(data: LedgerData, input: TxnInput): Txn {
   const cur = accountCurrency(data, input.accountId);
   const base = input.base ?? toBase(data, input.amount, cur) ?? input.amount;
-  const txn: Txn = { ...input, id: input.id ?? uid('t'), createdAt: input.createdAt ?? Date.now(), base };
+  const txn: Txn = {
+    ...input,
+    id: input.id ?? uid('t'),
+    createdAt: input.createdAt ?? Date.now(),
+    base,
+  };
   if (txn.kind === 'transfer' && txn.toAccountId && txn.toAmount === undefined) {
     const to = accountCurrency(data, txn.toAccountId);
     if (to === cur) txn.toAmount = txn.amount;
@@ -46,7 +55,9 @@ export function completeTxn(data: LedgerData, input: TxnInput): Txn {
       const rTo = rateFor(data, to);
       const inBase = rFrom ? convert(txn.amount, cur, data.settings.base, rFrom) : null;
       txn.toAmount =
-        inBase !== null && rTo ? (convert(inBase, data.settings.base, to, invertRate(rTo)) ?? txn.amount) : txn.amount;
+        inBase !== null && rTo
+          ? (convert(inBase, data.settings.base, to, invertRate(rTo)) ?? txn.amount)
+          : txn.amount;
     }
   }
   if (txn.kind === 'transfer') delete txn.categoryId;
@@ -74,7 +85,8 @@ export const updateTxn =
     txns: d.txns.map((t) => {
       if (t.id !== id) return t;
       const next = { ...t, ...patch } as TxnInput;
-      const recompute = patch.amount !== undefined || patch.accountId !== undefined || patch.kind !== undefined;
+      const recompute =
+        patch.amount !== undefined || patch.accountId !== undefined || patch.kind !== undefined;
       if (recompute && patch.base === undefined) delete next.base;
       if (recompute && patch.toAmount === undefined) delete next.toAmount;
       return completeTxn(d, { ...next, id: t.id, createdAt: t.createdAt });
@@ -93,7 +105,10 @@ export const categorizeTxns =
   (ids: readonly string[], categoryId: string): Op =>
   (d) => {
     const set = new Set(ids);
-    return { ...d, txns: d.txns.map((t) => (set.has(t.id) && t.kind !== 'transfer' ? { ...t, categoryId } : t)) };
+    return {
+      ...d,
+      txns: d.txns.map((t) => (set.has(t.id) && t.kind !== 'transfer' ? { ...t, categoryId } : t)),
+    };
   };
 
 /* ---------- Accounts ---------- */
@@ -115,7 +130,8 @@ export const deleteAccount =
     txns: d.txns.filter((t) => t.accountId !== id && t.toAccountId !== id),
     recurring: d.recurring.filter((r) => r.accountId !== id),
     imports: d.imports.filter((b) => b.accountId !== id),
-    salary: d.salary && (d.salary.fromAccountId === id || d.salary.toAccountId === id) ? null : d.salary,
+    salary:
+      d.salary && (d.salary.fromAccountId === id || d.salary.toAccountId === id) ? null : d.salary,
   });
 
 /* ---------- Categories ---------- */
@@ -126,7 +142,10 @@ export const addCategory =
 
 export const updateCategory =
   (id: string, patch: Partial<Category>): Op =>
-  (d) => ({ ...d, categories: d.categories.map((c) => (c.id === id ? { ...c, ...patch, id } : c)) });
+  (d) => ({
+    ...d,
+    categories: d.categories.map((c) => (c.id === id ? { ...c, ...patch, id } : c)),
+  });
 
 /** Deletes a category; its transactions move to `moveTo` (or become uncategorised). */
 export const deleteCategory =
@@ -150,7 +169,9 @@ export const setBudget =
     const next: Budget = { categoryId, amount, rollover, since };
     return {
       ...d,
-      budgets: existing ? d.budgets.map((b) => (b.categoryId === categoryId ? next : b)) : [...d.budgets, next],
+      budgets: existing
+        ? d.budgets.map((b) => (b.categoryId === categoryId ? next : b))
+        : [...d.budgets, next],
     };
   };
 
@@ -208,10 +229,16 @@ export const dismiss =
  * Remembers a merchant's category (and clean name) and applies it to every other uncategorised
  * transaction from the same merchant. Returns the op and how many it will touch.
  */
-export function learnRule(data: LedgerData, raw: string, categoryId: string, payee?: string): { op: Op; others: number } {
+export function learnRule(
+  data: LedgerData,
+  raw: string,
+  categoryId: string,
+  payee?: string,
+): { op: Op; others: number } {
   const match = ruleKey(raw);
   if (!match) return { op: (d) => d, others: 0 };
-  const hits = (t: Txn) => t.kind !== 'transfer' && !t.categoryId && merchantKey(t.payee).includes(match);
+  const hits = (t: Txn) =>
+    t.kind !== 'transfer' && !t.categoryId && merchantKey(t.payee).includes(match);
   const others = data.txns.filter(hits).length;
   const op: Op = (d) => {
     const rule: Rule = { id: uid('rule'), match, categoryId, payee, createdAt: Date.now() };
@@ -268,7 +295,9 @@ export function applyImport(rows: readonly ReviewRow[], meta: ImportMeta): { op:
     });
     const accounts = meta.opening
       ? d.accounts.map((a) =>
-          a.id === meta.accountId ? { ...a, opening: meta.opening!.amount, openedOn: meta.opening!.on } : a,
+          a.id === meta.accountId
+            ? { ...a, opening: meta.opening!.amount, openedOn: meta.opening!.on }
+            : a,
         )
       : d.accounts;
     return {
@@ -329,7 +358,11 @@ export function catchUp(data: LedgerData, today: ISODate): { data: LedgerData; p
           source: 'salary',
         }),
       );
-      next = { ...next, txns: [...next.txns, ...txns], salary: { ...s, lastPostedOn: due[due.length - 1] } };
+      next = {
+        ...next,
+        txns: [...next.txns, ...txns],
+        salary: { ...s, lastPostedOn: due[due.length - 1] },
+      };
       posted += txns.length;
     }
   }

@@ -7,13 +7,31 @@ import { describeCadence, monthlyEquivalent, nextDue, upcoming } from '@/lib/cal
 import { runway } from '@/lib/calc/runway';
 import { accountMap, categoryMap, savingsAccounts, spendingAccounts } from '@/lib/ledger';
 import type { Recurring, Salary, Unit } from '@/lib/model';
-import { addRecurring, payRecurring, removeBudget, removeRecurring, setBudget, setSalary, setSettings, updateRecurring } from '@/lib/store/ops';
+import {
+  addRecurring,
+  payRecurring,
+  removeBudget,
+  removeRecurring,
+  setBudget,
+  setSalary,
+  setSettings,
+  updateRecurring,
+} from '@/lib/store/ops';
 import { apply, undo } from '@/lib/store/store';
 import { toast } from '@/lib/bus';
 import { currency } from '@/lib/money/currency';
 import { url } from '@/lib/site';
 import { BudgetRow, SectionTitle, UpcomingRow } from '../parts/parts';
-import { AmountInput, CategoryTile, Empty, Field, Skeleton, Switch, fromInput, toInput } from '../ui/Controls';
+import {
+  AmountInput,
+  CategoryTile,
+  Empty,
+  Field,
+  Skeleton,
+  Switch,
+  fromInput,
+  toInput,
+} from '../ui/Controls';
 import { Icon } from '../ui/Icon';
 import { Money } from '../ui/Money';
 import { Sheet } from '../ui/Sheet';
@@ -36,7 +54,9 @@ export default function PlanScreen() {
   const s = data.salary;
   // Only costs paid from spending accounts come out of the salary; costs from savings show in the runway.
   const fromSalary = (r: Recurring) => accounts.get(r.accountId)?.role !== 'savings';
-  const fixed = data.recurring.filter((r) => r.kind === 'expense' && fromSalary(r) && (!r.endOn || r.endOn >= today)).reduce((sum, r) => sum + monthlyEquivalent(r), 0);
+  const fixed = data.recurring
+    .filter((r) => r.kind === 'expense' && fromSalary(r) && (!r.endOn || r.endOn >= today))
+    .reduce((sum, r) => sum + monthlyEquivalent(r), 0);
   const committed = data.budgets.reduce((sum, b) => sum + b.amount, 0) + fixed;
   const r = s?.active ? runway(data, today) : null;
   const suggestions = detectRecurring(data, today);
@@ -44,26 +64,42 @@ export default function PlanScreen() {
 
   return (
     <div class="grid grid-cols-1 gap-6">
-      <section class="card card-pad card-glow animate-rise" aria-labelledby="salary-title" id="salary">
+      <section
+        class="card card-pad card-glow animate-rise"
+        aria-labelledby="salary-title"
+        id="salary"
+      >
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 id="salary-title" class="eyebrow">Your salary</h2>
+            <h2 id="salary-title" class="eyebrow">
+              Your salary
+            </h2>
             {s?.active ? (
               <>
                 <p class="display mt-3 text-[2.6rem]">
                   <Money value={s.amount} code={base} count />
                 </p>
-                <p class="mt-2 text-muted">
-                  on the {ordinal(data.settings.cycleDay)} of each month, from {accounts.get(s.fromAccountId)?.name ?? 'savings'} to {accounts.get(s.toAccountId)?.name ?? 'spending'}
+                <p class="text-muted mt-2">
+                  on the {ordinal(data.settings.cycleDay)} of each month, from{' '}
+                  {accounts.get(s.fromAccountId)?.name ?? 'savings'} to{' '}
+                  {accounts.get(s.toAccountId)?.name ?? 'spending'}
                   {s.autoPost ? ', moved automatically.' : '. You move it yourself.'}
                 </p>
               </>
             ) : (
-              <p class="mt-2 max-w-xl text-muted">Pay yourself a fixed amount from savings each month. Your month is then planned around it, and the runway shows how long it lasts.</p>
+              <p class="text-muted mt-2 max-w-xl">
+                Pay yourself a fixed amount from savings each month. Your month is then planned
+                around it, and the runway shows how long it lasts.
+              </p>
             )}
           </div>
-          <button type="button" class={`btn ${s?.active ? 'btn-soft' : 'btn-gold'}`} onClick={() => setSalaryOpen(true)}>
-            <Icon name={s?.active ? 'edit' : 'plus'} size={17} /> {s?.active ? 'Change' : 'Set a salary'}
+          <button
+            type="button"
+            class={`btn ${s?.active ? 'btn-soft' : 'btn-gold'}`}
+            onClick={() => setSalaryOpen(true)}
+          >
+            <Icon name={s?.active ? 'edit' : 'plus'} size={17} />{' '}
+            {s?.active ? 'Change' : 'Set a salary'}
           </button>
         </div>
         {s?.active && (
@@ -74,22 +110,47 @@ export default function PlanScreen() {
                 <Money value={committed} code={base} /> of <Money value={s.amount} code={base} />
               </span>
             </div>
-            <div class="bar h-3" role="meter" aria-label="Share of the salary planned" aria-valuemin={0} aria-valuemax={s.amount} aria-valuenow={Math.min(committed, s.amount)}>
-              <span style={{ width: `${Math.min(100, (fixed / s.amount) * 100)}%`, background: 'oklch(70% 0.12 290)' }} />
-              <span style={{ left: `${Math.min(100, (fixed / s.amount) * 100)}%`, width: `${Math.max(0, Math.min(100 - (fixed / s.amount) * 100, ((committed - fixed) / s.amount) * 100))}%`, animationDelay: '.15s' }} />
+            <div
+              class="bar h-3"
+              role="meter"
+              aria-label="Share of the salary planned"
+              aria-valuemin={0}
+              aria-valuemax={s.amount}
+              aria-valuenow={Math.min(committed, s.amount)}
+            >
+              <span
+                style={{
+                  width: `${Math.min(100, (fixed / s.amount) * 100)}%`,
+                  background: 'oklch(70% 0.12 290)',
+                }}
+              />
+              <span
+                style={{
+                  left: `${Math.min(100, (fixed / s.amount) * 100)}%`,
+                  width: `${Math.max(0, Math.min(100 - (fixed / s.amount) * 100, ((committed - fixed) / s.amount) * 100))}%`,
+                  animationDelay: '.15s',
+                }}
+              />
             </div>
-            <div class="flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold text-subtle">
+            <div class="text-subtle flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold">
               <span class="inline-flex items-center gap-1.5">
-                <i class="size-2.5 rounded-full" style={{ background: 'oklch(70% 0.12 290)' }} /> Fixed costs {formatMoney(fixed, base)}
+                <i class="size-2.5 rounded-full" style={{ background: 'oklch(70% 0.12 290)' }} />{' '}
+                Fixed costs {formatMoney(fixed, base)}
               </span>
               <span class="inline-flex items-center gap-1.5">
-                <i class="size-2.5 rounded-full bg-gold" /> Budgets {formatMoney(committed - fixed, base)}
+                <i class="bg-gold size-2.5 rounded-full" /> Budgets{' '}
+                {formatMoney(committed - fixed, base)}
               </span>
-              <span>{committed <= s.amount ? `${formatMoney(s.amount - committed, base)} unplanned` : `${formatMoney(committed - s.amount, base)} over the salary`}</span>
+              <span>
+                {committed <= s.amount
+                  ? `${formatMoney(s.amount - committed, base)} unplanned`
+                  : `${formatMoney(committed - s.amount, base)} over the salary`}
+              </span>
             </div>
             {r?.target?.sustainable != null && (
-              <p class="text-sm text-muted">
-                To reach “{r.target.label}” on {formatLong(r.target.date)}, the most you can pay yourself is{' '}
+              <p class="text-muted text-sm">
+                To reach “{r.target.label}” on {formatLong(r.target.date)}, the most you can pay
+                yourself is{' '}
                 <a href={url('runway/')} class="link">
                   {formatMoney(r.target.sustainable, base)} a month
                 </a>
@@ -100,14 +161,19 @@ export default function PlanScreen() {
         )}
       </section>
 
-      <section class="animate-rise" aria-labelledby="budgets-title" id="budgets" style={{ animationDelay: '60ms' }}>
+      <section
+        class="animate-rise"
+        aria-labelledby="budgets-title"
+        id="budgets"
+        style={{ animationDelay: '60ms' }}
+      >
         <div class="card card-pad">
           <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 id="budgets-title" class="text-lg font-bold">
                 Budgets
               </h2>
-              <p class="text-sm text-muted">
+              <p class="text-muted text-sm">
                 {data.budgets.length
                   ? `${formatMoney(totals.spent, base)} spent of ${formatMoney(totals.budgeted, base)} this month. ${totals.unbudgeted ? `${formatMoney(totals.unbudgeted, base)} went on things without a budget.` : ''}`
                   : 'A limit for the things that drift. The line on each bar is where an even pace would be today.'}
@@ -120,26 +186,46 @@ export default function PlanScreen() {
           {states.length ? (
             <div class="grid gap-x-10 gap-y-6 md:grid-cols-2">
               {states.map((b) => (
-                <button type="button" key={b.budget.categoryId} class="-m-2 rounded-2xl p-2 text-left transition hover:bg-sunken" onClick={() => setBudgetFor(b.budget.categoryId)}>
+                <button
+                  type="button"
+                  key={b.budget.categoryId}
+                  class="hover:bg-sunken -m-2 rounded-2xl p-2 text-left transition"
+                  onClick={() => setBudgetFor(b.budget.categoryId)}
+                >
                   <BudgetRow b={b} cat={cats.get(b.budget.categoryId)} code={base} />
-                  {b.carry !== 0 && <p class="mt-1 text-xs text-subtle">Includes {formatMoney(b.carry, base, { sign: 'always' })} rolled over</p>}
+                  {b.carry !== 0 && (
+                    <p class="text-subtle mt-1 text-xs">
+                      Includes {formatMoney(b.carry, base, { sign: 'always' })} rolled over
+                    </p>
+                  )}
                 </button>
               ))}
             </div>
           ) : (
-            <Empty icon="plan" title="No budgets yet" body="Pick a category and a monthly amount. Ledger suggests one from your last three months." />
+            <Empty
+              icon="plan"
+              title="No budgets yet"
+              body="Pick a category and a monthly amount. Ledger suggests one from your last three months."
+            />
           )}
         </div>
       </section>
 
-      <section class="grid gap-6 lg:grid-cols-[1.5fr_1fr]" aria-labelledby="rec-title" id="recurring">
+      <section
+        class="grid gap-6 lg:grid-cols-[1.5fr_1fr]"
+        aria-labelledby="rec-title"
+        id="recurring"
+      >
         <div class="card card-pad animate-rise" style={{ animationDelay: '120ms' }}>
           <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 id="rec-title" class="text-lg font-bold">
                 Recurring
               </h2>
-              <p class="text-sm text-muted">Bills, subscriptions and regular income. {fixed ? `Costs from your salary come to ${formatMoney(fixed, base)} a month.` : ''}</p>
+              <p class="text-muted text-sm">
+                Bills, subscriptions and regular income.{' '}
+                {fixed ? `Costs from your salary come to ${formatMoney(fixed, base)} a month.` : ''}
+              </p>
             </div>
             <button type="button" class="btn btn-soft btn-sm" onClick={() => setRecurring('new')}>
               <Icon name="plus" size={16} /> Add
@@ -148,16 +234,21 @@ export default function PlanScreen() {
           {data.recurring.length ? (
             <div class="divide">
               {[...data.recurring]
-                .sort((a, b) => (nextDue(a, today) ?? '9') < (nextDue(b, today) ?? '9') ? -1 : 1)
+                .sort((a, b) => ((nextDue(a, today) ?? '9') < (nextDue(b, today) ?? '9') ? -1 : 1))
                 .map((r) => {
                   const next = nextDue(r, today);
                   const code = accounts.get(r.accountId)?.currency ?? base;
                   return (
-                    <button type="button" key={r.id} class="row-link" onClick={() => setRecurring(r)}>
+                    <button
+                      type="button"
+                      key={r.id}
+                      class="row-link"
+                      onClick={() => setRecurring(r)}
+                    >
                       <CategoryTile category={r.categoryId ? cats.get(r.categoryId) : null} />
                       <span class="min-w-0 flex-1">
                         <span class="block truncate font-semibold">{r.name}</span>
-                        <span class="block truncate text-sm text-subtle">
+                        <span class="text-subtle block truncate text-sm">
                           {describeCadence(r)}
                           {next ? ` · next ${formatShort(next, today)}` : ' · ended'}
                           {r.autoPost ? ' · automatic' : ''}
@@ -165,35 +256,72 @@ export default function PlanScreen() {
                         </span>
                       </span>
                       <span class="text-right">
-                        <Money value={r.kind === 'income' ? r.amount : -r.amount} code={code} sign={r.kind === 'income' ? 'always' : 'auto'} tone={r.kind === 'income' ? 'income' : 'none'} class="font-bold" />
-                        {r.unit !== 'month' && <span class="block text-xs text-subtle">{formatMoney(monthlyEquivalent(r), code)} a month</span>}
+                        <Money
+                          value={r.kind === 'income' ? r.amount : -r.amount}
+                          code={code}
+                          sign={r.kind === 'income' ? 'always' : 'auto'}
+                          tone={r.kind === 'income' ? 'income' : 'none'}
+                          class="font-bold"
+                        />
+                        {r.unit !== 'month' && (
+                          <span class="text-subtle block text-xs">
+                            {formatMoney(monthlyEquivalent(r), code)} a month
+                          </span>
+                        )}
                       </span>
                     </button>
                   );
                 })}
             </div>
           ) : (
-            <Empty icon="repeat" title="Nothing recurring yet" body="Add rent, phone, subscriptions and regular income. They show up before they are due, and safe-to-spend keeps them aside." />
+            <Empty
+              icon="repeat"
+              title="Nothing recurring yet"
+              body="Add rent, phone, subscriptions and regular income. They show up before they are due, and safe-to-spend keeps them aside."
+            />
           )}
           {suggestions.length > 0 && (
-            <div class="mt-5 rounded-2xl border border-dashed border-line-strong p-4">
+            <div class="border-line-strong mt-5 rounded-2xl border border-dashed p-4">
               <h3 class="font-bold">Spotted in your history</h3>
-              <div class="mt-2 divide">
+              <div class="divide mt-2">
                 {suggestions.slice(0, 4).map((sg) => (
                   <div key={sg.key} class="flex items-center gap-3 py-2.5">
-                    <CategoryTile category={sg.categoryId ? cats.get(sg.categoryId) : null} size="sm" />
+                    <CategoryTile
+                      category={sg.categoryId ? cats.get(sg.categoryId) : null}
+                      size="sm"
+                    />
                     <div class="min-w-0 flex-1">
                       <div class="truncate font-semibold">{sg.payee}</div>
-                      <div class="text-sm text-subtle">
-                        {formatMoney(sg.amount, accounts.get(sg.accountId)?.currency ?? base)} {sg.unit === 'month' ? 'monthly' : sg.unit === 'week' ? 'weekly' : 'yearly'} · seen {plural(sg.count, 'time')}
+                      <div class="text-subtle text-sm">
+                        {formatMoney(sg.amount, accounts.get(sg.accountId)?.currency ?? base)}{' '}
+                        {sg.unit === 'month' ? 'monthly' : sg.unit === 'week' ? 'weekly' : 'yearly'}{' '}
+                        · seen {plural(sg.count, 'time')}
                       </div>
                     </div>
                     <button
                       type="button"
                       class="btn btn-soft btn-sm"
                       onClick={() => {
-                        apply(addRecurring({ name: sg.payee, kind: 'expense', amount: sg.amount, accountId: sg.accountId, categoryId: sg.categoryId, every: 1, unit: sg.unit, startOn: sg.last, autoPost: false, lastPostedOn: sg.last }), 'Track');
-                        toast({ message: `Tracking ${sg.payee}`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
+                        apply(
+                          addRecurring({
+                            name: sg.payee,
+                            kind: 'expense',
+                            amount: sg.amount,
+                            accountId: sg.accountId,
+                            categoryId: sg.categoryId,
+                            every: 1,
+                            unit: sg.unit,
+                            startOn: sg.last,
+                            autoPost: false,
+                            lastPostedOn: sg.last,
+                          }),
+                          'Track',
+                        );
+                        toast({
+                          message: `Tracking ${sg.payee}`,
+                          tone: 'good',
+                          action: { label: 'Undo', run: () => undo() },
+                        });
                       }}
                     >
                       Track
@@ -211,10 +339,26 @@ export default function PlanScreen() {
               {soon.slice(0, 8).map((u) => (
                 <div key={u.recurring.id + u.date} class="flex items-center gap-2">
                   <div class="min-w-0 flex-1">
-                    <UpcomingRow u={u} cat={u.recurring.categoryId ? cats.get(u.recurring.categoryId) : undefined} code={accounts.get(u.recurring.accountId)?.currency ?? base} today={today} />
+                    <UpcomingRow
+                      u={u}
+                      cat={u.recurring.categoryId ? cats.get(u.recurring.categoryId) : undefined}
+                      code={accounts.get(u.recurring.accountId)?.currency ?? base}
+                      today={today}
+                    />
                   </div>
                   {!u.recurring.autoPost && u.date <= today && (
-                    <button type="button" class="btn btn-soft btn-sm" onClick={() => (apply(payRecurring(data, u.recurring.id, u.date), 'Pay'), toast({ message: `Recorded ${u.recurring.name}`, tone: 'good', action: { label: 'Undo', run: () => undo() } }))}>
+                    <button
+                      type="button"
+                      class="btn btn-soft btn-sm"
+                      onClick={() => (
+                        apply(payRecurring(data, u.recurring.id, u.date), 'Pay'),
+                        toast({
+                          message: `Recorded ${u.recurring.name}`,
+                          tone: 'good',
+                          action: { label: 'Undo', run: () => undo() },
+                        })
+                      )}
+                    >
                       Paid
                     </button>
                   )}
@@ -222,19 +366,34 @@ export default function PlanScreen() {
               ))}
             </div>
           ) : (
-            <p class="text-sm text-muted">Nothing due.</p>
+            <p class="text-muted text-sm">Nothing due.</p>
           )}
         </div>
       </section>
 
-      <SalarySheet open={salaryOpen} onClose={() => setSalaryOpen(false)} salary={s} today={today} />
+      <SalarySheet
+        open={salaryOpen}
+        onClose={() => setSalaryOpen(false)}
+        salary={s}
+        today={today}
+      />
       <BudgetSheet categoryId={budgetFor} onClose={() => setBudgetFor(null)} today={today} />
       <RecurringSheet item={recurring} onClose={() => setRecurring(null)} today={today} />
     </div>
   );
 }
 
-function SalarySheet({ open, onClose, salary, today }: { open: boolean; onClose: () => void; salary: Salary | null; today: string }) {
+function SalarySheet({
+  open,
+  onClose,
+  salary,
+  today,
+}: {
+  open: boolean;
+  onClose: () => void;
+  salary: Salary | null;
+  today: string;
+}) {
   const { data } = useLedger();
   const base = data.settings.base;
   const savings = savingsAccounts(data);
@@ -272,7 +431,10 @@ function SalarySheet({ open, onClose, salary, today }: { open: boolean; onClose:
       }),
     );
     onClose();
-    toast({ message: active ? `Salary set to ${formatMoney(value!, base)} a month` : 'Salary paused', tone: 'good' });
+    toast({
+      message: active ? `Salary set to ${formatMoney(value!, base)} a month` : 'Salary paused',
+      tone: 'good',
+    });
   };
   const accountsMissing = data.accounts.length < 2;
   return (
@@ -294,15 +456,28 @@ function SalarySheet({ open, onClose, salary, today }: { open: boolean; onClose:
     >
       {accountsMissing ? (
         <p class="text-muted">
-          A salary moves money between two accounts: add a savings account and a spending account in <a class="link" href={url('settings/#accounts')}>Settings</a> first.
+          A salary moves money between two accounts: add a savings account and a spending account in{' '}
+          <a class="link" href={url('settings/#accounts')}>
+            Settings
+          </a>{' '}
+          first.
         </p>
       ) : (
         <div class="grid gap-5">
           <Field id="sal-amount" label="Amount each month">
             <AmountInput id="sal-amount" value={amount} onInput={setAmount} code={base} big />
           </Field>
-          <Field id="sal-day" label="Payday" hint="Your money month runs from this day to the day before the next payday.">
-            <select id="sal-day" class="select" value={day} onChange={(e) => setDay(Number((e.target as HTMLSelectElement).value))}>
+          <Field
+            id="sal-day"
+            label="Payday"
+            hint="Your money month runs from this day to the day before the next payday."
+          >
+            <select
+              id="sal-day"
+              class="select"
+              value={day}
+              onChange={(e) => setDay(Number((e.target as HTMLSelectElement).value))}
+            >
               {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
                 <option key={d} value={d}>
                   The {ordinal(d)} of each month
@@ -312,7 +487,12 @@ function SalarySheet({ open, onClose, salary, today }: { open: boolean; onClose:
           </Field>
           <div class="grid gap-4 sm:grid-cols-2">
             <Field id="sal-from" label="From">
-              <select id="sal-from" class="select" value={from} onChange={(e) => setFrom((e.target as HTMLSelectElement).value)}>
+              <select
+                id="sal-from"
+                class="select"
+                value={from}
+                onChange={(e) => setFrom((e.target as HTMLSelectElement).value)}
+              >
                 {data.accounts.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name}
@@ -321,7 +501,12 @@ function SalarySheet({ open, onClose, salary, today }: { open: boolean; onClose:
               </select>
             </Field>
             <Field id="sal-to" label="To">
-              <select id="sal-to" class="select" value={to} onChange={(e) => setTo((e.target as HTMLSelectElement).value)}>
+              <select
+                id="sal-to"
+                class="select"
+                value={to}
+                onChange={(e) => setTo((e.target as HTMLSelectElement).value)}
+              >
                 {data.accounts.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name}
@@ -330,15 +515,35 @@ function SalarySheet({ open, onClose, salary, today }: { open: boolean; onClose:
               </select>
             </Field>
           </div>
-          <Switch checked={auto} onChange={setAuto} label="Move it automatically" hint="Ledger records the transfer on payday. Turn off if you move it yourself and import the statement." />
-          {salary && <Switch checked={active} onChange={setActive} label="Salary is on" hint="Pause it without losing the settings." />}
+          <Switch
+            checked={auto}
+            onChange={setAuto}
+            label="Move it automatically"
+            hint="Ledger records the transfer on payday. Turn off if you move it yourself and import the statement."
+          />
+          {salary && (
+            <Switch
+              checked={active}
+              onChange={setActive}
+              label="Salary is on"
+              hint="Pause it without losing the settings."
+            />
+          )}
         </div>
       )}
     </Sheet>
   );
 }
 
-function BudgetSheet({ categoryId, onClose, today }: { categoryId: string | null; onClose: () => void; today: string }) {
+function BudgetSheet({
+  categoryId,
+  onClose,
+  today,
+}: {
+  categoryId: string | null;
+  onClose: () => void;
+  today: string;
+}) {
   const { data } = useLedger();
   const base = data.settings.base;
   const open = categoryId !== null;
@@ -348,7 +553,10 @@ function BudgetSheet({ categoryId, onClose, today }: { categoryId: string | null
   const [rollover, setRollover] = useState(false);
   useEffect(() => {
     if (categoryId === null) return;
-    const first = data.categories.find((c) => c.kind === 'expense' && !c.archived && !data.budgets.some((b) => b.categoryId === c.id));
+    const first = data.categories.find(
+      (c) =>
+        c.kind === 'expense' && !c.archived && !data.budgets.some((b) => b.categoryId === c.id),
+    );
     const id = categoryId || first?.id || '';
     setCat(id);
     setAmount(toInput(existing?.amount ?? (suggestBudget(data, id, today) || undefined), base));
@@ -356,7 +564,12 @@ function BudgetSheet({ categoryId, onClose, today }: { categoryId: string | null
   }, [categoryId]);
   const suggestion = cat ? suggestBudget(data, cat, today) : 0;
   const value = fromInput(amount, base);
-  const options = data.categories.filter((c) => c.kind === 'expense' && !c.archived && (c.id === categoryId || !data.budgets.some((b) => b.categoryId === c.id)));
+  const options = data.categories.filter(
+    (c) =>
+      c.kind === 'expense' &&
+      !c.archived &&
+      (c.id === categoryId || !data.budgets.some((b) => b.categoryId === c.id)),
+  );
   return (
     <Sheet
       open={open}
@@ -394,7 +607,21 @@ function BudgetSheet({ categoryId, onClose, today }: { categoryId: string | null
     >
       <div class="grid gap-5">
         <Field id="bud-cat" label="Category">
-          <select id="bud-cat" class="select" value={cat} disabled={!!existing} onChange={(e) => (setCat((e.target as HTMLSelectElement).value), setAmount(toInput(suggestBudget(data, (e.target as HTMLSelectElement).value, today) || undefined, base)))}>
+          <select
+            id="bud-cat"
+            class="select"
+            value={cat}
+            disabled={!!existing}
+            onChange={(e) => (
+              setCat((e.target as HTMLSelectElement).value),
+              setAmount(
+                toInput(
+                  suggestBudget(data, (e.target as HTMLSelectElement).value, today) || undefined,
+                  base,
+                ),
+              )
+            )}
+          >
             {options.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -402,20 +629,52 @@ function BudgetSheet({ categoryId, onClose, today }: { categoryId: string | null
             ))}
           </select>
         </Field>
-        <Field id="bud-amount" label="Each month" hint={suggestion ? `Your last three months averaged about ${formatMoney(suggestion, base)}.` : undefined}>
+        <Field
+          id="bud-amount"
+          label="Each month"
+          hint={
+            suggestion
+              ? `Your last three months averaged about ${formatMoney(suggestion, base)}.`
+              : undefined
+          }
+        >
           <AmountInput id="bud-amount" value={amount} onInput={setAmount} code={base} big />
         </Field>
-        <Switch checked={rollover} onChange={setRollover} label="Roll over what is left" hint="Unspent money carries into next month; overspending comes out of it." />
+        <Switch
+          checked={rollover}
+          onChange={setRollover}
+          label="Roll over what is left"
+          hint="Unspent money carries into next month; overspending comes out of it."
+        />
       </div>
     </Sheet>
   );
 }
 
-function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | null; onClose: () => void; today: string }) {
+function RecurringSheet({
+  item,
+  onClose,
+  today,
+}: {
+  item: Recurring | 'new' | null;
+  onClose: () => void;
+  today: string;
+}) {
   const { data } = useLedger();
   const open = item !== null;
   const editing = item && item !== 'new' ? item : null;
-  const [f, setF] = useState({ name: '', kind: 'expense' as 'expense' | 'income', amount: '', accountId: '', categoryId: '', every: 1, unit: 'month' as Unit, startOn: today, endOn: '', autoPost: true });
+  const [f, setF] = useState({
+    name: '',
+    kind: 'expense' as 'expense' | 'income',
+    amount: '',
+    accountId: '',
+    categoryId: '',
+    every: 1,
+    unit: 'month' as Unit,
+    startOn: today,
+    endOn: '',
+    autoPost: true,
+  });
   const id = editing?.id ?? (open ? 'new' : null);
   useEffect(() => {
     if (id === null) return;
@@ -425,7 +684,10 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
         ? {
             name: editing.name,
             kind: editing.kind,
-            amount: toInput(editing.amount, accountMap(data).get(editing.accountId)?.currency ?? data.settings.base),
+            amount: toInput(
+              editing.amount,
+              accountMap(data).get(editing.accountId)?.currency ?? data.settings.base,
+            ),
             accountId: editing.accountId,
             categoryId: editing.categoryId ?? '',
             every: editing.every,
@@ -434,7 +696,18 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
             endOn: editing.endOn ?? '',
             autoPost: editing.autoPost,
           }
-        : { name: '', kind: 'expense', amount: '', accountId: spend?.id ?? '', categoryId: 'subscriptions', every: 1, unit: 'month', startOn: today, endOn: '', autoPost: true },
+        : {
+            name: '',
+            kind: 'expense',
+            amount: '',
+            accountId: spend?.id ?? '',
+            categoryId: 'subscriptions',
+            every: 1,
+            unit: 'month',
+            startOn: today,
+            endOn: '',
+            autoPost: true,
+          },
     );
   }, [id]);
   const code = accountMap(data).get(f.accountId)?.currency ?? data.settings.base;
@@ -457,9 +730,20 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
     };
     if (editing) apply(updateRecurring(editing.id, payload), 'Edit recurring');
     // A new automatic item starting in the past would post everything since then; start from the next date instead.
-    else apply(addRecurring({ ...payload, lastPostedOn: f.startOn < today ? addDays(today, -1) : undefined }), 'Add recurring');
+    else
+      apply(
+        addRecurring({
+          ...payload,
+          lastPostedOn: f.startOn < today ? addDays(today, -1) : undefined,
+        }),
+        'Add recurring',
+      );
     onClose();
-    toast({ message: editing ? 'Saved' : `Added ${payload.name}`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
+    toast({
+      message: editing ? 'Saved' : `Added ${payload.name}`,
+      tone: 'good',
+      action: { label: 'Undo', run: () => undo() },
+    });
   };
   return (
     <Sheet
@@ -475,7 +759,10 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
               onClick={() => {
                 apply(removeRecurring(editing.id), 'Remove recurring');
                 onClose();
-                toast({ message: `Removed ${editing.name}`, action: { label: 'Undo', run: () => undo() } });
+                toast({
+                  message: `Removed ${editing.name}`,
+                  action: { label: 'Undo', run: () => undo() },
+                });
               }}
             >
               <Icon name="trash" size={17} /> Remove
@@ -490,22 +777,57 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
       <div class="grid gap-5">
         <div class="seg w-full" role="radiogroup" aria-label="Type">
           {(['expense', 'income'] as const).map((k) => (
-            <button type="button" role="radio" key={k} aria-checked={f.kind === k} onClick={() => set({ kind: k, categoryId: k === 'income' ? 'salary' : 'subscriptions' })}>
+            <button
+              type="button"
+              role="radio"
+              key={k}
+              aria-checked={f.kind === k}
+              onClick={() =>
+                set({ kind: k, categoryId: k === 'income' ? 'salary' : 'subscriptions' })
+              }
+            >
               {k === 'expense' ? 'A cost' : 'Income'}
             </button>
           ))}
         </div>
         <Field id="rec-name" label="Name">
-          <input id="rec-name" class="input" value={f.name} placeholder={f.kind === 'expense' ? 'Phone, gym, streaming…' : 'Part-time job, allowance…'} onInput={(e) => set({ name: (e.target as HTMLInputElement).value })} />
+          <input
+            id="rec-name"
+            class="input"
+            value={f.name}
+            placeholder={
+              f.kind === 'expense' ? 'Phone, gym, streaming…' : 'Part-time job, allowance…'
+            }
+            onInput={(e) => set({ name: (e.target as HTMLInputElement).value })}
+          />
         </Field>
         <div class="grid gap-4 sm:grid-cols-2">
           <Field id="rec-amount" label="Amount">
-            <AmountInput id="rec-amount" value={f.amount} onInput={(amount) => set({ amount })} code={code} />
+            <AmountInput
+              id="rec-amount"
+              value={f.amount}
+              onInput={(amount) => set({ amount })}
+              code={code}
+            />
           </Field>
           <Field id="rec-every" label="Repeats">
             <div class="grid grid-cols-[4.5rem_1fr] gap-2">
-              <input id="rec-every" type="number" min={1} max={52} class="input" aria-label="Every" value={f.every} onInput={(e) => set({ every: Number((e.target as HTMLInputElement).value) || 1 })} />
-              <select class="select" aria-label="Unit" value={f.unit} onChange={(e) => set({ unit: (e.target as HTMLSelectElement).value as Unit })}>
+              <input
+                id="rec-every"
+                type="number"
+                min={1}
+                max={52}
+                class="input"
+                aria-label="Every"
+                value={f.every}
+                onInput={(e) => set({ every: Number((e.target as HTMLInputElement).value) || 1 })}
+              />
+              <select
+                class="select"
+                aria-label="Unit"
+                value={f.unit}
+                onChange={(e) => set({ unit: (e.target as HTMLSelectElement).value as Unit })}
+              >
                 <option value="week">{f.every === 1 ? 'week' : 'weeks'}</option>
                 <option value="month">{f.every === 1 ? 'month' : 'months'}</option>
                 <option value="year">{f.every === 1 ? 'year' : 'years'}</option>
@@ -514,8 +836,21 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
           </Field>
         </div>
         <div class="grid gap-4 sm:grid-cols-2">
-          <Field id="rec-account" label={f.kind === 'expense' ? 'Paid from' : 'Paid into'} hint={accountMap(data).get(f.accountId)?.role === 'savings' ? 'From savings: it shows in your runway.' : undefined}>
-            <select id="rec-account" class="select" value={f.accountId} onChange={(e) => set({ accountId: (e.target as HTMLSelectElement).value })}>
+          <Field
+            id="rec-account"
+            label={f.kind === 'expense' ? 'Paid from' : 'Paid into'}
+            hint={
+              accountMap(data).get(f.accountId)?.role === 'savings'
+                ? 'From savings: it shows in your runway.'
+                : undefined
+            }
+          >
+            <select
+              id="rec-account"
+              class="select"
+              value={f.accountId}
+              onChange={(e) => set({ accountId: (e.target as HTMLSelectElement).value })}
+            >
               {data.accounts.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.name} ({currency(a.currency).label})
@@ -524,7 +859,12 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
             </select>
           </Field>
           <Field id="rec-cat" label="Category">
-            <select id="rec-cat" class="select" value={f.categoryId} onChange={(e) => set({ categoryId: (e.target as HTMLSelectElement).value })}>
+            <select
+              id="rec-cat"
+              class="select"
+              value={f.categoryId}
+              onChange={(e) => set({ categoryId: (e.target as HTMLSelectElement).value })}
+            >
               <option value="">None</option>
               {data.categories
                 .filter((c) => c.kind === f.kind && !c.archived)
@@ -538,13 +878,31 @@ function RecurringSheet({ item, onClose, today }: { item: Recurring | 'new' | nu
         </div>
         <div class="grid gap-4 sm:grid-cols-2">
           <Field id="rec-start" label={editing ? 'First date' : 'Next date'}>
-            <input id="rec-start" type="date" class="input" value={f.startOn} onInput={(e) => set({ startOn: (e.target as HTMLInputElement).value })} />
+            <input
+              id="rec-start"
+              type="date"
+              class="input"
+              value={f.startOn}
+              onInput={(e) => set({ startOn: (e.target as HTMLInputElement).value })}
+            />
           </Field>
           <Field id="rec-end" label="Ends (optional)">
-            <input id="rec-end" type="date" class="input" value={f.endOn} min={f.startOn} onInput={(e) => set({ endOn: (e.target as HTMLInputElement).value })} />
+            <input
+              id="rec-end"
+              type="date"
+              class="input"
+              value={f.endOn}
+              min={f.startOn}
+              onInput={(e) => set({ endOn: (e.target as HTMLInputElement).value })}
+            />
           </Field>
         </div>
-        <Switch checked={f.autoPost} onChange={(autoPost) => set({ autoPost })} label="Record it automatically" hint="Adds the transaction on each date. Turn off to tick it off yourself." />
+        <Switch
+          checked={f.autoPost}
+          onChange={(autoPost) => set({ autoPost })}
+          label="Record it automatically"
+          hint="Adds the transaction on each date. Turn off to tick it off yourself."
+        />
       </div>
     </Sheet>
   );

@@ -18,8 +18,22 @@ const gid = `lg-${Math.random().toString(36).slice(2, 9)}`;
       </linearGradient>
     </defs>
     <rect width="32" height="32" rx="9" fill={`url(#${gid})`}></rect>
-    <path d="M11 8.5v13.5h11.5" fill="none" stroke="#2B1D0C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
-    <path d="M15.5 12.5h6M15.5 17.25h4" fill="none" stroke="#2B1D0C" stroke-opacity=".45" stroke-width="2.2" stroke-linecap="round"></path>
+    <path
+      d="M11 8.5v13.5h11.5"
+      fill="none"
+      stroke="#2B1D0C"
+      stroke-width="2.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    ></path>
+    <path
+      d="M15.5 12.5h6M15.5 17.25h4"
+      fill="none"
+      stroke="#2B1D0C"
+      stroke-opacity=".45"
+      stroke-width="2.2"
+      stroke-linecap="round"
+    ></path>
   </svg>
   {word && <span class="text-[1.15rem] font-extrabold tracking-tight">Ledger</span>}
 </span>

@@ -11,9 +11,13 @@ export function getTheme(): ThemeChoice {
 }
 
 export function applyTheme(choice: ThemeChoice = getTheme()): void {
-  const dark = choice === 'dark' || (choice === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  const dark =
+    choice === 'dark' ||
+    (choice === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#1b1712' : '#fbf8f1');
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute('content', dark ? '#1b1712' : '#fbf8f1');
 }
 
 export function setTheme(choice: ThemeChoice): void {

@@ -24,7 +24,11 @@ function open(): Promise<IDBDatabase> {
   });
 }
 
-function tx<T>(db: IDBDatabase, mode: IDBTransactionMode, run: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+function tx<T>(
+  db: IDBDatabase,
+  mode: IDBTransactionMode,
+  run: (s: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
   return new Promise((resolve, reject) => {
     const t = db.transaction(STORE, mode);
     const req = run(t.objectStore(STORE));

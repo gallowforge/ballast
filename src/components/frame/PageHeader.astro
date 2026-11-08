@@ -9,7 +9,10 @@ const { title, subtitle, icon } = Astro.props;
 ---
 
 <div class="mb-6 flex items-center gap-4 animate-rise lg:mb-8">
-  <span class="grid size-14 flex-none place-items-center rounded-[1.15rem] text-[var(--bg)] shadow-[0_14px_30px_-14px_var(--mood)]" style="background: linear-gradient(145deg, oklch(from var(--mood) calc(l + 0.08) c h), var(--mood));">
+  <span
+    class="grid size-14 flex-none place-items-center rounded-[1.15rem] text-[var(--bg)] shadow-[0_14px_30px_-14px_var(--mood)]"
+    style="background: linear-gradient(145deg, oklch(from var(--mood) calc(l + 0.08) c h), var(--mood));"
+  >
     <Icon name={icon} size={26} stroke={2} />
   </span>
   <div>

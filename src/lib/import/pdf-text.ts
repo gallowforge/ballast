@@ -2,7 +2,11 @@ import type { TextItem } from './pdf-layout';
 
 export class PdfPasswordError extends Error {
   constructor(public reason: 'need' | 'wrong') {
-    super(reason === 'need' ? 'This statement is password-protected.' : 'That password did not open it.');
+    super(
+      reason === 'need'
+        ? 'This statement is password-protected.'
+        : 'That password did not open it.',
+    );
     this.name = 'PdfPasswordError';
   }
 }
@@ -31,7 +35,11 @@ interface PdfPage {
  * Reads every text run from a PDF on the device. Nothing is uploaded: pdf.js runs in a worker in
  * this tab. A password, when needed, is used once and never kept.
  */
-export async function extractItems(lib: PdfLib, data: Uint8Array, password?: string): Promise<{ items: TextItem[]; pages: number }> {
+export async function extractItems(
+  lib: PdfLib,
+  data: Uint8Array,
+  password?: string,
+): Promise<{ items: TextItem[]; pages: number }> {
   const task = lib.getDocument({
     data,
     password,
@@ -46,7 +54,8 @@ export async function extractItems(lib: PdfLib, data: Uint8Array, password?: str
     doc = await task.promise;
   } catch (err) {
     const e = err as { name?: string; code?: number };
-    if (e?.name === 'PasswordException') throw new PdfPasswordError(e.code === 2 ? 'wrong' : 'need');
+    if (e?.name === 'PasswordException')
+      throw new PdfPasswordError(e.code === 2 ? 'wrong' : 'need');
     throw err;
   }
   const items: TextItem[] = [];

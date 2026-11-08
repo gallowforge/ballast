@@ -53,7 +53,12 @@ describe('date arithmetic', () => {
   it('knows weekdays and month lengths', () => {
     expect(weekday('2026-11-08')).toBe(0);
     expect(daysInMonth(2028, 2)).toBe(29);
-    expect(eachDay('2026-02-27', '2026-03-02')).toEqual(['2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02']);
+    expect(eachDay('2026-02-27', '2026-03-02')).toEqual([
+      '2026-02-27',
+      '2026-02-28',
+      '2026-03-01',
+      '2026-03-02',
+    ]);
   });
   it.each([
     ['2026-01-15', '2026-03-15', 2],
@@ -76,7 +81,11 @@ describe('money months (cycles)', () => {
     expect(cycleOf('2026-02-10', 0).start).toBe('2026-02-01');
   });
   it('steps to earlier and later cycles', () => {
-    expect(cycleAt('2026-11-08', 1, -1)).toEqual({ start: '2026-10-01', end: '2026-10-31', days: 31 });
+    expect(cycleAt('2026-11-08', 1, -1)).toEqual({
+      start: '2026-10-01',
+      end: '2026-10-31',
+      days: 31,
+    });
     expect(cycleAt('2026-01-08', 1, -1).start).toBe('2025-12-01');
     expect(cycleAt('2026-11-08', 15, 2).start).toBe('2026-12-15');
   });
@@ -115,6 +124,17 @@ describe('English display', () => {
   it('pluralises and writes ordinals', () => {
     expect(plural(1, 'month')).toBe('1 month');
     expect(plural(1200, 'row')).toBe('1,200 rows');
-    expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 25].map(ordinal)).toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd', '25th']);
+    expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 25].map(ordinal)).toEqual([
+      '1st',
+      '2nd',
+      '3rd',
+      '4th',
+      '11th',
+      '12th',
+      '13th',
+      '21st',
+      '22nd',
+      '25th',
+    ]);
   });
 });

@@ -6,7 +6,7 @@ import { parseCSV } from './csv';
 import { findDuplicates, fingerprint, withOccurrence, type Duplicate } from './dedupe';
 import { detectMapping, type Mapping } from './detect';
 import { groupLines, linesToTable, pageText, type TextItem } from './pdf-layout';
-import { detectCurrency, detectProfile, GENERIC, type Profile } from './profiles';
+import { detectCurrency, detectProfile, type Profile } from './profiles';
 import { parseStatement, type ParsedStatement } from './statement';
 
 export interface Source {
@@ -20,9 +20,18 @@ export interface Source {
 
 export function sourceFromCSV(text: string, fileName: string): Source {
   const table = parseCSV(text);
-  const head = table.slice(0, 12).map((r) => r.join(' ')).join('\n');
+  const head = table
+    .slice(0, 12)
+    .map((r) => r.join(' '))
+    .join('\n');
   const profile = detectProfile(head);
-  return { kind: 'csv', fileName, table, profile, currency: detectCurrency(head, profile.currency) };
+  return {
+    kind: 'csv',
+    fileName,
+    table,
+    profile,
+    currency: detectCurrency(head, profile.currency),
+  };
 }
 
 export function sourceFromPdf(items: readonly TextItem[], fileName: string): Source | null {
@@ -30,14 +39,25 @@ export function sourceFromPdf(items: readonly TextItem[], fileName: string): Sou
   const profile = detectProfile(text);
   const table = linesToTable(groupLines(items));
   if (!table) return null;
-  return { kind: 'pdf', fileName, table, profile, currency: detectCurrency(text, profile.currency) };
+  return {
+    kind: 'pdf',
+    fileName,
+    table,
+    profile,
+    currency: detectCurrency(text, profile.currency),
+  };
 }
 
 export function mappingFor(source: Source): Mapping {
   return detectMapping(source.table);
 }
 
-export function readStatement(source: Source, mapping: Mapping, accountCurrency: string, invert = false): ParsedStatement {
+export function readStatement(
+  source: Source,
+  mapping: Mapping,
+  accountCurrency: string,
+  invert = false,
+): ParsedStatement {
   return parseStatement(source.table, mapping, { exp: currency(accountCurrency).exp, invert });
 }
 
@@ -60,8 +80,14 @@ export interface ReviewRow {
 }
 
 /** Everything the review screen needs: a clean payee, a category guess and duplicate checks. */
-export function buildReview(data: LedgerData, accountId: string, statement: ParsedStatement): ReviewRow[] {
-  const keys = withOccurrence(statement.rows.map((r) => fingerprint(accountId, r.date, r.amount, r.description)));
+export function buildReview(
+  data: LedgerData,
+  accountId: string,
+  statement: ParsedStatement,
+): ReviewRow[] {
+  const keys = withOccurrence(
+    statement.rows.map((r) => fingerprint(accountId, r.date, r.amount, r.description)),
+  );
   const dups = findDuplicates(
     data,
     accountId,
@@ -111,5 +137,7 @@ export function summarize(rows: readonly ReviewRow[]): ImportSummary {
 
 /** True when an account already holds entries dated before the statement starts. */
 export function hasHistoryBefore(data: LedgerData, accountId: string, from: ISODate): boolean {
-  return data.txns.some((t: Txn) => (t.accountId === accountId || t.toAccountId === accountId) && t.date < from);
+  return data.txns.some(
+    (t: Txn) => (t.accountId === accountId || t.toAccountId === accountId) && t.date < from,
+  );
 }

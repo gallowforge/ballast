@@ -138,11 +138,26 @@ function salaryRunway(
       });
   }
 
-  const firstFrom = salaryPaid(data, today) ? addDays(today, 1) : cycleOf(today, data.settings.cycleDay).start;
+  const firstFrom = salaryPaid(data, today)
+    ? addDays(today, 1)
+    : cycleOf(today, data.settings.cycleDay).start;
   const days = paydays(s, data.settings.cycleDay, firstFrom, limit).map((d) => maxDate(d, today));
-  const draws: RunwayEvent[] = days.map((d) => ({ date: d, delta: -amount, kind: 'salary', label: 'Salary' }));
+  const draws: RunwayEvent[] = days.map((d) => ({
+    date: d,
+    delta: -amount,
+    kind: 'salary',
+    label: 'Salary',
+  }));
   const events = [...flows, ...draws].sort((a, b) =>
-    a.date === b.date ? (a.kind === 'salary' ? 1 : b.kind === 'salary' ? -1 : 0) : a.date < b.date ? -1 : 1,
+    a.date === b.date
+      ? a.kind === 'salary'
+        ? 1
+        : b.kind === 'salary'
+          ? -1
+          : 0
+      : a.date < b.date
+        ? -1
+        : 1,
   );
 
   let bal = start;
@@ -199,8 +214,12 @@ function salaryTarget(
   const periods = until.filter((e) => e.kind === 'salary').length;
   const otherFlows = until.filter((e) => e.kind !== 'salary').reduce((s, e) => s + e.delta, 0);
   const balanceAt = start + otherFlows - periods * amount;
-  const sustainable = periods > 0 ? Math.max(0, Math.floor((start - floor + otherFlows) / periods)) : null;
-  const periodsShort = runOut && runOut <= target.date ? days.filter((d) => d >= runOut && d <= target.date).length : 0;
+  const sustainable =
+    periods > 0 ? Math.max(0, Math.floor((start - floor + otherFlows) / periods)) : null;
+  const periodsShort =
+    runOut && runOut <= target.date
+      ? days.filter((d) => d >= runOut && d <= target.date).length
+      : 0;
   return {
     date: target.date,
     label: target.label,
@@ -249,7 +268,12 @@ function averageRunway(
   let t: TargetResult | null = null;
   if (target) {
     let n = 0;
-    for (let c = cycleOf(addMonths(cycleOf(today, day).start, 1), day); c.start <= target.date; c = cycleOf(addMonths(c.start, 1), day)) n++;
+    for (
+      let c = cycleOf(addMonths(cycleOf(today, day).start, 1), day);
+      c.start <= target.date;
+      c = cycleOf(addMonths(c.start, 1), day)
+    )
+      n++;
     // Uncapped: what the balance would be if the months kept coming, so a shortfall shows.
     const balanceAt = start - Math.max(0, burn) * n;
     t = {

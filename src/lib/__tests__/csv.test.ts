@@ -9,7 +9,9 @@ describe('CSV', () => {
     ]);
   });
   it('handles quotes, doubled quotes and commas inside quotes', () => {
-    expect(parseCSV('"Shop, Inc","He said ""hi""",3')).toEqual([['Shop, Inc', 'He said "hi"', '3']]);
+    expect(parseCSV('"Shop, Inc","He said ""hi""",3')).toEqual([
+      ['Shop, Inc', 'He said "hi"', '3'],
+    ]);
   });
   it('keeps line breaks inside quoted fields', () => {
     expect(parseCSV('"line one\nline two",2\r\nx,y')).toEqual([

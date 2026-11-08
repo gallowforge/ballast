@@ -4,7 +4,12 @@ import { cycleOf } from '../dates';
 import type { Budget } from '../model';
 import { data, spending, txn } from './fixtures';
 
-const coffee: Budget = { categoryId: 'coffee', amount: 20_000, rollover: false, since: '2026-09-01' };
+const coffee: Budget = {
+  categoryId: 'coffee',
+  amount: 20_000,
+  rollover: false,
+  since: '2026-09-01',
+};
 
 function withCoffee(amounts: [string, number][], budget = coffee) {
   return data({
@@ -24,7 +29,9 @@ describe('budgets', () => {
     expect(s.perDayLeft).toBe(Math.floor(14_000 / 16));
   });
   it('flags running ahead of pace', () => {
-    expect(budgetState(withCoffee([['2026-11-02', 12_000]]), coffee, '2026-11-05').status).toBe('ahead');
+    expect(budgetState(withCoffee([['2026-11-02', 12_000]]), coffee, '2026-11-05').status).toBe(
+      'ahead',
+    );
   });
   it('flags going over', () => {
     const s = budgetState(withCoffee([['2026-11-02', 25_000]]), coffee, '2026-11-05');
@@ -46,8 +53,15 @@ describe('budgets', () => {
   });
   it('adds up the month, including spending without a budget', () => {
     const d = withCoffee([['2026-11-02', 4_000]]);
-    d.txns.push(txn({ date: '2026-11-03', amount: 9_000, categoryId: 'fuel' }), txn({ date: '2026-11-03', amount: 1_000 }));
-    expect(budgetTotals(d, '2026-11-10')).toEqual({ budgeted: 20_000, spent: 4_000, unbudgeted: 10_000 });
+    d.txns.push(
+      txn({ date: '2026-11-03', amount: 9_000, categoryId: 'fuel' }),
+      txn({ date: '2026-11-03', amount: 1_000 }),
+    );
+    expect(budgetTotals(d, '2026-11-10')).toEqual({
+      budgeted: 20_000,
+      spent: 4_000,
+      unbudgeted: 10_000,
+    });
     expect(budgetStates(d, '2026-11-10')).toHaveLength(1);
   });
   it('suggests a budget from the last three months, rounded up', () => {

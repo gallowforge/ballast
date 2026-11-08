@@ -3,8 +3,30 @@ import { isISODate, toISO, type ISODate } from '../dates';
 export type DateOrder = 'dmy' | 'mdy' | 'ymd';
 
 const MONTHS: Record<string, number> = {
-  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12,
-  january: 1, february: 2, march: 3, april: 4, june: 6, july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+  jan: 1,
+  feb: 2,
+  mar: 3,
+  apr: 4,
+  may: 5,
+  jun: 6,
+  jul: 7,
+  aug: 8,
+  sep: 9,
+  sept: 9,
+  oct: 10,
+  nov: 11,
+  dec: 12,
+  january: 1,
+  february: 2,
+  march: 3,
+  april: 4,
+  june: 6,
+  july: 7,
+  august: 8,
+  september: 9,
+  october: 10,
+  november: 11,
+  december: 12,
 };
 
 function year(y: string): number {
@@ -22,7 +44,11 @@ function build(y: number, m: number, d: number): ISODate | null {
  * 08NOV26, Nov 8, 2026. A trailing time is ignored. Numeric dates follow `order`.
  */
 export function parseDate(raw: string, order: DateOrder = 'dmy'): ISODate | null {
-  const s = raw.trim().replace(/\s+\d{1,2}:\d{2}(:\d{2})?(\s*[AP]M)?$/i, '').replace(/,/g, ' ').trim();
+  const s = raw
+    .trim()
+    .replace(/\s+\d{1,2}:\d{2}(:\d{2})?(\s*[AP]M)?$/i, '')
+    .replace(/,/g, ' ')
+    .trim();
   let m = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec(s);
   if (m) return build(Number(m[1]), Number(m[2]), Number(m[3]));
   m = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2}|\d{4})$/.exec(s);
@@ -33,9 +59,11 @@ export function parseDate(raw: string, order: DateOrder = 'dmy'): ISODate | null
     return order === 'mdy' ? build(y, a, b) : build(y, b, a);
   }
   m = /^(\d{1,2})[\s-]*([A-Za-z]{3,9})\.?[\s-]*(\d{2}|\d{4})$/.exec(s);
-  if (m && MONTHS[m[2]!.toLowerCase()]) return build(year(m[3]!), MONTHS[m[2]!.toLowerCase()]!, Number(m[1]));
+  if (m && MONTHS[m[2]!.toLowerCase()])
+    return build(year(m[3]!), MONTHS[m[2]!.toLowerCase()]!, Number(m[1]));
   m = /^([A-Za-z]{3,9})\.?\s+(\d{1,2})\s+(\d{4})$/.exec(s);
-  if (m && MONTHS[m[1]!.toLowerCase()]) return build(Number(m[3]), MONTHS[m[1]!.toLowerCase()]!, Number(m[2]));
+  if (m && MONTHS[m[1]!.toLowerCase()])
+    return build(Number(m[3]), MONTHS[m[1]!.toLowerCase()]!, Number(m[2]));
   return null;
 }
 
@@ -85,7 +113,11 @@ export function detectDecimal(values: readonly string[]): '.' | ',' {
  * Reads a statement amount into signed minor units: 1,234.567 · 1.234,56 · (12.500) · -12.5 ·
  * 12.500- · 12.500 DR · 12.500 CR · KWD 12.500 · 12.500 KD. Extra decimals round half up.
  */
-export function parseAmount(raw: string, exp: number, decimal: '.' | ',' = '.'): ParsedAmount | null {
+export function parseAmount(
+  raw: string,
+  exp: number,
+  decimal: '.' | ',' = '.',
+): ParsedAmount | null {
   let s = raw.trim().replace(/ /g, ' ');
   if (!s || /^[-–—]$/.test(s)) return null;
   let neg = false;
@@ -136,5 +168,7 @@ export function looksLikeAmount(raw: string): boolean {
   const s = raw.trim();
   if (!/\d/.test(s) || s.length > 24) return false;
   if (looksLikeDate(s)) return false;
-  return /^[(\-−+]?\s*(?:[A-Za-z]{2,4}\.?\s*)?[\d.,\s]*\d(?:[.,]\d+)?\s*(?:[A-Za-z]{2,4}\.?)?\s*[)\-]?\s*(?:DR|CR)?\.?$/i.test(s);
+  return /^[(\-−+]?\s*(?:[A-Za-z]{2,4}\.?\s*)?[\d.,\s]*\d(?:[.,]\d+)?\s*(?:[A-Za-z]{2,4}\.?)?\s*[)\-]?\s*(?:DR|CR)?\.?$/i.test(
+    s,
+  );
 }

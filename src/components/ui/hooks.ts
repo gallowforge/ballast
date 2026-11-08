@@ -38,7 +38,9 @@ export function useWidth<T extends HTMLElement>(fallback = 640): [preact.RefObje
     const el = ref.current;
     if (!el) return;
     setWidth(el.clientWidth || fallback);
-    const ro = new ResizeObserver(([entry]) => entry && setWidth(Math.round(entry.contentRect.width)));
+    const ro = new ResizeObserver(
+      ([entry]) => entry && setWidth(Math.round(entry.contentRect.width)),
+    );
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -84,7 +86,11 @@ export function useCountUp(value: number, ms = 900): number {
 }
 
 /** Runs a handler for a key when no field has focus. */
-export function useKey(key: string, handler: (e: KeyboardEvent) => void, deps: unknown[] = []): void {
+export function useKey(
+  key: string,
+  handler: (e: KeyboardEvent) => void,
+  deps: unknown[] = [],
+): void {
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;

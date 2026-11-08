@@ -73,7 +73,14 @@ const csv = [
   'Posting Date,Value Date,Description,Debit,Credit,Balance',
   `01/${d2(MONTH.m)}/${MONTH.y},01/${d2(MONTH.m)}/${MONTH.y},Opening Balance,,,${fmt(OPENING)}`,
   ...lines.map((l) =>
-    [date(l.day), date(l.day), `"${l.desc.join(' ')}"`, l.debit ? fmt(l.debit) : '', l.credit ? fmt(l.credit) : '', `"${fmt(l.bal)}"`].join(','),
+    [
+      date(l.day),
+      date(l.day),
+      `"${l.desc.join(' ')}"`,
+      l.debit ? fmt(l.debit) : '',
+      l.credit ? fmt(l.credit) : '',
+      `"${fmt(l.bal)}"`,
+    ].join(','),
   ),
 ].join('\r\n');
 writeFileSync(`${OUT}/sample-statement.csv`, csv + '\r\n');
@@ -116,15 +123,42 @@ ${page(lines.slice(0, 20), 1, 2, true)}
 ${page(lines.slice(20), 2, 2, false)}
 </body></html>`;
 
-const browser = await chromium.launch(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {});
+const browser = await chromium.launch(
+  process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
+);
 const p = await browser.newPage();
 await p.setContent(html);
-await p.pdf({ path: `${OUT}/sample-statement.pdf`, format: 'A4', printBackground: true, preferCSSPageSize: true });
+await p.pdf({
+  path: `${OUT}/sample-statement.pdf`,
+  format: 'A4',
+  printBackground: true,
+  preferCSSPageSize: true,
+});
 await browser.close();
 copyFileSync(`${OUT}/sample-statement.pdf`, `${PUB}/sample-statement.pdf`);
-execFileSync('qpdf', ['--encrypt', 'ledger-demo', 'ledger-demo', '256', '--', `${OUT}/sample-statement.pdf`, `${OUT}/sample-statement-locked.pdf`]);
+execFileSync('qpdf', [
+  '--encrypt',
+  'ledger-demo',
+  'ledger-demo',
+  '256',
+  '--',
+  `${OUT}/sample-statement.pdf`,
+  `${OUT}/sample-statement-locked.pdf`,
+]);
 writeFileSync(
   `${OUT}/sample-statement.json`,
-  JSON.stringify({ opening: OPENING, closing, rows: lines.length, debit: lines.reduce((s, l) => s + l.debit, 0), credit: lines.reduce((s, l) => s + l.credit, 0) }, null, 2) + '\n',
+  JSON.stringify(
+    {
+      opening: OPENING,
+      closing,
+      rows: lines.length,
+      debit: lines.reduce((s, l) => s + l.debit, 0),
+      credit: lines.reduce((s, l) => s + l.credit, 0),
+    },
+    null,
+    2,
+  ) + '\n',
 );
-console.log(`sample statement: ${lines.length} rows, opening ${fmt(OPENING)}, closing ${fmt(closing)}`);
+console.log(
+  `sample statement: ${lines.length} rows, opening ${fmt(OPENING)}, closing ${fmt(closing)}`,
+);

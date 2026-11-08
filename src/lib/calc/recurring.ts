@@ -64,7 +64,9 @@ export function upcoming(data: LedgerData, from: ISODate, to: ISODate): Upcoming
   const out: Upcoming[] = [];
   for (const r of data.recurring)
     for (const date of occurrences(r, from, to)) out.push({ recurring: r, date });
-  return out.sort((a, b) => (a.date === b.date ? a.recurring.amount - b.recurring.amount : a.date < b.date ? -1 : 1));
+  return out.sort((a, b) =>
+    a.date === b.date ? a.recurring.amount - b.recurring.amount : a.date < b.date ? -1 : 1,
+  );
 }
 
 /** Dates an auto-posting item should have posted by today but has not yet (at most 24). */

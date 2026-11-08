@@ -58,13 +58,24 @@ export const KNOWN: Known[] = [
   { re: /\bPHARMACY|CLINIC|HOSPITAL|DENTAL|MEDICAL|BOOTS\b/, categoryId: 'health' },
   { re: /\bGYM|FITNESS|OXYGEN|GOLD'?S\b/, categoryId: 'health' },
   { re: /\bCINEMA|CINESCAPE|VOX|GRAND CINEMAS\b/, categoryId: 'fun' },
-  { re: /\bAIRWAYS|AIRLINES|JAZEERA|EMIRATES|QATAR AIR|FLYDUBAI|BOOKING\.COM|AIRBNB|HOTEL|EXPEDIA\b/, categoryId: 'travel' },
+  {
+    re: /\bAIRWAYS|AIRLINES|JAZEERA|EMIRATES|QATAR AIR|FLYDUBAI|BOOKING\.COM|AIRBNB|HOTEL|EXPEDIA\b/,
+    categoryId: 'travel',
+  },
   { re: /\bUNIVERSITY|COURSERA|UDEMY|BOOKSTORE|JARIR\b/, categoryId: 'education' },
-  { re: /\bMCDONALD|KFC|BURGER|PIZZA|SUBWAY|SHAWARMA|RESTAURANT|GRILL|KITCHEN|SHAKE SHACK|FIVE GUYS|P\.?F\.? CHANG|CHEESECAKE|APPLEBEE|TGI\b/, categoryId: 'eating-out' },
+  {
+    re: /\bMCDONALD|KFC|BURGER|PIZZA|SUBWAY|SHAWARMA|RESTAURANT|GRILL|KITCHEN|SHAKE SHACK|FIVE GUYS|P\.?F\.? CHANG|CHEESECAKE|APPLEBEE|TGI\b/,
+    categoryId: 'eating-out',
+  },
   { re: /\bATM\b|CASH WITHDRAWAL/, payee: 'Cash withdrawal', categoryId: 'cash', dir: 'out' },
   { re: /\b(FEE|FEES|CHARGE|CHARGES|COMMISSION)\b/, categoryId: 'fees', dir: 'out' },
   { re: /\b(SALARY|PAYROLL|WAGES)\b/, payee: 'Salary', categoryId: 'salary', dir: 'in' },
-  { re: /\b(ALLOWANCE|STIPEND|MOHE|PAAET)\b/, payee: 'Allowance', categoryId: 'allowance', dir: 'in' },
+  {
+    re: /\b(ALLOWANCE|STIPEND|MOHE|PAAET)\b/,
+    payee: 'Allowance',
+    categoryId: 'allowance',
+    dir: 'in',
+  },
   { re: /\b(REFUND|REVERSAL|CASHBACK|CASH BACK)\b/, categoryId: 'refunds', dir: 'in' },
   { re: /\b(UPWORK|FIVERR|PAYPAL|PAYONEER|WISE)\b/, categoryId: 'freelance', dir: 'in' },
 ];
@@ -87,12 +98,16 @@ export function categorize(raw: string, dir: 'out' | 'in', rules: readonly Rule[
   const upper = raw.toUpperCase();
   const clean = cleanPayee(raw);
   const transfer = TRANSFER_HINT.test(upper);
-  const mine = [...rules].sort((a, b) => b.match.length - a.match.length).find((r) => r.match && key.includes(r.match));
-  if (mine) return { payee: mine.payee || clean, categoryId: mine.categoryId, transfer, ruleId: mine.id };
+  const mine = [...rules]
+    .sort((a, b) => b.match.length - a.match.length)
+    .find((r) => r.match && key.includes(r.match));
+  if (mine)
+    return { payee: mine.payee || clean, categoryId: mine.categoryId, transfer, ruleId: mine.id };
   // Rules made for this direction (salary, refunds, cash) win over merchant names.
   const ordered = [...KNOWN.filter((k) => k.dir === dir), ...KNOWN.filter((k) => !k.dir)];
   for (const k of ordered) {
-    if (k.re.test(upper)) return { payee: k.payee ?? clean, categoryId: k.categoryId, transfer: false };
+    if (k.re.test(upper))
+      return { payee: k.payee ?? clean, categoryId: k.categoryId, transfer: false };
   }
   return { payee: clean, transfer };
 }

@@ -21,13 +21,32 @@ export const GET: APIRoute = () =>
         icons: [
           { src: url('icons/icon-192.png'), sizes: '192x192', type: 'image/png' },
           { src: url('icons/icon-512.png'), sizes: '512x512', type: 'image/png' },
-          { src: url('icons/maskable-512.png'), sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          {
+            src: url('icons/maskable-512.png'),
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
           { src: url('favicon.svg'), sizes: 'any', type: 'image/svg+xml' },
         ],
         shortcuts: [
-          { name: 'Add a transaction', short_name: 'Add', url: url('activity/?add=1'), icons: [{ src: url('icons/icon-192.png'), sizes: '192x192' }] },
-          { name: 'Import a statement', short_name: 'Import', url: url('import/'), icons: [{ src: url('icons/icon-192.png'), sizes: '192x192' }] },
-          { name: 'Runway', url: url('runway/'), icons: [{ src: url('icons/icon-192.png'), sizes: '192x192' }] },
+          {
+            name: 'Add a transaction',
+            short_name: 'Add',
+            url: url('activity/?add=1'),
+            icons: [{ src: url('icons/icon-192.png'), sizes: '192x192' }],
+          },
+          {
+            name: 'Import a statement',
+            short_name: 'Import',
+            url: url('import/'),
+            icons: [{ src: url('icons/icon-192.png'), sizes: '192x192' }],
+          },
+          {
+            name: 'Runway',
+            url: url('runway/'),
+            icons: [{ src: url('icons/icon-192.png'), sizes: '192x192' }],
+          },
         ],
       },
       null,

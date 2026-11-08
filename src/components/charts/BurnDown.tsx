@@ -15,7 +15,15 @@ interface Props {
 }
 
 /** What is left of the month's money, day by day, against an even pace to zero. */
-export function BurnDown({ cycle, allowance, actual, projectedEnd, code, height = 150, fallbackWidth = 420 }: Props) {
+export function BurnDown({
+  cycle,
+  allowance,
+  actual,
+  projectedEnd,
+  code,
+  height = 150,
+  fallbackWidth = 420,
+}: Props) {
   const [ref, width] = useWidth<HTMLDivElement>(fallbackWidth);
   if (!allowance || !actual.length) return <div ref={ref} style={{ height }} />;
   const pad = { l: 4, r: 4, t: 12, b: 22 };
@@ -32,7 +40,14 @@ export function BurnDown({ cycle, allowance, actual, projectedEnd, code, height 
   const summary = `${formatMoney(last.value, code)} of ${formatMoney(allowance, code)} left on day ${lastI + 1} of ${cycle.days}. At this pace the month ends with ${formatMoney(projectedEnd, code)}.`;
   return (
     <div ref={ref}>
-      <svg class="chart block w-full" width={width} height={height} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={summary}>
+      <svg
+        class="chart block w-full"
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={summary}
+      >
         <defs>
           <linearGradient id="bd-fill" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0" style={{ stopColor: 'var(--gold)', stopOpacity: 0.3 }} />
@@ -40,9 +55,27 @@ export function BurnDown({ cycle, allowance, actual, projectedEnd, code, height 
           </linearGradient>
         </defs>
         <line class="grid" x1={pad.l} x2={width - pad.r} y1={y(0)} y2={y(0)} />
-        <line x1={x(0)} y1={y(allowance)} x2={x(endI)} y2={y(0)} style={{ stroke: 'var(--fg)' }} stroke-opacity="0.3" stroke-dasharray="3 5" stroke-width="1.5" />
+        <line
+          x1={x(0)}
+          y1={y(allowance)}
+          x2={x(endI)}
+          y2={y(0)}
+          style={{ stroke: 'var(--fg)' }}
+          stroke-opacity="0.3"
+          stroke-dasharray="3 5"
+          stroke-width="1.5"
+        />
         <path d={area} fill="url(#bd-fill)" class="reveal" />
-        <path d={line} fill="none" style={{ stroke: 'var(--gold)' }} stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" pathLength={1} class="draw" />
+        <path
+          d={line}
+          fill="none"
+          style={{ stroke: 'var(--gold)' }}
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          pathLength={1}
+          class="draw"
+        />
         {lastI < endI && (
           <line
             x1={x(lastI)}
@@ -56,7 +89,13 @@ export function BurnDown({ cycle, allowance, actual, projectedEnd, code, height 
             stroke-linecap="round"
           />
         )}
-        <circle cx={x(lastI)} cy={y(last.value)} r="5" style={{ fill: 'var(--gold)', stroke: 'var(--raised)' }} stroke-width="2.5" />
+        <circle
+          cx={x(lastI)}
+          cy={y(last.value)}
+          r="5"
+          style={{ fill: 'var(--gold)', stroke: 'var(--raised)' }}
+          stroke-width="2.5"
+        />
         <text x={pad.l} y={height - 4}>
           {formatShort(cycle.start)}
         </text>
@@ -64,7 +103,12 @@ export function BurnDown({ cycle, allowance, actual, projectedEnd, code, height 
           {formatShort(addDays(cycle.start, endI))}
         </text>
         {diffDays(cycle.start, last.date) > 2 && diffDays(last.date, cycle.end) > 2 && (
-          <text x={x(lastI)} y={height - 4} text-anchor="middle" style={{ fill: 'var(--fg)', fontWeight: 700 }}>
+          <text
+            x={x(lastI)}
+            y={height - 4}
+            text-anchor="middle"
+            style={{ fill: 'var(--fg)', fontWeight: 700 }}
+          >
             Today
           </text>
         )}

@@ -116,13 +116,16 @@ export function cycleSummary(data: LedgerData, today: ISODate): CycleSummary {
   const daysGone = diffDays(cycle.start, today) + 1;
   const daysLeft = cycle.days - daysGone + 1;
 
-  const posted = new Set(data.txns.filter((t) => t.recurringId).map((t) => `${t.recurringId}|${t.date}`));
+  const posted = new Set(
+    data.txns.filter((t) => t.recurringId).map((t) => `${t.recurringId}|${t.date}`),
+  );
   let billsAhead = 0;
   for (const r of data.recurring) {
     if (r.kind !== 'expense' || !(all || accounts.has(r.accountId))) continue;
     const acct = data.accounts.find((a) => a.id === r.accountId);
     const each = acct ? (toBase(data, r.amount, acct.currency) ?? r.amount) : r.amount;
-    for (const d of occurrences(r, today, cycle.end)) if (!posted.has(`${r.id}|${d}`)) billsAhead += each;
+    for (const d of occurrences(r, today, cycle.end))
+      if (!posted.has(`${r.id}|${d}`)) billsAhead += each;
   }
 
   const safe = Math.max(0, left - billsAhead);
@@ -132,7 +135,14 @@ export function cycleSummary(data: LedgerData, today: ISODate): CycleSummary {
   // would otherwise make the start of every month look like overspending.
   let fixedPosted = 0;
   for (const t of data.txns)
-    if (t.recurringId && t.kind === 'expense' && t.date >= cycle.start && t.date <= today && counts(t)) fixedPosted += t.base;
+    if (
+      t.recurringId &&
+      t.kind === 'expense' &&
+      t.date >= cycle.start &&
+      t.date <= today &&
+      counts(t)
+    )
+      fixedPosted += t.base;
   const flexSpent = spent - fixedPosted;
   const flexBudget = allowance + extra - fixedPosted - billsAhead;
   const pace = allowance ? flexSpent - Math.round((flexBudget * daysGone) / cycle.days) : 0;
