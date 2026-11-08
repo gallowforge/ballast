@@ -74,7 +74,9 @@ export function useCountUp(value: number, ms = 900): number {
     let raf = 0;
     const t0 = performance.now();
     const step = (t: number) => {
-      const p = Math.min(1, (t - t0) / ms);
+      // A frame's timestamp can precede t0, so clamp at 0 too: otherwise the first frame eases
+      // below the starting value and briefly shows a negative amount.
+      const p = Math.max(0, Math.min(1, (t - t0) / ms));
       const e = 1 - Math.pow(1 - p, 4);
       setShown(Math.round(start + (value - start) * e));
       if (p < 1) raf = requestAnimationFrame(step);

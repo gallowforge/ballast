@@ -10,7 +10,7 @@ import {
 } from '../dates';
 import { formatMoney, type Minor } from '../money/money';
 import type { LedgerData, Recurring, Txn, Unit } from '../model';
-import { categoryMap } from '../ledger';
+import { categoryMap, toBase } from '../ledger';
 import { budgetStates } from './budgets';
 import { monthlyEquivalent, yearlyEquivalent } from './recurring';
 import { byCategory, byWeekday, income, median, spending } from './stats';
@@ -222,13 +222,18 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
     (r) => r.kind === 'expense' && (!r.endOn || r.endOn >= today),
   );
   if (costs.length >= 2) {
-    const year = costs.reduce((s, r) => s + yearlyEquivalent(r), 0);
-    const month = costs.reduce((s, r) => s + monthlyEquivalent(r), 0);
+    // Recurring items can sit in accounts of other currencies: count them in the base currency.
+    const inBase = (r: Recurring, v: Minor) => {
+      const cur = data.accounts.find((x) => x.id === r.accountId)?.currency ?? base;
+      return toBase(data, v, cur) ?? v;
+    };
+    const year = costs.reduce((s, r) => s + inBase(r, yearlyEquivalent(r)), 0);
+    const month = costs.reduce((s, r) => s + inBase(r, monthlyEquivalent(r)), 0);
     const salary = data.salary?.active ? data.salary.amount : 0;
     const savingsIds = new Set(data.accounts.filter((x) => x.role === 'savings').map((x) => x.id));
     const fromSalary = costs
       .filter((r) => !savingsIds.has(r.accountId))
-      .reduce((s, r) => s + monthlyEquivalent(r), 0);
+      .reduce((s, r) => s + inBase(r, monthlyEquivalent(r)), 0);
     out.push({
       id: `fixed:${year}`,
       tone: 'neutral',

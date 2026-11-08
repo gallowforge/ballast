@@ -4,16 +4,42 @@ import { currency } from './currency';
 export type Minor = number;
 
 const GROUP = /\B(?=(\d{3})+(?!\d))/g;
-const GROUPING = new RegExp('[\\s,\\u066C]', 'g');
+// Arabic-Indic digits, the Arabic decimal separator (U+066B) and thousands separator (U+066C),
+// written as escapes so the source stays plain ASCII.
+const ARABIC_DIGIT = new RegExp('[\\u0660-\\u0669]', 'g');
+const ARABIC_DECIMAL = new RegExp('\\u066B', 'g');
+const ARABIC_GROUP = new RegExp('\\u066C', 'g');
+
+/**
+ * Turns what a person typed into a plain "1234.5": Arabic-Indic digits become ASCII, and a comma
+ * is read as a thousands mark only where it really is one ("1,234,567"). "1,5" and "12,50" are
+ * decimal commas, and "1.234,5" is the European layout.
+ */
+export function normalizeNumber(input: string): string {
+  let s = input
+    .trim()
+    .replace(ARABIC_DIGIT, (d) => String(d.charCodeAt(0) - 0x660))
+    .replace(ARABIC_DECIMAL, '.')
+    .replace(ARABIC_GROUP, ',')
+    .replace(/\s/g, '');
+  const lastComma = s.lastIndexOf(',');
+  const lastDot = s.lastIndexOf('.');
+  if (lastComma >= 0 && lastDot >= 0) {
+    s = lastComma > lastDot ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+  } else if (lastComma >= 0) {
+    if (/^[+-]?\d{1,3}(,\d{3})+$/.test(s)) s = s.replace(/,/g, '');
+    else if ((s.match(/,/g) ?? []).length === 1) s = s.replace(',', '.');
+  }
+  return s;
+}
 
 /**
  * Parses a decimal string into minor units without ever touching floating point.
- * Accepts "1234.5", "1,234.500", "-0.250", ".5". Returns null for anything else, or when the
+ * Accepts "1234.5", "1,234.500", "-0.250", ".5", "1,5". Returns null for anything else, or when the
  * string has more decimals than the currency allows ("1.2345" for KWD).
  */
 export function parseMinor(input: string, exp: number): Minor | null {
-  // Spaces, commas and the Arabic thousands separator (U+066C) are all grouping marks.
-  const s = input.trim().replace(GROUPING, '');
+  const s = normalizeNumber(input);
   const m = /^([+-])?(\d*)(?:\.(\d*))?$/.exec(s);
   if (!m) return null;
   const [, sign, whole = '', frac = ''] = m;

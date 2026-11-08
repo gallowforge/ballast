@@ -252,6 +252,9 @@ export function sanitize(raw: unknown): Sanitized {
           from: b.from,
           to: b.to,
           ...(int(b.closing) ? { closing: b.closing } : {}),
+          ...(isObj(b.prevOpening) && int(b.prevOpening.amount) && isISODate(b.prevOpening.on)
+            ? { prevOpening: { amount: b.prevOpening.amount, on: b.prevOpening.on } }
+            : {}),
         }
       : null,
   );

@@ -277,12 +277,17 @@ export function applyImport(rows: readonly ReviewRow[], meta: ImportMeta): { op:
     const txns = kept.map((r, i) => {
       const out = r.amount < 0;
       const transfer = r.kind === 'transfer' && r.toAccountId;
+      const abs = Math.abs(r.amount);
+      // Money in from another account: the statement amount is what this account received; the
+      // sending side is converted into its own currency.
+      const incoming = transfer && !out;
       const input: TxnInput = {
         date: r.date,
         kind: transfer ? 'transfer' : out ? 'expense' : 'income',
-        accountId: transfer && !out ? r.toAccountId! : meta.accountId,
+        accountId: incoming ? r.toAccountId! : meta.accountId,
         toAccountId: transfer ? (out ? r.toAccountId : meta.accountId) : undefined,
-        amount: Math.abs(r.amount),
+        amount: incoming ? between(d, abs, meta.accountId, r.toAccountId!) : abs,
+        toAmount: incoming ? abs : undefined,
         categoryId: transfer ? undefined : r.categoryId,
         payee: r.payee,
         note: r.raw !== r.payee ? r.raw : undefined,
@@ -293,6 +298,7 @@ export function applyImport(rows: readonly ReviewRow[], meta: ImportMeta): { op:
       };
       return completeTxn(d, input);
     });
+    const before = d.accounts.find((a) => a.id === meta.accountId);
     const accounts = meta.opening
       ? d.accounts.map((a) =>
           a.id === meta.accountId
@@ -318,6 +324,7 @@ export function applyImport(rows: readonly ReviewRow[], meta: ImportMeta): { op:
           from: meta.from,
           to: meta.to,
           closing: meta.closing,
+          ...(meta.opening && before ? { prevOpening: { amount: before.opening, on: before.openedOn } } : {}),
         },
       ],
     };
@@ -327,11 +334,18 @@ export function applyImport(rows: readonly ReviewRow[], meta: ImportMeta): { op:
 
 export const undoImport =
   (importId: string): Op =>
-  (d) => ({
-    ...d,
-    txns: d.txns.filter((t) => t.importId !== importId),
-    imports: d.imports.filter((b) => b.id !== importId),
-  });
+  (d) => {
+    const batch = d.imports.find((b) => b.id === importId);
+    const prev = batch?.prevOpening;
+    return {
+      ...d,
+      accounts: prev
+        ? d.accounts.map((a) => (a.id === batch!.accountId ? { ...a, opening: prev.amount, openedOn: prev.on } : a))
+        : d.accounts,
+      txns: d.txns.filter((t) => t.importId !== importId),
+      imports: d.imports.filter((b) => b.id !== importId),
+    };
+  };
 
 /* ---------- Automatic posts ---------- */
 
@@ -387,6 +401,15 @@ export function catchUp(data: LedgerData, today: ISODate): { data: LedgerData; p
   });
   if (recurring.some((r, i) => r !== next.recurring[i])) next = { ...next, recurring };
   return { data: next, posted };
+}
+
+/** An amount in one account's currency expressed in another's, through the base currency. */
+function between(data: LedgerData, minor: Minor, fromAccount: string, toAccount: string): Minor {
+  const from = accountCurrency(data, fromAccount);
+  const to = accountCurrency(data, toAccount);
+  if (from === to) return minor;
+  const inBase = toBase(data, minor, from);
+  return inBase === null ? minor : convertFromBase(data, inBase, toAccount);
 }
 
 function convertFromBase(data: LedgerData, baseAmount: Minor, accountId: string): Minor {

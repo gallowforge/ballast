@@ -77,3 +77,10 @@ describe('recurring schedules', () => {
     expect(duePosts({ ...r, autoPost: false }, '2026-11-08')).toEqual([]);
   });
 });
+
+describe('very old schedules', () => {
+  it('never skips an occurrence when jumping ahead decades', () => {
+    const r = rec({ amount: 1000, startOn: '1996-01-31' });
+    expect(occurrences(r, '2026-02-01', '2026-03-31')).toEqual(['2026-02-28', '2026-03-31']);
+  });
+});

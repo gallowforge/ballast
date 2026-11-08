@@ -115,3 +115,35 @@ describe('statement rows', () => {
     expect(s.reconciliation.closing).toBe(994_750);
   });
 });
+
+describe('the first row without an opening balance', () => {
+  it('guesses money out for an unsigned first row and says it could not be checked', () => {
+    const s = parse([
+      ['Date', 'Description', 'Amount', 'Balance'],
+      ['02/11/2026', 'Coffee', '1.500', '98.500'],
+      ['03/11/2026', 'Gift', '20.000', '118.500'],
+    ]);
+    expect(s.rows[0]!.amount).toBe(-1500);
+    expect(s.reconciliation).toMatchObject({ opening: 100_000, unverified: [2] });
+  });
+  it('reads a credit word in the first row as money in', () => {
+    const s = parse([
+      ['Date', 'Description', 'Amount', 'Balance'],
+      ['02/11/2026', 'Salary November', '200.000', '300.000'],
+      ['03/11/2026', 'Coffee', '1.500', '298.500'],
+    ]);
+    expect(s.rows[0]!.amount).toBe(200_000);
+    expect(s.reconciliation.opening).toBe(100_000);
+  });
+});
+
+describe('European comma decimals in a statement', () => {
+  it('detects three-decimal comma amounts', () => {
+    const rows = [
+      ['Date', 'Description', 'Amount'],
+      ['02/11/2026', 'Coffee', '-1234,567'],
+      ['03/11/2026', 'Tea', '-1,250'],
+    ];
+    expect(parse(rows).rows.map((r) => r.amount)).toEqual([-1_234_567, -1_250]);
+  });
+});

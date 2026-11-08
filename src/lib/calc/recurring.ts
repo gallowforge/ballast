@@ -18,7 +18,8 @@ export function occurrences(r: Recurring, from: ISODate, to: ISODate, limit = 40
   let n = 0;
   if (from > r.startOn) {
     const days = diffDays(r.startOn, from);
-    const per = r.unit === 'week' ? 7 * r.every : r.unit === 'year' ? 365 * r.every : 30 * r.every;
+    // The longest possible period, so the jump can only land before `from`, never past it.
+    const per = r.unit === 'week' ? 7 * r.every : r.unit === 'year' ? 366 * r.every : 31 * r.every;
     n = Math.max(0, Math.floor(days / per) - 2);
   }
   for (; out.length < limit; n++) {

@@ -103,8 +103,8 @@ export function detectDecimal(values: readonly string[]): '.' | ',' {
   let dot = 0;
   for (const v of values) {
     const s = v.replace(/[^\d.,]/g, '');
-    if (/,\d{1,2}$/.test(s) && !/\.\d{1,3}$/.test(s)) comma++;
-    else if (/\.\d{1,3}$/.test(s)) dot++;
+    if (/\.\d{3},\d+$/.test(s) || /,\d{1,2}$/.test(s) || /\d{4,},\d+$/.test(s)) comma++;
+    else if (/,\d{3}\.\d+$/.test(s) || /\.\d{1,3}$/.test(s)) dot++;
   }
   return comma > dot ? ',' : '.';
 }

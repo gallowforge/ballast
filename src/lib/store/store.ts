@@ -14,6 +14,13 @@ let starting: Promise<void> | null = null;
 let channel: BroadcastChannel | null = null;
 let saving: Promise<void> = Promise.resolve();
 let inFlight = 0;
+let lastStamp = 0;
+
+/** An increasing stamp for each change, so the newest saved copy always wins. */
+function stamp(): number {
+  lastStamp = Math.max(Date.now(), lastStamp + 1);
+  return lastStamp;
+}
 const listeners = new Set<Listener>();
 const history: { data: LedgerData; label: string }[] = [];
 
@@ -36,9 +43,10 @@ export function subscribe(fn: Listener): () => void {
 
 function persist() {
   const snapshot = state;
+  const at = stamp();
   inFlight++;
   saving = saving
-    .then(() => persistence?.save(snapshot))
+    .then(() => persistence?.save(snapshot, at))
     .then(() => channel?.postMessage({ type: 'saved' }))
     .catch((err) => console.error('Ledger could not save', err))
     .finally(() => inFlight--);
@@ -47,7 +55,7 @@ function persist() {
 
 /** Called as the page hides or closes: if a write has not finished, keep a synchronous copy. */
 export function flushSync(): void {
-  if (inFlight > 0) persistence?.saveSync?.(state);
+  if (inFlight > 0) persistence?.saveSync?.(state, stamp());
 }
 
 /** Loads saved data once, posts anything that fell due, and starts listening to other tabs. */
@@ -67,8 +75,13 @@ export function start(p: Persistence, now: () => string = () => todayISO()): Pro
     if (typeof BroadcastChannel !== 'undefined') {
       channel = new BroadcastChannel('ledger');
       channel.onmessage = async () => {
+        // Another tab saved. A change of ours still being written wins; otherwise take theirs,
+        // and forget undo steps that no longer describe what is on screen.
+        if (inFlight > 0) return;
         const fresh = await p.load();
+        if (inFlight > 0) return;
         state = fresh ? sanitize(fresh).data : emptyData();
+        history.length = 0;
         notify();
       };
     }
@@ -130,4 +143,5 @@ export function __reset(): void {
   listeners.clear();
   saving = Promise.resolve();
   inFlight = 0;
+  lastStamp = 0;
 }

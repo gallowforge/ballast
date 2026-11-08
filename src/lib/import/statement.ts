@@ -26,6 +26,8 @@ export interface Reconciliation {
   closing?: number;
   /** Signs that were worked out from the running balance. */
   inferred: number;
+  /** Lines whose direction could not be checked (the first row with no opening balance). */
+  unverified: number[];
 }
 
 export interface ParsedStatement {
@@ -43,6 +45,7 @@ const OPENING =
 const CLOSING =
   /\b(closing balance|balance carried forward|carried forward|c\/f|ending balance|end balance)\b/i;
 const TOTAL = /^\s*(total|totals|sub ?total|grand total)\b/i;
+const CREDIT_WORDS = /\b(salary|payroll|deposit|refund|reversal|credit|transfer from|received|cash in|interest)\b/i;
 
 export interface ParseOptions {
   /** Minor-unit digits of the statement currency (3 for KWD). */
@@ -159,6 +162,7 @@ export function parseStatement(
   let matched = 0;
   let inferred = 0;
   const mismatched: number[] = [];
+  const unverified: number[] = [];
   let prev: number | undefined = opening;
   for (const r of ordered) {
     if (r.balance !== undefined && prev !== undefined) {
@@ -175,6 +179,12 @@ export function parseStatement(
       if (r.amount === delta) matched++;
       else mismatched.push(r.line);
     } else if (r.balance !== undefined && prev === undefined && r.hasAmount) {
+      if (!r.signed && !anySigned) {
+        // No opening balance to check against, so the first row's direction is a best guess
+        // (money out, unless the words say otherwise). It is reported as unverified.
+        r.amount = CREDIT_WORDS.test(r.description) ? Math.abs(r.amount) : -Math.abs(r.amount);
+        unverified.push(r.line);
+      }
       opening = r.balance - r.amount;
     }
     if (r.balance !== undefined) prev = r.balance;
@@ -197,7 +207,7 @@ export function parseStatement(
   return {
     rows: clean,
     skipped,
-    reconciliation: { checked, matched, mismatched, opening, closing, inferred },
+    reconciliation: { checked, matched, mismatched, opening, closing, inferred, unverified },
     from: clean[0]?.date,
     to: clean[clean.length - 1]?.date,
     descending,

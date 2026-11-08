@@ -180,3 +180,25 @@ describe('importing the sample CSV', () => {
     expect(hasHistoryBefore(d, 'cur', '2026-08-01')).toBe(false);
   });
 });
+
+describe('undo and transfers', () => {
+  it('undoing an import gives the account back its old starting balance', () => {
+    const source = sourceFromCSV(csv, 'sample-statement.csv');
+    const statement = readStatement(source, mappingFor(source), 'KWD');
+    const d = data({ accounts: [savings, { ...spending, opening: 12_345, openedOn: '2026-01-01' }] });
+    const rows = buildReview(d, 'cur', statement);
+    const { op, id } = applyImport(rows, { kind: 'csv', profile: 'generic', fileName: 'x', accountId: 'cur', from: statement.from!, to: statement.to!, opening: { amount: statement.reconciliation.opening!, on: statement.from! } });
+    const after = op(d);
+    expect(after.accounts.find((a) => a.id === 'cur')!.opening).toBe(expected.opening);
+    const undone = undoImport(id)(after);
+    expect(undone.accounts.find((a) => a.id === 'cur')).toMatchObject({ opening: 12_345, openedOn: '2026-01-01' });
+  });
+
+  it('money in from an account in another currency is converted on the sending side', () => {
+    const wallet = { id: 'usd', name: 'Wallet', role: 'other' as const, currency: 'USD', opening: 0, openedOn: '2026-01-01' };
+    const d = data({ accounts: [savings, spending, wallet], rates: { USD: { rate: '0.3', on: '2026-11-01' } } });
+    const row = { key: 'k', line: 2, date: '2026-11-02', raw: 'TRANSFER FROM WALLET', amount: 30_000, payee: 'Transfer', kind: 'transfer' as const, toAccountId: 'usd', include: true, duplicate: { exact: false }, fingerprint: 'f', transferHint: true };
+    const t = applyImport([row], { kind: 'csv', profile: 'generic', fileName: 'x', accountId: 'cur', from: '2026-11-02', to: '2026-11-02' }).op(d).txns[0]!;
+    expect(t).toMatchObject({ kind: 'transfer', accountId: 'usd', toAccountId: 'cur', amount: 10_000, toAmount: 30_000, base: 30_000 });
+  });
+});

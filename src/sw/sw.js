@@ -14,7 +14,10 @@ self.addEventListener('install', (event) => {
         PRECACHE.map(async (path) => {
           const url = new URL(path, scope).href;
           const res = await fetch(url, { cache: 'reload' });
-          if (res.ok) await cache.put(url, res);
+          // A missing file fails the install, so the browser retries later instead of
+          // activating a cache with holes in it.
+          if (!res.ok) throw new Error(`precache failed: ${res.status} ${url}`);
+          await cache.put(url, res);
         }),
       );
       // The very first install has nothing to replace, so it can take over straight away.

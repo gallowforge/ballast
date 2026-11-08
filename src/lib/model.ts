@@ -128,6 +128,8 @@ export interface ImportBatch {
   to: ISODate;
   /** The statement's own closing balance, when it shows one. */
   closing?: Minor;
+  /** The account's starting balance before this import changed it, restored on undo. */
+  prevOpening?: { amount: Minor; on: ISODate };
 }
 
 export interface Rate {
