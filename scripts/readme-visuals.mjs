@@ -20,12 +20,25 @@ const OUT = 'docs/readme';
 const COMPOSE_ONLY = process.argv.includes('--compose');
 mkdirSync(RAW, { recursive: true });
 
-const launch = () => chromium.launch(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {});
+const launch = () =>
+  chromium.launch(
+    process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {},
+  );
 
 async function capture() {
   const browser = await launch();
-  const desktop = await browser.newContext({ viewport: { width: 1360, height: 860 }, deviceScaleFactor: 2, colorScheme: 'dark', reducedMotion: 'reduce' });
-  const phone = await browser.newContext({ ...devices['iPhone 14 Pro'], deviceScaleFactor: 3, colorScheme: 'dark', reducedMotion: 'reduce' });
+  const desktop = await browser.newContext({
+    viewport: { width: 1360, height: 860 },
+    deviceScaleFactor: 2,
+    colorScheme: 'dark',
+    reducedMotion: 'reduce',
+  });
+  const phone = await browser.newContext({
+    ...devices['iPhone 14 Pro'],
+    deviceScaleFactor: 3,
+    colorScheme: 'dark',
+    reducedMotion: 'reduce',
+  });
   for (const ctx of [desktop, phone]) {
     const p = await ctx.newPage();
     await p.goto(`${ORIGIN}/home/?demo=1`);
@@ -35,9 +48,15 @@ async function capture() {
   const shot = async (ctx, path, name, prep) => {
     const p = await ctx.newPage();
     await p.goto(`${ORIGIN}/${path}`);
-    await p.locator('astro-island[ssr]').first().waitFor({ state: 'detached', timeout: 15000 }).catch(() => undefined);
+    await p
+      .locator('astro-island[ssr]')
+      .first()
+      .waitFor({ state: 'detached', timeout: 15000 })
+      .catch(() => undefined);
     // The demo banner and the floating add button are left out of the pictures.
-    await p.addStyleTag({ content: '.fab{display:none!important} .border-gold\\/40{display:none!important}' });
+    await p.addStyleTag({
+      content: '.fab{display:none!important} .border-gold\\/40{display:none!important}',
+    });
     await p.waitForTimeout(900);
     if (prep) await prep(p);
     await p.waitForTimeout(500);
@@ -54,7 +73,16 @@ async function capture() {
   };
 
   // Scrolls so an element sits just under the sticky top bar.
-  const to = (sel, gap = 84) => (p) => p.evaluate(([s, g]) => { const el = document.querySelector(s); if (el) scrollTo(0, el.getBoundingClientRect().top + scrollY - g); }, [sel, gap]);
+  const to =
+    (sel, gap = 84) =>
+    (p) =>
+      p.evaluate(
+        ([s, g]) => {
+          const el = document.querySelector(s);
+          if (el) scrollTo(0, el.getBoundingClientRect().top + scrollY - g);
+        },
+        [sel, gap],
+      );
 
   // The sample import adds data, so it is captured last in each context.
   await shot(desktop, 'home/', 'd-home');
@@ -128,7 +156,10 @@ function page(body, w, h) {
 
 const SCENES = {
   hero: {
-    wide: [1200, 1050, `<div class="card" style="width:1200px;height:1050px">
+    wide: [
+      1200,
+      1050,
+      `<div class="card" style="width:1200px;height:1050px">
       <div style="position:absolute;top:58px;left:0;right:0;text-align:center">
         <div style="display:inline-flex;align-items:center;gap:14px;font-weight:800;font-size:30px;letter-spacing:-0.01em">${logo.replace('<svg', '<svg width="44" height="44"')}Ledger</div>
         <h1 class="display" style="font-size:82px;margin-top:30px">Pay yourself a salary that <em class="gold">lasts.</em></h1>
@@ -140,15 +171,20 @@ const SCENES = {
       </div>
       ${browser('d-home', 'home/', { left: 70, top: 395, width: 900, height: 600 })}
       ${phone('p-runway', { left: 868, top: 470, width: 280 })}
-    </div>`],
-    mobile: [600, 1050, `<div class="card" style="width:600px;height:1050px">
+    </div>`,
+    ],
+    mobile: [
+      600,
+      1050,
+      `<div class="card" style="width:600px;height:1050px">
       <div style="position:absolute;top:54px;left:40px;right:40px;text-align:center">
         <div style="display:inline-flex;align-items:center;gap:12px;font-weight:800;font-size:26px">${logo.replace('<svg', '<svg width="38" height="38"')}Ledger</div>
         <h1 class="display" style="font-size:60px;margin-top:26px;line-height:1.02">Pay yourself a salary that <em class="gold">lasts.</em></h1>
         <p style="font-size:20px;color:#ffffffa8;margin-top:18px;line-height:1.4">Your month, your runway and your statements, on your device.</p>
       </div>
       ${phone('p-home', { left: 135, top: 400, width: 330 })}
-    </div>`],
+    </div>`,
+    ],
   },
   month: { desktop: 'd-home', url: 'home/', phone: 'p-plan' },
   runway: { desktop: 'd-runway', url: 'runway/', phone: 'p-whatif' },
@@ -159,8 +195,16 @@ const SCENES = {
 
 function scene(s) {
   return {
-    wide: [1200, 760, `<div class="card" style="width:1200px;height:760px">${browser(s.desktop, s.url, { left: 60, top: 60, width: 880, height: 600 })}${phone(s.phone, { left: 858, top: 112, width: 290 })}</div>`],
-    mobile: [600, 820, `<div class="card" style="width:600px;height:820px">${phone(s.phone, { left: 110, top: 55, width: 380 })}</div>`],
+    wide: [
+      1200,
+      760,
+      `<div class="card" style="width:1200px;height:760px">${browser(s.desktop, s.url, { left: 60, top: 60, width: 880, height: 600 })}${phone(s.phone, { left: 858, top: 112, width: 290 })}</div>`,
+    ],
+    mobile: [
+      600,
+      820,
+      `<div class="card" style="width:600px;height:820px">${phone(s.phone, { left: 110, top: 55, width: 380 })}</div>`,
+    ],
   };
 }
 
@@ -174,15 +218,26 @@ const NUMBERS = [
   ['0', 'servers', 'no account, no uploads'],
 ];
 const numbers = {
-  wide: [1200, 270, `<div class="card" style="width:1200px;height:270px;display:grid;grid-template-columns:repeat(5,1fr);align-content:center;padding:0 50px">
+  wide: [
+    1200,
+    270,
+    `<div class="card" style="width:1200px;height:270px;display:grid;grid-template-columns:repeat(5,1fr);align-content:center;padding:0 50px">
     ${NUMBERS.map(([n, l, c], i) => `<div style="padding-left:${i ? 28 : 0}px;border-left:${i ? '1px solid #ffffff14' : 'none'}"><div class="display ${i === 4 ? 'gold' : ''}" style="font-size:66px">${n}</div><div style="font-weight:700;font-size:20px;margin-top:14px">${l}</div><div style="color:#ffffff8c;font-size:15.5px;margin-top:6px">${c}</div></div>`).join('')}
-  </div>`],
-  mobile: [600, 760, `<div class="card" style="width:600px;height:760px;padding:50px 48px;display:grid;grid-template-columns:1fr 1fr;gap:36px 28px;align-content:center">
+  </div>`,
+  ],
+  mobile: [
+    600,
+    760,
+    `<div class="card" style="width:600px;height:760px;padding:50px 48px;display:grid;grid-template-columns:1fr 1fr;gap:36px 28px;align-content:center">
     ${NUMBERS.map(([n, l, c], i) => `<div style="${i === 4 ? 'grid-column:span 2' : ''}"><div class="display ${i === 4 ? 'gold' : ''}" style="font-size:58px">${n}</div><div style="font-weight:700;font-size:19px;margin-top:10px">${l}</div><div style="color:#ffffff8c;font-size:15px;margin-top:4px">${c}</div></div>`).join('')}
-  </div>`],
+  </div>`,
+  ],
 };
 
-const social = [1280, 640, `<div class="card" style="width:1280px;height:640px;border-radius:0">
+const social = [
+  1280,
+  640,
+  `<div class="card" style="width:1280px;height:640px;border-radius:0">
   <div style="position:absolute;left:80px;top:96px;width:560px">
     <div style="display:inline-flex;align-items:center;gap:16px;font-weight:800;font-size:34px">${logo.replace('<svg', '<svg width="52" height="52"')}Ledger</div>
     <h1 class="display" style="font-size:78px;margin-top:40px;line-height:1.02">Pay yourself a salary that <em class="gold">lasts.</em></h1>
@@ -190,7 +245,8 @@ const social = [1280, 640, `<div class="card" style="width:1280px;height:640px;b
   </div>
   ${phone('p-runway', { left: 760, top: 64, width: 300 })}
   ${phone('p-home', { left: 980, top: 150, width: 260 })}
-</div>`];
+</div>`,
+];
 
 async function render(browserInst, name, [w, h, body], { webp = true } = {}) {
   const p = await browserInst.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 2 });
