@@ -1,0 +1,105 @@
+---
+import ProseLayout from '@/layouts/ProseLayout.astro';
+import { SITE, url } from '@/lib/site';
+---
+
+<ProseLayout
+  title="How Ledger works"
+  eyebrow="The method"
+  description="How Ledger calculates safe-to-spend, the runway to a target date, budgets with pace, and how it reads bank statements on the device."
+  lead="Every number in Ledger comes from a small, tested function you can read. This page explains each one in plain words."
+>
+  <h2>Money, exactly</h2>
+  <p>
+    Amounts are stored as whole numbers of the smallest unit: fils for the Kuwaiti dinar (1 KD is 1,000 fils), cents for the dollar. Nothing is ever a floating-point number, so
+    0.100 plus 0.200 is always exactly 0.300 KD. Exchange rates are kept as written ("0.30705") and applied with whole-number arithmetic, rounding only once at the end, half away
+    from zero.
+  </p>
+  <p>
+    Every transaction keeps its amount in its account's currency and, beside it, the value in your main currency at the time. Reports add up the second one, so a dollar purchase from
+    last spring is not revalued by today's rate.
+  </p>
+
+  <h2>Your money month</h2>
+  <p>
+    A month starts on your payday (any day from the 1st to the 28th) and ends the day before the next one. With a payday on the 25th, each month runs from the 25th to the 24th of the following
+    month. Budgets, the salary and the charts all follow it.
+  </p>
+
+  <h2>Safe to spend today</h2>
+  <p>When you pay yourself a salary, the month has that much to spend. Money that lands in your spending account during the month (a refund, a gift) adds to it.</p>
+  <div class="formula">Safe to spend a day = (salary + money in − spent − bills still to come this month) ÷ days left, including today</div>
+  <p>
+    "Bills still to come" are the recurring costs on your spending accounts that are due before the month ends and have not been recorded yet. Keeping them aside is what makes the number
+    safe.
+  </p>
+  <h3>Pace</h3>
+  <p>
+    Pace compares everyday spending with an even spread across the month. Fixed bills are left out on both sides, because a gym membership on the 3rd is not overspending. "At this
+    pace" projects your average everyday spend over the days left, and says when the month would run out.
+  </p>
+
+  <h2>Runway</h2>
+  <p>
+    The runway is a projection of your savings accounts. Starting from today's balance, it takes your salary on every payday, adds recurring income paid into savings (a job that starts
+    later, an allowance) and subtracts recurring costs paid from savings (a yearly insurance). The chart draws it as a staircase, because that is what your balance really does.
+  </p>
+  <ul>
+    <li><strong>Salaries left</strong> counts the paydays that can be paid in full without going below your floor.</li>
+    <li>The <strong>floor</strong> is a cushion you choose; the plan treats it as untouchable.</li>
+    <li>
+      The <strong>target</strong> check works out your savings on the date you care about. If they fall short, it says by how much and how many paydays early the money runs out.
+    </li>
+  </ul>
+  <div class="formula">Largest salary that reaches the target = (savings − floor + income into savings − costs from savings, until the date) ÷ paydays until the date</div>
+  <p>
+    Without a salary, Ledger uses your average month instead: the money that went out minus the money that came in, over the last three full months, projected forward one month at a time.
+  </p>
+
+  <h2>Budgets</h2>
+  <p>
+    A budget is a monthly amount for one category. The bar fills as you spend, and a thin line marks where an even pace would be today. A budget is "ahead of pace" when more than 10%
+    beyond that line (once a tenth of it is spent), and "over" past its amount. With rollover on, what is left carries into next month, and overspending comes out of it. A new budget
+    suggests the average of your last three months, rounded up.
+  </p>
+
+  <h2>Recurring costs and what Ledger notices</h2>
+  <p>
+    Recurring items repeat every so many weeks, months or years, keep their day of the month through short months, and can record themselves automatically. Ledger also looks through your
+    history for payments that repeat: the same payee, an amount within 10%, and gaps that are all close to a week, a month or a year. A place you simply visit often does not qualify.
+  </p>
+  <p>
+    Insights only appear with enough data to be fair: spending against the same point last month, the category that rose most, a purchase three times bigger than usual for its category,
+    the most expensive day of the week over eight weeks, how much of last month's income you kept, and what your recurring costs come to in a year.
+  </p>
+
+  <h2>Reading a bank statement</h2>
+  <ol class="ml-5 list-decimal">
+    <li>
+      <strong>Text, not pictures.</strong> A PDF is read with pdf.js in this browser tab. Text runs are grouped into lines by their position, and the table is rebuilt from the column
+      headings: numbers are placed by their right edge (amounts are right-aligned), dates by order, and wrapped descriptions joined to the line above. A CSV is read directly, with its
+      delimiter worked out from the file.
+    </li>
+    <li>
+      <strong>Columns.</strong> Headings like Posting Date, Value Date, Description, Debit, Credit and Balance are recognised, National Bank of Kuwait's layout first. Without headings,
+      columns are inferred from their contents. You can change any of them before importing.
+    </li>
+    <li>
+      <strong>The running balance check.</strong> Each row's balance must equal the previous balance plus that row's amount. When every row agrees, nothing was misread. When the amounts
+      have no signs, the balance says which way the money went.
+    </li>
+    <li>
+      <strong>No duplicates.</strong> Each line gets a fingerprint from its account, date, amount and description, so importing an overlapping statement adds only what is new. A line that
+      matches something you added by hand, or a salary Ledger moved itself, is left unticked.
+    </li>
+    <li><strong>Tidy names and categories.</strong> Card numbers, terminal codes and reference numbers are stripped, common merchants are recognised, and your corrections become rules.</li>
+  </ol>
+  <p>Scanned statements (pictures of paper) have no text to read, and Ledger says so rather than guessing.</p>
+
+  <h2>Read the code</h2>
+  <p>
+    Every calculation lives in <code>src/lib</code> as a plain function with tests beside it. The source is on <a href={SITE.repo} rel="noopener">GitHub</a>. See also <a
+      href={url('privacy/')}>privacy</a
+    >.
+  </p>
+</ProseLayout>

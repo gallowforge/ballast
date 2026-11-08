@@ -34,7 +34,9 @@ export default function PlanScreen() {
   const states = budgetStates(data, today);
   const totals = budgetTotals(data, today);
   const s = data.salary;
-  const fixed = data.recurring.filter((r) => r.kind === 'expense' && (!r.endOn || r.endOn >= today)).reduce((sum, r) => sum + monthlyEquivalent(r), 0);
+  // Only costs paid from spending accounts come out of the salary; costs from savings show in the runway.
+  const fromSalary = (r: Recurring) => accounts.get(r.accountId)?.role !== 'savings';
+  const fixed = data.recurring.filter((r) => r.kind === 'expense' && fromSalary(r) && (!r.endOn || r.endOn >= today)).reduce((sum, r) => sum + monthlyEquivalent(r), 0);
   const committed = data.budgets.reduce((sum, b) => sum + b.amount, 0) + fixed;
   const r = s?.active ? runway(data, today) : null;
   const suggestions = detectRecurring(data, today);
@@ -137,7 +139,7 @@ export default function PlanScreen() {
               <h2 id="rec-title" class="text-lg font-bold">
                 Recurring
               </h2>
-              <p class="text-sm text-muted">Bills, subscriptions and regular income. {fixed ? `Costs come to ${formatMoney(fixed, base)} a month.` : ''}</p>
+              <p class="text-sm text-muted">Bills, subscriptions and regular income. {fixed ? `Costs from your salary come to ${formatMoney(fixed, base)} a month.` : ''}</p>
             </div>
             <button type="button" class="btn btn-soft btn-sm" onClick={() => setRecurring('new')}>
               <Icon name="plus" size={16} /> Add

@@ -224,8 +224,14 @@ export default function ActivityScreen() {
             <section key={g.date} class="card card-pad animate-row" style={{ animationDelay: `${Math.min(gi, 8) * 35}ms` }} aria-label={formatDay(g.date)}>
               <div class="mb-1 flex items-baseline justify-between">
                 <h2 class="text-sm font-bold">
-                  {formatRelative(g.date, today)}
-                  {formatRelative(g.date, today) !== formatDay(g.date) && <span class="ml-2 font-semibold text-subtle">{formatDay(g.date)}</span>}
+                  {/^[A-Z][a-z]+$/.test(formatRelative(g.date, today)) ? (
+                    <>
+                      {formatRelative(g.date, today)}
+                      <span class="ml-2 font-semibold text-subtle">{formatDay(g.date)}</span>
+                    </>
+                  ) : (
+                    formatDay(g.date)
+                  )}
                 </h2>
                 {g.spent > 0 && <span class="text-sm text-subtle">{formatMoney(g.spent, base)}</span>}
               </div>

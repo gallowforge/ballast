@@ -149,11 +149,11 @@ export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
 
 export function DemoBanner() {
   return (
-    <div class="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-gold/40 bg-gold-soft px-4 py-3 text-sm">
-      <Icon name="sparkle" size={18} class="text-gold-ink" />
-      <span class="flex-1 font-semibold">You are looking at demo data for a made-up person. Nothing here is real.</span>
-      <a href={url('settings/#data')} class="link">
-        Clear it and start yours
+    <div class="flex items-center gap-3 rounded-2xl border border-gold/40 bg-gold-soft px-4 py-3 text-sm">
+      <Icon name="sparkle" size={18} class="flex-none text-gold-ink" />
+      <span class="min-w-0 flex-1 font-semibold">Demo data for a made-up person. Nothing here is real.</span>
+      <a href={url('settings/#data')} class="link flex-none">
+        Start yours
       </a>
     </div>
   );

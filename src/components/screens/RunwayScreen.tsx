@@ -3,6 +3,7 @@ import { formatLong, formatMonth, formatShort, formatSpan, plural } from '@/lib/
 import { floorTo, formatMoney } from '@/lib/money/money';
 import { currency } from '@/lib/money/currency';
 import { runway } from '@/lib/calc/runway';
+import { describeCadence } from '@/lib/calc/recurring';
 import { setSalary, setTarget } from '@/lib/store/ops';
 import { apply, undo } from '@/lib/store/store';
 import { toast } from '@/lib/bus';
@@ -40,6 +41,19 @@ export default function RunwayScreen() {
 
   const view = tried ?? plan;
   const t = view.target;
+  const flows = (() => {
+    const by = new Map<string, { label: string; delta: number; first: string; count: number; cadence: string }>();
+    for (const e of view.events) {
+      if (e.kind === 'salary' || e.kind === 'burn') continue;
+      const row = by.get(e.label);
+      if (row) row.count++;
+      else {
+        const r = data.recurring.find((x) => x.name === e.label);
+        by.set(e.label, { label: e.label, delta: e.delta, first: e.date, count: 1, cadence: r ? describeCadence(r) : 'repeats' });
+      }
+    }
+    return [...by.values()].slice(0, 8);
+  })();
   const salaryMode = plan.mode === 'salary';
   const max = Math.max(plan.monthly * 2, (plan.target?.sustainable ?? 0) * 1.4, 100 * unit);
   const step = exp === 3 ? 5000 : 5 * unit;
@@ -214,25 +228,26 @@ export default function RunwayScreen() {
         )}
       </div>
 
-      {view.events.some((e) => e.kind !== 'salary' && e.kind !== 'burn') && (
+      {flows.length > 0 && (
         <section class="card card-pad animate-rise" aria-labelledby="ev-title" style={{ animationDelay: '160ms' }}>
           <h2 id="ev-title" class="mb-3 text-[0.95rem] font-bold">
             What else moves your savings
           </h2>
           <div class="divide">
-            {view.events
-              .filter((e) => e.kind !== 'salary' && e.kind !== 'burn')
-              .slice(0, 8)
-              .map((e) => (
-                <div key={e.date + e.label} class="flex items-center gap-3 py-2.5">
-                  <span class="tile tile-sm" style={{ '--tile': e.delta > 0 ? 'var(--good)' : 'var(--warn)' }}>
-                    <Icon name={e.delta > 0 ? 'arrow-down-left' : 'arrow-up-right'} size={16} />
+            {flows.map((f) => (
+              <div key={f.label} class="flex items-center gap-3 py-2.5">
+                <span class="tile tile-sm" style={{ '--tile': f.delta > 0 ? 'var(--good)' : 'var(--warn)' }}>
+                  <Icon name={f.delta > 0 ? 'arrow-down-left' : 'arrow-up-right'} size={16} />
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="block truncate font-semibold">{f.label}</span>
+                  <span class="block text-sm text-subtle">
+                    {f.count > 1 ? `${f.cadence}, from ${formatShort(f.first, today)}` : formatShort(f.first, today)}
                   </span>
-                  <span class="flex-1 font-semibold">{e.label}</span>
-                  <span class="text-sm text-subtle">{formatShort(e.date, today)}</span>
-                  <Money value={e.delta} code={base} sign="always" tone={e.delta > 0 ? 'income' : 'none'} class="w-32 text-right font-bold" />
-                </div>
-              ))}
+                </span>
+                <Money value={f.delta} code={base} sign="always" tone={f.delta > 0 ? 'income' : 'none'} class="text-right font-bold" />
+              </div>
+            ))}
           </div>
           <p class="mt-3 text-sm text-subtle">
             Recurring income and costs on your savings accounts. Add more in{' '}

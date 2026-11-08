@@ -209,7 +209,8 @@
     font-family: var(--font-display);
     font-variation-settings: 'opsz' 96;
     font-weight: 560;
-    letter-spacing: -0.025em;
+    letter-spacing: -0.018em;
+    word-spacing: 0.07em;
     line-height: 1;
   }
 
@@ -622,3 +623,17 @@
   body { background: white; color: black; }
   .card { box-shadow: none; break-inside: avoid; }
 }
+
+/* Long-form pages (how it works, privacy). */
+.prose-ledger { color: var(--muted); font-size: 1.0625rem; line-height: 1.7; }
+.prose-ledger h2 { font-family: var(--font-display); font-variation-settings: 'opsz' 72; font-weight: 560; letter-spacing: -0.015em; word-spacing: 0.06em; color: var(--fg); font-size: 1.75rem; line-height: 1.15; margin: 3rem 0 0.75rem; }
+.prose-ledger h3 { color: var(--fg); font-weight: 750; font-size: 1.05rem; margin: 1.75rem 0 0.4rem; }
+.prose-ledger p { margin: 0.75rem 0; }
+.prose-ledger ul { margin: 0.75rem 0; padding-left: 1.25rem; list-style: disc; }
+.prose-ledger li { margin: 0.35rem 0; }
+.prose-ledger li::marker { color: var(--gold); }
+.prose-ledger strong { color: var(--fg); font-weight: 700; }
+.prose-ledger a { color: var(--gold-ink); font-weight: 650; text-underline-offset: 3px; }
+.prose-ledger a:hover { text-decoration: underline; }
+.prose-ledger code { font-size: 0.9em; padding: 0.1em 0.35em; border-radius: 0.4rem; background: var(--sunken); color: var(--fg); }
+.prose-ledger .formula { margin: 1rem 0; padding: 1rem 1.25rem; border-radius: 1rem; background: var(--sunken); border: 1px solid var(--line); color: var(--fg); font-weight: 600; }

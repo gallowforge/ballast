@@ -149,6 +149,7 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
       const thenCats = new Map(byCategory(data, prev.start, prevSameDay).map((c) => [c.categoryId, c.total]));
       let best: { id: string; diff: Minor; now: Minor; then: Minor } | null = null;
       for (const c of nowCats) {
+        if (!c.categoryId) continue;
         const diff = c.total - (thenCats.get(c.categoryId) ?? 0);
         if (!best || diff > best.diff) best = { id: c.categoryId, diff, now: c.total, then: thenCats.get(c.categoryId) ?? 0 };
       }
@@ -207,6 +208,8 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
     const year = costs.reduce((s, r) => s + yearlyEquivalent(r), 0);
     const month = costs.reduce((s, r) => s + monthlyEquivalent(r), 0);
     const salary = data.salary?.active ? data.salary.amount : 0;
+    const savingsIds = new Set(data.accounts.filter((x) => x.role === 'savings').map((x) => x.id));
+    const fromSalary = costs.filter((r) => !savingsIds.has(r.accountId)).reduce((s, r) => s + monthlyEquivalent(r), 0);
     out.push({
       id: `fixed:${year}`,
       tone: 'neutral',
@@ -214,7 +217,7 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
       title: `Your ${costs.length} recurring costs add up to ${money(year)} a year`,
       body:
         `That is ${money(month)} a month` +
-        (salary ? `, ${Math.round((month / salary) * 100)}% of your salary.` : '.'),
+        (salary && fromSalary ? `; the ones paid from your spending account take ${Math.round((fromSalary / salary) * 100)}% of your salary.` : '.'),
       action: { kind: 'link', label: 'Review them', href: 'plan/#recurring' },
     });
   }

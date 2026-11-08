@@ -119,7 +119,7 @@ describe('insights', () => {
     });
     const fixed = insights(d, '2026-11-05').find((i) => i.id.startsWith('fixed:'))!;
     expect(fixed.title).toBe('Your 2 recurring costs add up to 240.000 KD a year');
-    expect(fixed.body).toBe('That is 20.000 KD a month, 10% of your salary.');
+    expect(fixed.body).toBe('That is 20.000 KD a month; the ones paid from your spending account take 10% of your salary.');
   });
   it('says how much of last month was kept', () => {
     const d = data({ accounts: [cur], txns: [txn({ date: '2026-10-02', amount: 100_000, kind: 'income' }), txn({ date: '2026-10-03', amount: 75_000 })] });

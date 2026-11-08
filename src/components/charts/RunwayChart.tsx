@@ -15,6 +15,8 @@ interface Props {
   height?: number;
   label: string;
   compact?: boolean;
+  /** Width to draw before the page measures the real one (server-rendered previews). */
+  fallbackWidth?: number;
 }
 
 function stepPath(pts: RunwayPoint[], x: (d: ISODate) => number, y: (v: number) => number): string {
@@ -28,8 +30,8 @@ function stepPath(pts: RunwayPoint[], x: (d: ISODate) => number, y: (v: number) 
 }
 
 /** Savings over time as a staircase: each step is a payday or a known income or cost. */
-export function RunwayChart({ points, compare, floor, target, runOut, code, height = 280, label, compact }: Props) {
-  const [ref, width] = useWidth<HTMLDivElement>(720);
+export function RunwayChart({ points, compare, floor, target, runOut, code, height = 280, label, compact, fallbackWidth = 720 }: Props) {
+  const [ref, width] = useWidth<HTMLDivElement>(fallbackWidth);
   const [hover, setHover] = useState<number | null>(null);
   const pad = { l: compact ? 8 : 52, r: compact ? 8 : 18, t: compact ? 10 : 30, b: compact ? 8 : 28 };
   const from = points[0]?.date;
@@ -110,7 +112,7 @@ export function RunwayChart({ points, compare, floor, target, runOut, code, heig
             <rect x={pad.l} y={y(floor)} width={width - pad.l - pad.r} height={y(0) - y(floor)} fill="url(#rw-danger)" />
             <line x1={pad.l} x2={width - pad.r} y1={y(floor)} y2={y(floor)} style={{ stroke: 'var(--bad)' }} stroke-opacity="0.55" stroke-dasharray="4 5" />
             {!compact && (
-              <text x={width - pad.r} y={y(floor) - 6} text-anchor="end" style={{ fill: 'var(--bad)' }}>
+              <text x={pad.l + 6} y={y(floor) - 6} style={{ fill: 'var(--bad)' }}>
                 Floor {formatCompact(floor, code)}
               </text>
             )}
@@ -140,7 +142,7 @@ export function RunwayChart({ points, compare, floor, target, runOut, code, heig
         })()}
         <circle cx={x(from)} cy={y(points[0]!.balance)} r={compact ? 3.5 : 5} style={{ fill: 'var(--gold)', stroke: 'var(--raised)' }} stroke-width="2" />
         {months.map((m) => (
-          <text key={m} x={x(m)} y={height - 8} text-anchor="middle">
+          <text key={m} x={x(m)} y={height - 8} text-anchor={x(m) > width - pad.r - 30 ? 'end' : x(m) < pad.l + 30 ? 'start' : 'middle'}>
             {parts(m).m === 1 || m === months[0] ? formatMonthShort(m, true) : formatMonthShort(m)}
           </text>
         ))}

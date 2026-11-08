@@ -153,7 +153,7 @@ export default function InsightsScreen() {
                         <div class="bar h-1.5 flex-1">
                           <span style={{ width: `${(c.total / Math.max(1, cats[0]!.total)) * 100}%`, background: colour(c.categoryId) }} />
                         </div>
-                        <span class={`w-20 text-right text-xs font-semibold ${diff > 0 ? 'text-warn' : 'text-subtle'}`}>{before ? formatMinor(diff, currency(base).exp, { sign: 'always' }) : 'new'}</span>
+                        <span class={`w-20 text-right text-xs font-semibold ${diff > 0 ? 'text-warn' : 'text-subtle'}`}>{!before ? 'new' : diff === 0 ? 'same' : formatMinor(diff, currency(base).exp, { sign: 'always' })}</span>
                       </div>
                     </div>
                   </div>
@@ -200,7 +200,7 @@ export default function InsightsScreen() {
                 <CategoryTile category={p.categoryId ? catMap.get(p.categoryId) : null} size="sm" />
                 <span class="min-w-0 flex-1">
                   <span class="block truncate font-semibold">{p.payee}</span>
-                  <span class="text-xs text-subtle">{p.count} {p.count === 1 ? 'visit' : 'visits'}</span>
+                  <span class="text-xs text-subtle">{p.count === 1 ? 'once' : `${p.count} times`}</span>
                 </span>
                 <Money value={p.total} code={base} class="font-bold" />
               </li>

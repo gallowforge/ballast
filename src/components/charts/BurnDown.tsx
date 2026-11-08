@@ -11,11 +11,12 @@ interface Props {
   projectedEnd: number;
   code: string;
   height?: number;
+  fallbackWidth?: number;
 }
 
 /** What is left of the month's money, day by day, against an even pace to zero. */
-export function BurnDown({ cycle, allowance, actual, projectedEnd, code, height = 150 }: Props) {
-  const [ref, width] = useWidth<HTMLDivElement>(420);
+export function BurnDown({ cycle, allowance, actual, projectedEnd, code, height = 150, fallbackWidth = 420 }: Props) {
+  const [ref, width] = useWidth<HTMLDivElement>(fallbackWidth);
   if (!allowance || !actual.length) return <div ref={ref} style={{ height }} />;
   const pad = { l: 4, r: 4, t: 12, b: 22 };
   const lo = Math.min(0, projectedEnd, ...actual.map((p) => p.value));

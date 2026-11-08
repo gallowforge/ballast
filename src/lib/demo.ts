@@ -125,12 +125,12 @@ export function buildDemo(today: ISODate): LedgerData {
 
   d.txns = txns.filter((t) => t.date <= today);
   d.budgets = [
-    ['groceries', 55_000],
+    ['groceries', 50_000],
     ['eating-out', 25_000],
     ['delivery', 25_000],
     ['coffee', 20_000],
     ['fuel', 25_000],
-    ['shopping', 25_000],
+    ['shopping', 20_000],
     ['fun', 10_000],
   ].map(([categoryId, amount]) => ({ categoryId: categoryId as string, amount: amount as number, rollover: false, since: start }));
   d.target = { date: addMonths(current.start, 20), floor: 500_000, label: 'Until graduation' };
