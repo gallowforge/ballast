@@ -54,15 +54,14 @@ const { title, description, section, fab = true } = Astro.props;
           {n.label}
         </a>
       ))}
-      <p class="serif mt-5 border-t border-line px-3 pt-4 text-[0.95rem] leading-snug text-subtle italic">Kept on this device. Nothing here leaves it.</p>
+      <p class="serif mt-5 border-t border-line px-3 pt-4 text-[0.95rem] leading-snug text-subtle italic">
+        Kept on this device. Nothing here leaves it.
+      </p>
     </div>
   </nav>
 
   <div class="with-rail">
-    <header
-      transition:name="topbar"
-      class="sticky top-0 z-20 border-b border-line bg-bg"
-    >
+    <header transition:name="topbar" class="sticky top-0 z-20 border-b border-line bg-bg">
       <div class="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:px-6 lg:px-12">
         <a href={url()} class="lg:hidden" aria-label="Ledger home">
           <Logo size={30} word={false} />

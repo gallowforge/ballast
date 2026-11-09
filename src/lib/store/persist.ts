@@ -50,7 +50,12 @@ function tx<T>(
 /** Reads a stored record; plain data from before stamps existed counts as the oldest. */
 export function unstamp(raw: unknown): Stamped | null {
   if (raw === undefined || raw === null) return null;
-  if (typeof raw === 'object' && 'at' in raw && 'data' in raw && typeof (raw as Stamped).at === 'number')
+  if (
+    typeof raw === 'object' &&
+    'at' in raw &&
+    'data' in raw &&
+    typeof (raw as Stamped).at === 'number'
+  )
     return raw as Stamped;
   return { at: 0, data: raw };
 }

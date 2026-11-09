@@ -45,7 +45,8 @@ const OPENING =
 const CLOSING =
   /\b(closing balance|balance carried forward|carried forward|c\/f|ending balance|end balance)\b/i;
 const TOTAL = /^\s*(total|totals|sub ?total|grand total)\b/i;
-const CREDIT_WORDS = /\b(salary|payroll|deposit|refund|reversal|credit|transfer from|received|cash in|interest)\b/i;
+const CREDIT_WORDS =
+  /\b(salary|payroll|deposit|refund|reversal|credit|transfer from|received|cash in|interest)\b/i;
 
 export interface ParseOptions {
   /** Minor-unit digits of the statement currency (3 for KWD). */

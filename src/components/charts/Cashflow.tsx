@@ -106,7 +106,7 @@ export function Cashflow({
       </svg>
       {active && hover !== null && (
         <div
-          class="border-line bg-raised pointer-events-none absolute top-0 rounded-[4px] border border-line-strong px-3 py-2 text-sm shadow-lg"
+          class="border-line bg-raised border-line-strong pointer-events-none absolute top-0 rounded-[4px] border px-3 py-2 text-sm shadow-lg"
           style={{
             left: Math.min(Math.max(pad.l + band * hover + band / 2 - 90, 0), width - 180),
             width: 180,

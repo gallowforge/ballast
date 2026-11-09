@@ -57,7 +57,7 @@ test('money can be moved between accounts', async ({ page }) => {
   await sheet.getByLabel('To account').selectOption({ label: 'Savings (KD)' });
   await sheet.getByRole('button', { name: 'Save', exact: true }).click();
   await page.getByRole('button', { name: 'Transfers' }).click();
-  await expect(page.getByText('Current account → Savings')).toBeVisible();
+  await expect(page.getByText('Current account to Savings')).toBeVisible();
 });
 
 test('search finds transactions across all months', async ({ page }) => {
@@ -75,14 +75,14 @@ test('the quick launcher jumps to a page', async ({ page, isMobile }) => {
   await launcher.getByRole('combobox').fill('runway');
   await launcher.getByRole('combobox').press('Enter');
   await expect(page).toHaveURL(/runway\/$/);
-  await expect(page.getByRole('heading', { level: 1, name: 'Runway' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /carry you to/ })).toBeVisible();
 });
 
 test('the runway tries a salary and applies it', async ({ page }) => {
   await demo(page, 'runway/');
-  await expect(page.getByRole('heading', { name: /salaries left/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /carry you to/ })).toBeVisible();
   await page.getByRole('button', { name: /^Try / }).click();
-  await expect(page.getByText(/It reaches your target/)).toBeVisible();
+  await expect(page.getByText(/You still reach your date/)).toBeVisible();
   await page.getByRole('button', { name: 'Use this salary' }).click();
   await expect(page.getByRole('status')).toContainText('Salary set to');
   await nav(page, 'Plan');
@@ -91,7 +91,7 @@ test('the runway tries a salary and applies it', async ({ page }) => {
 
 test('a budget can be added from its suggestion', async ({ page }) => {
   await demo(page, 'plan/');
-  await page.getByRole('button', { name: 'Add a budget' }).click();
+  await page.getByRole('button', { name: 'Draw a new line' }).click();
   const sheet = page.getByRole('dialog', { name: 'Add a budget' });
   await sheet.getByLabel('Category').selectOption({ label: 'Transport' });
   await expect(sheet.getByText(/Your last three months averaged/)).toBeVisible();

@@ -2,266 +2,378 @@
 import Base from '@/layouts/Base.astro';
 import SiteHeader from '@/components/frame/SiteHeader.astro';
 import SiteFooter from '@/components/frame/SiteFooter.astro';
-import Icon from '@/components/ui/Icon.astro';
 import { Money } from '@/components/ui/Money';
-import { BurnDown } from '@/components/charts/BurnDown';
-import { RunwayChart } from '@/components/charts/RunwayChart';
+import { RoadView, roadHorizon } from '@/components/charts/RoadView';
 import { buildDemo } from '@/lib/demo';
-import { today as todayISO, plural } from '@/lib/dates';
+import { formatMonth, formatShort, plural, today as todayISO } from '@/lib/dates';
 import { cycleSummary } from '@/lib/calc/cycle';
 import { runway } from '@/lib/calc/runway';
-import { formatMoney } from '@/lib/money/money';
+import { formatMinor, formatMoney } from '@/lib/money/money';
+import { mappingFor, readStatement, sourceFromCSV } from '@/lib/import/importer';
+import { cleanPayee } from '@/lib/import/clean';
+import sample from '../../public/samples/sample-statement.csv?raw';
 import { url } from '@/lib/site';
 
-// The preview is the real engine running on the demo data at build time. It shows no dates.
+// Everything below is the real engine, run on the made-up demo and the sample statement at build
+// time. No dates are written into the copy: they come from the engine.
 const today = todayISO();
 const demo = buildDemo(today);
 const s = cycleSummary(demo, today);
 const r = runway(demo, today);
-
-const features = [
-  {
-    icon: 'wallet',
-    tile: 'oklch(80% 0.13 78)',
-    title: 'Know what is safe to spend today',
-    body: 'Pay yourself a monthly salary from your savings. Ledger moves it on payday, keeps the bills still to come aside, and turns the rest into one number for today.',
-    points: [
-      'A month that follows your payday, not the calendar',
-      'Pace against an even month, without counting fixed bills as overspending',
-      'Budgets that show where an even pace would be today',
-    ],
-  },
-  {
-    icon: 'runway',
-    tile: 'oklch(74% 0.14 30)',
-    title: 'See exactly how long your savings last',
-    body: 'Every payday, known income and yearly cost is laid out as a staircase to the date that matters to you, so you see the month the money runs out, years ahead.',
-    points: [
-      'The largest salary that still reaches your date',
-      'Drag a slider to try a different salary',
-      'A floor the plan never touches',
-    ],
-  },
-  {
-    icon: 'file',
-    tile: 'oklch(74% 0.11 200)',
-    title: 'Bring in a statement in seconds',
-    body: 'Drop in a PDF or CSV from your bank. National Bank of Kuwait statements are recognised, password-protected PDFs open on the device, and any bank works through column matching.',
-    points: [
-      'Every row checked against the running balance, to the fils',
-      'Import the same statement twice and nothing doubles',
-      'Payees tidied, categories guessed, one tap to undo',
-    ],
-  },
-  {
-    icon: 'shield',
-    tile: 'oklch(76% 0.12 160)',
-    title: 'Yours alone, on your device',
-    body: 'No account, no server, no analytics. A security policy blocks every connection to another site, so Ledger could not send your money data anywhere even if it tried.',
-    points: [
-      'Works with no connection once opened',
-      'Installs like an app on phones and computers',
-      'Export, restore or delete everything in one tap',
-    ],
-  },
-];
+const horizon = roadHorizon(today, r.runOut, r.target?.date);
+const source = sourceFromCSV(sample, 'sample-statement.csv');
+const statement = readStatement(source, mappingFor(source), 'KWD');
+const lines = statement.rows.slice(1, 8);
+const rec = statement.reconciliation;
 ---
 
-<Base description="Ledger is a private money app that works offline. Pay yourself a monthly salary from your savings, see how long they last, set budgets and import bank statements on your device.">
+<Base description="Ledger is a calm, private money app. Pay yourself a monthly salary from your savings, see how far it carries you, and read bank statements on your own device.">
   <SiteHeader />
   <main id="main">
-    <section class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-12 pb-8 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
-      <div class="animate-rise">
-        <span class="pill pill-gold">
-          <Icon name="shield" size={14} /> Free, private, works offline
-        </span>
-        <h1 class="display mt-5 text-[3rem] leading-[0.98] sm:text-[4.4rem]">
-          Pay yourself a salary that <span class="text-gold-ink italic">lasts.</span>
-        </h1>
-        <p class="mt-6 max-w-xl text-lg text-muted">
-          Ledger plans your money a month at a time: a salary from your savings, what is safe to
-          spend today, and the month your savings would run out. Bank statements are read on your
-          device. Nothing leaves it.
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href={url('home/')} class="btn btn-primary">
-            Open Ledger <Icon name="arrow-right" size={18} />
-          </a>
-          <a href={url('home/?demo=1')} class="btn btn-soft">
-            Explore with demo data
-          </a>
-        </div>
-        <p class="mt-5 text-sm text-subtle">
-          No sign-up. Amounts in Kuwaiti dinars to the fils, with other currencies alongside.
-        </p>
-      </div>
-
-      <div
-        class="relative mx-auto w-full max-w-[34rem] animate-rise"
-        style="animation-delay: 120ms"
-        aria-label="A preview of Ledger with made-up numbers"
-        role="img"
+    <section class="mx-auto max-w-6xl px-5 pt-14 sm:px-8 lg:pt-24">
+      <h1
+        class="display max-w-[14ch] text-[3.3rem] animate-rise sm:text-[5.6rem] lg:text-[6.6rem]"
+        style="animation-delay: 60ms"
       >
-        <div class="card card-pad relative z-10">
-          <div class="eyebrow">Safe to spend today</div>
-          <div class="mt-2 flex items-end justify-between gap-4">
-            <p class="display text-[3.2rem] leading-none">
-              <Money value={s.perDay} code="KWD" />
-            </p>
-            <span class={`pill ${s.pace <= 0 ? 'pill-good' : 'pill-warn'} mb-2`}>
-              {s.pace <= 0 ? 'Under pace' : 'Ahead of pace'}
-            </span>
+        Pay yourself a salary that <em class="text-gold-ink">lasts.</em>
+      </h1>
+      <div
+        class="mt-8 grid gap-8 animate-rise lg:grid-cols-[1fr_auto] lg:items-end"
+        style="animation-delay: 120ms"
+      >
+        <p class="serif max-w-[42ch] text-[1.35rem] leading-snug text-muted italic">
+          Ledger turns your savings into a monthly salary, tells you what is safe to spend today,
+          and draws how far the money carries you. Your bank statements are read on your own device,
+          and nothing ever leaves it.
+        </p>
+        <div class="flex flex-wrap items-center gap-5">
+          <a href={url('home/')} class="btn btn-primary">
+            Open Ledger
+          </a>
+          <a href={url('home/?demo=1')} class="link">
+            Look around with made-up money
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="mx-auto mt-14 max-w-6xl px-5 sm:px-8"
+      aria-label={`A road drawn from the demo: the savings of Alex, who is made up, last until ${formatMonth(r.lastFull ?? today)}.`}
+    >
+      <div class="relative">
+        <div class="hidden md:block" aria-hidden="true">
+          <RoadView
+            today={today}
+            horizon={horizon}
+            runOut={r.runOut}
+            lastFull={r.lastFull}
+            target={r.target}
+            start={r.start}
+            code="KWD"
+            height={430}
+            fallbackWidth={1104}
+            spread={0.36}
+          />
+        </div>
+        <div class="md:hidden" aria-hidden="true">
+          <RoadView
+            today={today}
+            horizon={horizon}
+            runOut={r.runOut}
+            lastFull={r.lastFull}
+            target={r.target}
+            start={r.start}
+            code="KWD"
+            height={230}
+            compact
+            fallbackWidth={350}
+          />
+        </div>
+      </div>
+      <p class="mt-4 flex flex-wrap items-baseline justify-between gap-2 border-t border-line pt-3 text-sm text-subtle">
+        <span>
+          <span class="serif text-[1.05rem] text-fg italic">
+            Alex’s savings last until {formatMonth(r.lastFull ?? today)}
+          </span>
+          , {plural(r.periods, 'salary', 'salaries')} of {formatMoney(r.monthly, 'KWD')}.
+        </span>
+        <span>Alex is made up. The road is drawn by the same engine you get.</span>
+      </p>
+    </section>
+
+    <section
+      class="mx-auto mt-28 grid max-w-6xl gap-12 px-5 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-20"
+      aria-labelledby="today-title"
+    >
+      <div>
+        <h2 id="today-title" class="display text-[2.4rem] sm:text-[3.2rem]">
+          <span
+            class="figure mr-3 align-top text-[0.62em] text-gold-ink sm:absolute sm:-ml-14 sm:mr-0"
+            aria-hidden="true"
+          >
+            1
+          </span>
+          A month you can read in one number.
+        </h2>
+        <p class="mt-5 max-w-[46ch] text-[1.05rem] text-muted">
+          On payday Ledger moves your salary from savings to spending. It keeps the bills still to
+          come aside, divides what is left by the days left, and gives you the answer: what you can
+          spend today and still finish the month calmly.
+        </p>
+        <p class="figure mt-10 text-[5rem] sm:text-[6.5rem]">
+          <Money value={s.perDay} code="KWD" />
+        </p>
+        <p class="serif mt-3 max-w-[30ch] text-[1.2rem] text-muted italic">
+          is Alex’s to spend today, and the month still ends calmly.
+        </p>
+      </div>
+      <div class="lg:pt-24">
+        <div class="border-b-2 border-fg pb-2">
+          <span class="serif text-[1.45rem] font-[480]">This month</span>
+        </div>
+        <dl>
+          <div class="flex items-baseline justify-between border-b border-line py-3">
+            <dt>Salary, from savings</dt>
+            <dd class="text-[1.15rem]">
+              <Money value={s.allowance} code="KWD" sign="always" tone="income" />
+            </dd>
           </div>
-          <p class="mt-2 text-sm text-muted">
-            a day for {plural(s.daysLeft, 'day')}, {formatMoney(Math.max(0, s.left), 'KWD')} left of
-            the salary
+          <div class="flex items-baseline justify-between border-b border-line py-3">
+            <dt>
+              Spent so far <span class="ml-1 text-sm text-subtle">{plural(s.daysGone, 'day')}</span>
+            </dt>
+            <dd class="text-[1.15rem]">
+              <Money value={-s.spent} code="KWD" />
+            </dd>
+          </div>
+          <div class="flex items-baseline justify-between border-b border-line py-3">
+            <dt>
+              Bills still to come <span class="ml-1 text-sm text-subtle">kept aside</span>
+            </dt>
+            <dd class="text-[1.15rem]">
+              <Money value={-s.billsAhead} code="KWD" />
+            </dd>
+          </div>
+          <div class="rule-double flex items-baseline justify-between py-3">
+            <dt class="font-bold">
+              Free to spend{' '}
+              <span class="ml-1 text-sm font-normal text-subtle">
+                over {plural(s.daysLeft, 'day')}
+              </span>
+            </dt>
+            <dd class="text-[1.4rem] font-[540]">
+              <Money value={s.safe} code="KWD" />
+            </dd>
+          </div>
+        </dl>
+        <p class="mt-5 text-sm text-subtle">
+          Budgets keep their own lines, with a brass tick where an even pace would be today. Fixed
+          bills never count as overspending.
+        </p>
+      </div>
+    </section>
+
+    <section class="mx-auto mt-32 max-w-6xl px-5 sm:px-8" aria-labelledby="statement-title">
+      <div class="grid gap-10 lg:grid-cols-[1fr_1.5fr] lg:gap-16">
+        <div>
+          <h2 id="statement-title" class="display text-[2.4rem] sm:text-[3.2rem]">
+            <span
+              class="figure mr-3 align-top text-[0.62em] text-gold-ink sm:absolute sm:-ml-14 sm:mr-0"
+              aria-hidden="true"
+            >
+              2
+            </span>
+            Every line, checked against the bank.
+          </h2>
+          <p class="mt-5 max-w-[42ch] text-[1.05rem] text-muted">
+            Drop in a PDF or CSV. National Bank of Kuwait statements are recognised and
+            password-protected PDFs open right here; any other bank works by matching columns. Then
+            each line’s balance has to follow from the one before. When they all do, nothing was
+            misread, and Ledger says so.
           </p>
-          <div class="mt-3">
-            <BurnDown
-              cycle={s.cycle}
-              allowance={s.allowance}
-              actual={s.actual}
-              projectedEnd={s.projectedEnd}
-              code="KWD"
-              height={120}
-              fallbackWidth={460}
-            />
-          </div>
+          <p class="serif mt-6 text-[1.25rem] text-good italic">
+            All {rec.checked} lines of the sample statement agree, to the last fils.
+          </p>
+          <p class="mt-2 text-sm text-subtle">
+            Import the same statement twice and nothing doubles. Every import undoes in one tap.
+          </p>
         </div>
-        <div class="card card-pad relative z-20 -mt-6 ml-10 mr-[-0.5rem] sm:ml-20">
-          <div class="flex items-center justify-between">
-            <span class="eyebrow">Runway</span>
-            <span class={`pill ${r.target?.status === 'reaches' ? 'pill-good' : 'pill-warn'}`}>
-              {r.target?.status === 'reaches' ? 'Reaches the target' : 'Short of the target'}
-            </span>
+        <div
+          class="card margin-rule overflow-x-auto py-5 pr-5 pl-[4.25rem]"
+          tabindex="0"
+          role="region"
+          aria-label="Statement excerpt, scrolls sideways on small screens"
+        >
+          <div role="table" aria-label="An excerpt of the sample statement, as Ledger reads it">
+            <div
+              role="row"
+              class="caps grid grid-cols-[3.2rem_1fr_6rem_6.5rem] gap-3 border-b border-line-strong pb-2 text-[0.68rem]"
+            >
+              <span role="columnheader">Date</span>
+              <span role="columnheader">Payee</span>
+              <span role="columnheader" class="text-right">
+                Amount
+              </span>
+              <span role="columnheader" class="text-right">
+                Balance
+              </span>
+            </div>
+            {lines.map((l) => (
+              <div
+                role="row"
+                class="grid grid-cols-[3.2rem_1fr_6rem_6.5rem] items-baseline gap-3 border-b border-line py-2.5"
+              >
+                <span role="cell" class="caps relative text-[0.68rem]">
+                  <span
+                    class="absolute -left-[2.6rem] text-[0.95rem] font-bold text-gold"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+                  {formatShort(l.date, l.date)}
+                </span>
+                <span role="cell" class="truncate font-bold">
+                  {cleanPayee(l.description)}
+                </span>
+                <span
+                  role="cell"
+                  class={`money text-right text-[1.05rem] ${l.amount > 0 ? 'text-good' : ''}`}
+                >
+                  {formatMinor(l.amount, 3, { sign: l.amount > 0 ? 'always' : 'auto' })}
+                </span>
+                <span role="cell" class="money text-right text-[1.05rem] text-muted">
+                  {l.balance !== undefined ? formatMinor(l.balance, 3) : ''}
+                  <span class="sr-only">, checked</span>
+                </span>
+              </div>
+            ))}
           </div>
-          <p class="display mt-2 text-[2rem]">{plural(r.periods, 'salary', 'salaries')} left</p>
-          <div class="mt-2">
-            <RunwayChart
-              points={r.points}
-              floor={r.floor}
-              target={r.target}
-              runOut={r.runOut}
-              code="KWD"
-              height={96}
-              label="Savings over time"
-              compact
-              fallbackWidth={400}
-            />
-          </div>
-        </div>
-        <div class="card relative z-30 -mt-5 mr-12 flex items-center gap-3 px-4 py-3 sm:mr-24">
-          <span class="tile tile-sm" style="--tile: var(--good)">
-            <Icon name="check" size={16} stroke={2.4} />
-          </span>
-          <span class="text-sm font-semibold">
-            All 33 rows match the running balance, to the last fils.
-          </span>
+          <p class="pt-3 text-xs text-subtle">
+            From a made-up statement shipped with Ledger. Card numbers and terminal codes are tidied
+            away automatically.
+          </p>
         </div>
       </div>
     </section>
 
-    <section class="mx-auto mt-16 max-w-6xl px-4 sm:px-6" aria-labelledby="features-title">
-      <h2 id="features-title" class="sr-only">
-        What Ledger does
-      </h2>
-      <div class="grid gap-5 md:grid-cols-2">
-        {features.map((f, i) => (
-          <article class="card card-pad animate-rise" style={`animation-delay:${160 + i * 60}ms`}>
-            <span class="tile tile-lg" style={`--tile:${f.tile}`}>
-              <Icon name={f.icon} size={24} />
-            </span>
-            <h3 class="display mt-5 text-[1.7rem]">{f.title}</h3>
-            <p class="mt-3 text-muted">{f.body}</p>
-            <ul class="mt-4 grid gap-2 text-sm">
-              {f.points.map((p) => (
-                <li class="flex gap-2.5">
-                  <Icon
-                    name="check"
-                    size={17}
-                    class="mt-0.5 flex-none text-gold-ink"
-                    stroke={2.4}
-                  />
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </article>
-        ))}
+    <section
+      class="mx-auto mt-32 grid max-w-6xl gap-12 px-5 sm:px-8 lg:grid-cols-[1.1fr_1fr] lg:gap-20"
+      aria-labelledby="private-title"
+    >
+      <div>
+        <h2 id="private-title" class="display text-[2.4rem] sm:text-[3.2rem]">
+          <span
+            class="figure mr-3 align-top text-[0.62em] text-gold-ink sm:absolute sm:-ml-14 sm:mr-0"
+            aria-hidden="true"
+          >
+            3
+          </span>
+          It cannot phone home.
+        </h2>
+        <p class="mt-5 max-w-[46ch] text-[1.05rem] text-muted">
+          Every page carries one line that tells the browser Ledger may only talk to itself. There
+          is no account to make, no server holding your money, no analytics and no exchange-rate
+          service. Once you have opened it, it works with no connection at all.
+        </p>
+        <p class="serif mt-8 inline-block border-b-2 border-gold pb-1 text-[1.6rem] sm:text-[2rem]">
+          connect-src 'self'
+        </p>
+      </div>
+      <div class="lg:pt-24">
+        <div class="border-b-2 border-fg pb-2">
+          <span class="serif text-[1.45rem] font-[480]">An honest ledger</span>
+        </div>
+        <dl>
+          <div class="flex items-baseline justify-between border-b border-line py-3">
+            <dt>Accounts to create</dt>
+            <dd class="figure text-[1.6rem]">0</dd>
+          </div>
+          <div class="flex items-baseline justify-between border-b border-line py-3">
+            <dt>Servers holding your data</dt>
+            <dd class="figure text-[1.6rem]">0</dd>
+          </div>
+          <div class="flex items-baseline justify-between border-b border-line py-3">
+            <dt>Trackers, ads and analytics</dt>
+            <dd class="figure text-[1.6rem]">0</dd>
+          </div>
+          <div class="rule-double flex items-baseline justify-between py-3">
+            <dt class="font-bold">Things that leave your device</dt>
+            <dd class="figure text-[2.2rem] text-gold-ink">0</dd>
+          </div>
+        </dl>
+        <p class="mt-5 text-sm text-subtle">
+          Export everything as one file, restore it on another device, or delete it all with one
+          button.
+        </p>
       </div>
     </section>
 
-    <section class="mx-auto mt-20 max-w-4xl px-4 sm:px-6" aria-labelledby="diff-title">
-      <h2 id="diff-title" class="display text-center text-[2.2rem]">
-        Built for living on savings
+    <section class="mx-auto mt-32 max-w-6xl px-5 sm:px-8" aria-labelledby="diff-title">
+      <h2 id="diff-title" class="display max-w-[20ch] text-[2.4rem] sm:text-[3.2rem]">
+        Made for living on savings.
       </h2>
-      <p class="mx-auto mt-3 max-w-2xl text-center text-muted">
+      <p class="mt-4 max-w-[52ch] text-[1.05rem] text-muted">
         Most money apps assume a paycheck and a bank login. Ledger starts from what you have and the
         date you need it to reach.
       </p>
-      <div class="card mt-8 overflow-hidden">
-        <table class="w-full text-left text-sm">
+      <div
+        class="mt-10 overflow-x-auto"
+        tabindex="0"
+        role="region"
+        aria-label="Comparison, scrolls sideways on small screens"
+      >
+        <table class="w-full min-w-[34rem] text-left">
           <caption class="sr-only">Ledger compared with typical money apps</caption>
           <thead>
-            <tr class="bg-sunken">
-              <th class="p-4"></th>
-              <th class="p-4 font-bold">Ledger</th>
-              <th class="p-4 font-semibold text-muted">Typical apps</th>
+            <tr class="caps border-b-2 border-fg text-[0.7rem]">
+              <th class="py-2 pr-4 font-bold"></th>
+              <th class="py-2 pr-4 font-bold text-fg">Ledger</th>
+              <th class="py-2 font-bold">Typical apps</th>
             </tr>
           </thead>
-          <tbody class="divide">
-            <tr>
-              <th class="p-4 font-semibold">Account</th>
-              <td class="p-4">None</td>
-              <td class="p-4 text-muted">Required</td>
-            </tr>
-            <tr>
-              <th class="p-4 font-semibold">Your data</th>
-              <td class="p-4">On your device only</td>
-              <td class="p-4 text-muted">On their servers</td>
-            </tr>
-            <tr>
-              <th class="p-4 font-semibold">Bank statements</th>
-              <td class="p-4">Read on the device, checked row by row</td>
-              <td class="p-4 text-muted">A bank login handed to a third party</td>
-            </tr>
-            <tr>
-              <th class="p-4 font-semibold">Living on savings</th>
-              <td class="p-4">A salary, a runway and a target date</td>
-              <td class="p-4 text-muted">Not modelled</td>
-            </tr>
-            <tr>
-              <th class="p-4 font-semibold">Kuwaiti dinar</th>
-              <td class="p-4">Exact to the fils</td>
-              <td class="p-4 text-muted">Often rounded to two decimals</td>
-            </tr>
-            <tr>
-              <th class="p-4 font-semibold">Without a connection</th>
-              <td class="p-4">Everything works</td>
-              <td class="p-4 text-muted">Read-only or nothing</td>
-            </tr>
-            <tr>
-              <th class="p-4 font-semibold">Price</th>
-              <td class="p-4">Free, open source</td>
-              <td class="p-4 text-muted">A subscription</td>
-            </tr>
+          <tbody>
+            {[
+              ['Account', 'None', 'Required'],
+              ['Your data', 'On your device only', 'On their servers'],
+              [
+                'Bank statements',
+                'Read here, checked line by line',
+                'A bank login handed to a third party',
+              ],
+              ['Living on savings', 'A salary, a runway and a date', 'Not modelled'],
+              ['Kuwaiti dinar', 'Exact to the fils', 'Often rounded to two decimals'],
+              ['With no connection', 'Everything works', 'Read-only, or nothing'],
+              ['Price', 'Free and open source', 'A subscription'],
+            ].map(([k, a, b]) => (
+              <tr class="border-b border-line">
+                <th class="py-3.5 pr-4 font-bold">{k}</th>
+                <td class="serif py-3.5 pr-4 text-[1.1rem]">{a}</td>
+                <td class="py-3.5 text-subtle">{b}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
     </section>
 
-    <section class="mx-auto mt-20 max-w-3xl px-4 text-center sm:px-6">
-      <h2 class="display text-[2.4rem]">Start in a minute</h2>
-      <p class="mt-3 text-muted">
-        Two balances, a salary and a date. Or import a statement and let the past months fill in.
-      </p>
-      <div class="mt-7 flex flex-wrap justify-center gap-3">
-        <a href={url('home/')} class="btn btn-primary">
-          Open Ledger <Icon name="arrow-right" size={18} />
-        </a>
-        <a href={url('about/')} class="btn btn-soft">
-          How it works
-        </a>
+    <section class="mx-auto mt-32 max-w-6xl px-5 sm:px-8">
+      <div class="grid gap-8 border-t-2 border-fg pt-10 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div>
+          <h2 class="display text-[2.6rem] sm:text-[3.6rem]">Start in a minute.</h2>
+          <p class="serif mt-3 text-[1.25rem] text-muted italic">
+            Two balances, a salary and a date. Or bring in a statement and let the past months fill
+            in.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-5">
+          <a href={url('home/')} class="btn btn-primary">
+            Open Ledger
+          </a>
+          <a href={url('about/')} class="link">
+            How it works
+          </a>
+        </div>
       </div>
     </section>
   </main>

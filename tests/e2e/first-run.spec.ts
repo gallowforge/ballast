@@ -3,7 +3,7 @@ import { open } from './helpers';
 
 test('a new person sets up in three steps and sees their month', async ({ page }) => {
   await open(page, 'home/');
-  await expect(page.getByRole('heading', { name: /planned a month at a time/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /A calm place/ })).toBeVisible();
   await page.getByRole('button', { name: /Set up in a minute/ }).click();
 
   const sheet = page.getByRole('dialog', { name: 'Your money' });
@@ -22,17 +22,17 @@ test('a new person sets up in three steps and sees their month', async ({ page }
 
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Sam');
   await expect(page.getByRole('heading', { name: 'Safe to spend today' })).toBeVisible();
-  await expect(page.getByText('15 salaries')).toBeVisible();
+  await expect(page.getByText(/15 salaries left/)).toBeVisible();
 
   // It is all still there after a reload.
   await page.reload();
-  await expect(page.getByText('15 salaries')).toBeVisible();
+  await expect(page.getByText(/15 salaries left/)).toBeVisible();
 });
 
 test('demo data can be explored and cleared', async ({ page }) => {
   await open(page, 'home/');
-  await page.getByRole('button', { name: /Explore with demo data/ }).click();
-  await expect(page.getByText('Demo data for a made-up person.')).toBeVisible();
+  await page.getByRole('button', { name: /Look around first/ }).click();
+  await expect(page.getByText(/Alex is made up/)).toBeVisible();
   await open(page, 'settings/');
   await page.getByRole('button', { name: /Delete everything/ }).click();
   await page

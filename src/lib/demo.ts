@@ -139,6 +139,19 @@ export function buildDemo(today: ISODate): LedgerData {
       startOn: on(15),
       autoPost: true,
     },
+    // A careful reader's reward: Alex keeps one houseplant alive, on a budget.
+    {
+      id: 'r_fern',
+      name: "Fern's plant food",
+      kind: 'expense',
+      amount: 750,
+      accountId: 'a_current',
+      categoryId: 'other',
+      every: 1,
+      unit: 'month',
+      startOn: on(12),
+      autoPost: true,
+    },
     {
       id: 'r_cloud',
       name: 'Cloud storage',

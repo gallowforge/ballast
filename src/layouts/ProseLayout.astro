@@ -6,18 +6,22 @@ interface Props {
   title: string;
   description: string;
   lead: string;
-  eyebrow: string;
+  eyebrow?: string;
 }
-const { title, description, lead, eyebrow } = Astro.props;
+const { title, description, lead } = Astro.props;
 ---
 
 <Base title={title} description={description}>
   <SiteHeader />
-  <main id="main" class="mx-auto max-w-3xl px-4 pt-14 sm:px-6">
-    <p class="pill pill-gold">{eyebrow}</p>
-    <h1 class="display mt-4 text-[2.8rem] sm:text-[3.4rem]">{title}</h1>
-    <p class="mt-4 text-xl text-muted">{lead}</p>
-    <article class="prose-ledger mt-6">
+  <main id="main" class="mx-auto max-w-3xl px-5 pt-16 sm:px-8 lg:pt-24">
+    <h1 class="display animate-rise text-[3rem] sm:text-[4.4rem]">{title}</h1>
+    <p
+      class="serif animate-rise mt-5 max-w-[40ch] text-[1.4rem] leading-snug text-muted italic"
+      style="animation-delay: 60ms"
+    >
+      {lead}
+    </p>
+    <article class="prose-ledger mt-12 border-t-2 border-fg pt-2">
       <slot />
     </article>
   </main>

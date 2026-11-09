@@ -75,16 +75,22 @@ export default function PlanScreen() {
                 <Money value={s.amount} code={base} count />
               </p>
             ) : (
-              <p class="serif mt-3 max-w-[30ch] text-[1.6rem] leading-snug">Pay yourself a fixed amount from your savings each month.</p>
+              <p class="serif mt-3 max-w-[30ch] text-[1.6rem] leading-snug">
+                Pay yourself a fixed amount from your savings each month.
+              </p>
             )}
           </div>
           <div class="pb-2">
-            <p class="serif text-[1.2rem] leading-snug text-muted italic">
+            <p class="serif text-muted text-[1.2rem] leading-snug italic">
               {s?.active
                 ? `On the ${ordinal(data.settings.cycleDay)} of every month, from ${accounts.get(s.fromAccountId)?.name ?? 'savings'} to ${accounts.get(s.toAccountId)?.name ?? 'spending'}${s.autoPost ? ', moved for you.' : '. You move it yourself.'}`
                 : 'The month is then planned around it, and the runway shows how far it carries you.'}
             </p>
-            <button type="button" class={`btn ${s?.active ? 'btn-soft' : 'btn-primary'} btn-sm mt-4`} onClick={() => setSalaryOpen(true)}>
+            <button
+              type="button"
+              class={`btn ${s?.active ? 'btn-soft' : 'btn-primary'} btn-sm mt-4`}
+              onClick={() => setSalaryOpen(true)}
+            >
               {s?.active ? 'Change the salary' : 'Set a salary'}
             </button>
           </div>
@@ -92,39 +98,63 @@ export default function PlanScreen() {
         {s?.active && (
           <div class="mt-8">
             <div
-              class="relative flex h-10 w-full overflow-hidden rounded-[3px] bg-sunken"
+              class="bg-sunken relative flex h-10 w-full overflow-hidden rounded-[3px]"
               role="meter"
               aria-label={`Of your ${formatMoney(s.amount, base)} salary, fixed costs take ${formatMoney(fixed, base)} and budgets ${formatMoney(committed - fixed, base)}`}
               aria-valuemin={0}
               aria-valuemax={s.amount}
               aria-valuenow={Math.min(committed, s.amount)}
             >
-              <span class="h-full border-r-2 border-bg" style={{ width: `${Math.min(100, (fixed / s.amount) * 100)}%`, background: 'repeating-linear-gradient(135deg, var(--gold) 0 6px, color-mix(in oklab, var(--gold) 70%, var(--bg)) 6px 12px)' }} />
-              <span class="h-full bg-fg" style={{ width: `${Math.max(0, Math.min(100 - (fixed / s.amount) * 100, ((committed - fixed) / s.amount) * 100))}%` }} />
+              <span
+                class="border-bg h-full border-r-2"
+                style={{
+                  width: `${Math.min(100, (fixed / s.amount) * 100)}%`,
+                  background:
+                    'repeating-linear-gradient(135deg, var(--gold) 0 6px, color-mix(in oklab, var(--gold) 70%, var(--bg)) 6px 12px)',
+                }}
+              />
+              <span
+                class="bg-fg h-full"
+                style={{
+                  width: `${Math.max(0, Math.min(100 - (fixed / s.amount) * 100, ((committed - fixed) / s.amount) * 100))}%`,
+                }}
+              />
             </div>
             <dl class="mt-3 grid gap-x-10 gap-y-1 text-sm sm:grid-cols-3">
-              <div class="flex items-baseline justify-between gap-3 border-b border-line py-2">
+              <div class="border-line flex items-baseline justify-between gap-3 border-b py-2">
                 <dt class="flex items-center gap-2">
-                  <i class="size-2.5 bg-gold" /> Fixed costs
+                  <i class="bg-gold size-2.5" /> Fixed costs
                 </dt>
-                <dd><Money value={fixed} code={base} class="text-[1.05rem]" /></dd>
+                <dd>
+                  <Money value={fixed} code={base} class="text-[1.05rem]" />
+                </dd>
               </div>
-              <div class="flex items-baseline justify-between gap-3 border-b border-line py-2">
+              <div class="border-line flex items-baseline justify-between gap-3 border-b py-2">
                 <dt class="flex items-center gap-2">
-                  <i class="size-2.5 bg-fg" /> Budgets
+                  <i class="bg-fg size-2.5" /> Budgets
                 </dt>
-                <dd><Money value={committed - fixed} code={base} class="text-[1.05rem]" /></dd>
+                <dd>
+                  <Money value={committed - fixed} code={base} class="text-[1.05rem]" />
+                </dd>
               </div>
-              <div class="flex items-baseline justify-between gap-3 border-b border-line py-2">
+              <div class="border-line flex items-baseline justify-between gap-3 border-b py-2">
                 <dt class="flex items-center gap-2">
-                  <i class="size-2.5 border border-line-strong" /> {committed <= s.amount ? 'Left unplanned' : 'Over the salary'}
+                  <i class="border-line-strong size-2.5 border" />{' '}
+                  {committed <= s.amount ? 'Left unplanned' : 'Over the salary'}
                 </dt>
-                <dd><Money value={Math.abs(s.amount - committed)} code={base} class={`text-[1.05rem] ${committed > s.amount ? 'text-bad' : ''}`} /></dd>
+                <dd>
+                  <Money
+                    value={Math.abs(s.amount - committed)}
+                    code={base}
+                    class={`text-[1.05rem] ${committed > s.amount ? 'text-bad' : ''}`}
+                  />
+                </dd>
               </div>
             </dl>
             {r?.target?.sustainable != null && (
-              <p class="mt-4 text-sm text-muted">
-                To reach “{r.target.label}” on {formatLong(r.target.date)}, you could pay yourself up to{' '}
+              <p class="text-muted mt-4 text-sm">
+                To reach “{r.target.label}” on {formatLong(r.target.date)}, you could pay yourself
+                up to{' '}
                 <a href={url('runway/')} class="link">
                   {formatMoney(r.target.sustainable, base)} a month
                 </a>
@@ -135,13 +165,18 @@ export default function PlanScreen() {
         )}
       </section>
 
-      <section class="animate-rise" aria-labelledby="budgets-title" id="budgets" style={{ animationDelay: '60ms' }}>
+      <section
+        class="animate-rise"
+        aria-labelledby="budgets-title"
+        id="budgets"
+        style={{ animationDelay: '60ms' }}
+      >
         <SectionTitle id="budgets-title" title="Budgets">
           <button type="button" class="link ml-auto text-sm" onClick={() => setBudgetFor('')}>
             Draw a new line
           </button>
         </SectionTitle>
-        <p class="mt-2 text-sm text-subtle">
+        <p class="text-subtle mt-2 text-sm">
           {data.budgets.length
             ? `${formatMoney(totals.spent, base)} spent of ${formatMoney(totals.budgeted, base)} this month.${totals.unbudgeted ? ` Another ${formatMoney(totals.unbudgeted, base)} went on things with no line.` : ''} The brass tick is where an even pace would be today.`
             : 'A line for the things that drift. Ledger suggests one from your last three months.'}
@@ -149,25 +184,46 @@ export default function PlanScreen() {
         {states.length ? (
           <div class="mt-2 grid gap-x-12 md:grid-cols-2">
             {states.map((b) => (
-              <button type="button" key={b.budget.categoryId} class="border-b border-line text-left transition hover:bg-sunken/50" onClick={() => setBudgetFor(b.budget.categoryId)}>
+              <button
+                type="button"
+                key={b.budget.categoryId}
+                class="border-line hover:bg-sunken/50 border-b text-left transition"
+                onClick={() => setBudgetFor(b.budget.categoryId)}
+              >
                 <BudgetRow b={b} cat={cats.get(b.budget.categoryId)} code={base} />
-                {b.carry !== 0 && <p class="-mt-2 pb-2 text-xs text-subtle">Includes {formatMoney(b.carry, base, { sign: 'always' })} rolled over</p>}
+                {b.carry !== 0 && (
+                  <p class="text-subtle -mt-2 pb-2 text-xs">
+                    Includes {formatMoney(b.carry, base, { sign: 'always' })} rolled over
+                  </p>
+                )}
               </button>
             ))}
           </div>
         ) : (
-          <Empty title="No lines drawn yet." body="Pick a category and a monthly amount, like 25 KD for eating out. Ledger keeps an eye on the pace for you." />
+          <Empty
+            title="No lines drawn yet."
+            body="Pick a category and a monthly amount, like 25 KD for eating out. Ledger keeps an eye on the pace for you."
+          />
         )}
       </section>
 
       <div class="grid grid-cols-1 gap-12 lg:grid-cols-[1.5fr_1fr] lg:gap-14" id="recurring">
-        <section class="animate-rise" aria-labelledby="rec-title" style={{ animationDelay: '120ms' }}>
+        <section
+          class="animate-rise"
+          aria-labelledby="rec-title"
+          style={{ animationDelay: '120ms' }}
+        >
           <SectionTitle id="rec-title" title="What repeats">
             <button type="button" class="link ml-auto text-sm" onClick={() => setRecurring('new')}>
               Add one
             </button>
           </SectionTitle>
-          <p class="mt-2 text-sm text-subtle">Bills, subscriptions and regular income.{fixed ? ` The costs from your salary come to ${formatMoney(fixed, base)} a month.` : ''}</p>
+          <p class="text-subtle mt-2 text-sm">
+            Bills, subscriptions and regular income.
+            {fixed
+              ? ` The costs from your salary come to ${formatMoney(fixed, base)} a month.`
+              : ''}
+          </p>
           {data.recurring.length ? (
             <div class="mt-1">
               {[...data.recurring]
@@ -176,40 +232,62 @@ export default function PlanScreen() {
                   const next = nextDue(r, today);
                   const code = accounts.get(r.accountId)?.currency ?? base;
                   return (
-                    <button type="button" key={r.id} class="row-link items-baseline" onClick={() => setRecurring(r)}>
-                      <span class="caps w-16 flex-none">{next ? formatShort(next, today) : 'ended'}</span>
+                    <button
+                      type="button"
+                      key={r.id}
+                      class="row-link items-baseline"
+                      onClick={() => setRecurring(r)}
+                    >
+                      <span class="caps w-16 flex-none">
+                        {next ? formatShort(next, today) : 'ended'}
+                      </span>
                       <span class="min-w-0 flex-1">
                         <span class="flex items-center gap-2 truncate font-bold">
                           <Swatch category={r.categoryId ? cats.get(r.categoryId) : null} />
                           {r.name}
                         </span>
-                        <span class="block truncate text-[0.82rem] text-subtle">
+                        <span class="text-subtle block truncate text-[0.82rem]">
                           {describeCadence(r)}
                           {r.autoPost ? ', recorded for you' : ', you tick it off'}
                           {accounts.get(r.accountId)?.role === 'savings' ? ', from savings' : ''}
                         </span>
                       </span>
                       <span class="text-right">
-                        <Money value={r.kind === 'income' ? r.amount : -r.amount} code={code} sign={r.kind === 'income' ? 'always' : 'auto'} tone={r.kind === 'income' ? 'income' : 'none'} class="text-[1.1rem]" />
-                        {r.unit !== 'month' && <span class="block text-xs text-subtle">{formatMoney(monthlyEquivalent(r), code)} a month</span>}
+                        <Money
+                          value={r.kind === 'income' ? r.amount : -r.amount}
+                          code={code}
+                          sign={r.kind === 'income' ? 'always' : 'auto'}
+                          tone={r.kind === 'income' ? 'income' : 'none'}
+                          class="text-[1.1rem]"
+                        />
+                        {r.unit !== 'month' && (
+                          <span class="text-subtle block text-xs">
+                            {formatMoney(monthlyEquivalent(r), code)} a month
+                          </span>
+                        )}
                       </span>
                     </button>
                   );
                 })}
             </div>
           ) : (
-            <Empty title="Nothing repeats yet." body="Add rent, phone, subscriptions and regular income. They show up before they are due, and safe-to-spend keeps them aside." />
+            <Empty
+              title="Nothing repeats yet."
+              body="Add rent, phone, subscriptions and regular income. They show up before they are due, and safe-to-spend keeps them aside."
+            />
           )}
           {suggestions.length > 0 && (
-            <div class="mt-8 border-l-2 border-gold pl-4">
+            <div class="border-gold mt-8 border-l-2 pl-4">
               <p class="caps text-gold-ink">Spotted in your history</p>
               {suggestions.slice(0, 4).map((sg) => (
-                <div key={sg.key} class="flex items-baseline gap-3 border-b border-line py-2.5">
+                <div key={sg.key} class="border-line flex items-baseline gap-3 border-b py-2.5">
                   <Swatch category={sg.categoryId ? cats.get(sg.categoryId) : null} />
                   <div class="min-w-0 flex-1">
                     <div class="truncate font-bold">{sg.payee}</div>
-                    <div class="text-[0.82rem] text-subtle">
-                      {formatMoney(sg.amount, accounts.get(sg.accountId)?.currency ?? base)} {sg.unit === 'month' ? 'monthly' : sg.unit === 'week' ? 'weekly' : 'yearly'}, seen {plural(sg.count, 'time')}
+                    <div class="text-subtle text-[0.82rem]">
+                      {formatMoney(sg.amount, accounts.get(sg.accountId)?.currency ?? base)}{' '}
+                      {sg.unit === 'month' ? 'monthly' : sg.unit === 'week' ? 'weekly' : 'yearly'},
+                      seen {plural(sg.count, 'time')}
                     </div>
                   </div>
                   <button
@@ -217,10 +295,25 @@ export default function PlanScreen() {
                     class="link text-sm"
                     onClick={() => {
                       apply(
-                        addRecurring({ name: sg.payee, kind: 'expense', amount: sg.amount, accountId: sg.accountId, categoryId: sg.categoryId, every: 1, unit: sg.unit, startOn: sg.last, autoPost: false, lastPostedOn: sg.last }),
+                        addRecurring({
+                          name: sg.payee,
+                          kind: 'expense',
+                          amount: sg.amount,
+                          accountId: sg.accountId,
+                          categoryId: sg.categoryId,
+                          every: 1,
+                          unit: sg.unit,
+                          startOn: sg.last,
+                          autoPost: false,
+                          lastPostedOn: sg.last,
+                        }),
                         'Track',
                       );
-                      toast({ message: `${sg.payee} is on the list now. You'll see it coming.`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
+                      toast({
+                        message: `${sg.payee} is on the list now. You'll see it coming.`,
+                        tone: 'good',
+                        action: { label: 'Undo', run: () => undo() },
+                      });
                     }}
                   >
                     Keep track
@@ -230,19 +323,35 @@ export default function PlanScreen() {
             </div>
           )}
         </section>
-        <section class="animate-rise self-start" aria-labelledby="next-title" style={{ animationDelay: '160ms' }}>
+        <section
+          class="animate-rise self-start"
+          aria-labelledby="next-title"
+          style={{ animationDelay: '160ms' }}
+        >
           <SectionTitle id="next-title" title="The next 30 days" />
           {soon.length ? (
             soon.slice(0, 8).map((u) => (
               <div key={u.recurring.id + u.date} class="flex items-center gap-2">
                 <div class="min-w-0 flex-1">
-                  <UpcomingRow u={u} cat={u.recurring.categoryId ? cats.get(u.recurring.categoryId) : undefined} code={accounts.get(u.recurring.accountId)?.currency ?? base} today={today} />
+                  <UpcomingRow
+                    u={u}
+                    cat={u.recurring.categoryId ? cats.get(u.recurring.categoryId) : undefined}
+                    code={accounts.get(u.recurring.accountId)?.currency ?? base}
+                    today={today}
+                  />
                 </div>
                 {!u.recurring.autoPost && u.date <= today && (
                   <button
                     type="button"
                     class="link text-sm"
-                    onClick={() => (apply(payRecurring(data, u.recurring.id, u.date), 'Pay'), toast({ message: `Ticked off: ${u.recurring.name}`, tone: 'good', action: { label: 'Undo', run: () => undo() } }))}
+                    onClick={() => (
+                      apply(payRecurring(data, u.recurring.id, u.date), 'Pay'),
+                      toast({
+                        message: `Ticked off: ${u.recurring.name}`,
+                        tone: 'good',
+                        action: { label: 'Undo', run: () => undo() },
+                      })
+                    )}
                   >
                     Paid
                   </button>
@@ -250,7 +359,7 @@ export default function PlanScreen() {
               </div>
             ))
           ) : (
-            <p class="mt-4 text-muted">Nothing due. A quiet month ahead.</p>
+            <p class="text-muted mt-4">Nothing due. A quiet month ahead.</p>
           )}
         </section>
       </div>

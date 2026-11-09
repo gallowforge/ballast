@@ -28,7 +28,10 @@ export default function RunwayScreen() {
 
   const plan = useMemo(() => (ready ? runway(data, today) : null), [data, today, ready]);
   const tried = useMemo(
-    () => (ready && trial !== null && plan?.mode === 'salary' ? runway(data, today, { salary: trial }) : null),
+    () =>
+      ready && trial !== null && plan?.mode === 'salary'
+        ? runway(data, today, { salary: trial })
+        : null,
     [data, today, trial, ready],
   );
 
@@ -64,14 +67,23 @@ export default function RunwayScreen() {
   const horizon = roadHorizon(today, plan.runOut, plan.target?.date);
 
   const flows = (() => {
-    const by = new Map<string, { label: string; delta: number; first: string; count: number; cadence: string }>();
+    const by = new Map<
+      string,
+      { label: string; delta: number; first: string; count: number; cadence: string }
+    >();
     for (const e of view.events) {
       if (e.kind === 'salary' || e.kind === 'burn') continue;
       const row = by.get(e.label);
       if (row) row.count++;
       else {
         const r = data.recurring.find((x) => x.name === e.label);
-        by.set(e.label, { label: e.label, delta: e.delta, first: e.date, count: 1, cadence: r ? describeCadence(r) : 'repeats' });
+        by.set(e.label, {
+          label: e.label,
+          delta: e.delta,
+          first: e.date,
+          count: 1,
+          cadence: r ? describeCadence(r) : 'repeats',
+        });
       }
     }
     return [...by.values()].slice(0, 8);
@@ -83,7 +95,8 @@ export default function RunwayScreen() {
     </>
   ) : (
     <>
-      Your savings carry you to <em class="whitespace-nowrap">{formatMonth(view.lastFull ?? view.runOut ?? today)}.</em>
+      Your savings carry you to{' '}
+      <em class="whitespace-nowrap">{formatMonth(view.lastFull ?? view.runOut ?? today)}.</em>
     </>
   );
   const sub = view.lasts
@@ -95,17 +108,28 @@ export default function RunwayScreen() {
   return (
     <div class="grid grid-cols-1 gap-12">
       <section aria-labelledby="rw-title" class="animate-rise">
-        <p class="caps">Runway · {salaryMode ? 'savings, paying your salary' : 'all your money, at your average month'}</p>
-        <h1 id="rw-title" class="display mt-3 max-w-[20ch] text-[2.6rem] sm:text-[4rem] [&_em]:text-gold-ink">
+        <p class="caps">
+          Runway ·{' '}
+          {salaryMode ? 'savings, paying your salary' : 'all your money, at your average month'}
+        </p>
+        <h1
+          id="rw-title"
+          class="display [&_em]:text-gold-ink mt-3 max-w-[20ch] text-[2.6rem] sm:text-[4rem]"
+        >
           {headline}
         </h1>
-        <p class="serif mt-4 max-w-2xl text-[1.2rem] text-muted italic">
+        <p class="serif text-muted mt-4 max-w-2xl text-[1.2rem] italic">
           {sub}
-          {t && !view.lasts && (t.status === 'reaches' ? ` You pass “${t.label}” with ${formatMoney(t.surplus, base)} to spare.` : ` The road ends before “${t.label}”.`)}
+          {t &&
+            !view.lasts &&
+            (t.status === 'reaches'
+              ? ` You pass “${t.label}” with ${formatMoney(t.surplus, base)} to spare.`
+              : ` The road ends before “${t.label}”.`)}
         </p>
         {view.missing.length > 0 && (
-          <p class="mt-4 border-l-2 border-warn pl-3 text-sm font-bold text-warn">
-            {view.missing.map((a) => a.name).join(', ')} {view.missing.length === 1 ? 'is' : 'are'} not counted yet: add a rate for{' '}
+          <p class="border-warn text-warn mt-4 border-l-2 pl-3 text-sm font-bold">
+            {view.missing.map((a) => a.name).join(', ')} {view.missing.length === 1 ? 'is' : 'are'}{' '}
+            not counted yet: add a rate for{' '}
             {[...new Set(view.missing.map((a) => a.currency))].join(', ')} in{' '}
             <a class="underline" href={url('settings/#rates')}>
               Settings
@@ -113,12 +137,22 @@ export default function RunwayScreen() {
             .
           </p>
         )}
-        <div class="mt-8 -mx-1">
-          <RoadView today={today} horizon={horizon} runOut={view.lasts ? null : view.runOut} lastFull={view.lastFull} target={plan.target} start={view.start} code={base} height={phone ? 230 : 330} compact={phone} />
+        <div class="-mx-1 mt-8">
+          <RoadView
+            today={today}
+            horizon={horizon}
+            runOut={view.lasts ? null : view.runOut}
+            lastFull={view.lastFull}
+            target={plan.target}
+            start={view.start}
+            code={base}
+            height={phone ? 230 : 330}
+            compact={phone}
+          />
         </div>
 
         {salaryMode && (
-          <div class="mt-2 grid gap-5 border-t border-line pt-6 lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-10">
+          <div class="border-line mt-2 grid gap-5 border-t pt-6 lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-10">
             <div>
               <label for="whatif" id="whatif-title" class="caps block">
                 Pay yourself
@@ -139,7 +173,7 @@ export default function RunwayScreen() {
                 aria-valuetext={`${formatMoney(value, base)} a month`}
                 onInput={(e) => setTrial(Number((e.target as HTMLInputElement).value))}
               />
-              <p class="mt-2 text-sm text-subtle" aria-live="polite">
+              <p class="text-subtle mt-2 text-sm" aria-live="polite">
                 {tried
                   ? tried.lasts
                     ? 'At this salary the road runs past the horizon.'
@@ -156,7 +190,11 @@ export default function RunwayScreen() {
                     onClick={() => {
                       apply(setSalary({ ...data.salary!, amount: value }), 'Change salary');
                       setTrial(null);
-                      toast({ message: `Salary set to ${formatMoney(value, base)} a month`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
+                      toast({
+                        message: `Salary set to ${formatMoney(value, base)} a month`,
+                        tone: 'good',
+                        action: { label: 'Undo', run: () => undo() },
+                      });
                     }}
                   >
                     Use this salary
@@ -168,7 +206,11 @@ export default function RunwayScreen() {
               ) : (
                 plan.target?.sustainable != null &&
                 Math.abs(plan.target.sustainable - plan.monthly) >= unit && (
-                  <button type="button" class="btn btn-soft btn-sm" onClick={() => setTrial(floorTo(plan.target!.sustainable!, unit))}>
+                  <button
+                    type="button"
+                    class="btn btn-soft btn-sm"
+                    onClick={() => setTrial(floorTo(plan.target!.sustainable!, unit))}
+                  >
                     Try {formatMoney(floorTo(plan.target.sustainable, unit), base)}
                   </button>
                 )
@@ -179,8 +221,12 @@ export default function RunwayScreen() {
       </section>
 
       <div class="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-14">
-        <section aria-labelledby="target-title" class="animate-rise" style={{ animationDelay: '80ms' }}>
-          <div class="flex items-baseline justify-between gap-3 border-b-2 border-fg pb-2">
+        <section
+          aria-labelledby="target-title"
+          class="animate-rise"
+          style={{ animationDelay: '80ms' }}
+        >
+          <div class="border-fg flex items-baseline justify-between gap-3 border-b-2 pb-2">
             <h2 id="target-title" class="serif text-[1.6rem] font-[480]">
               {plan.target ? plan.target.label : 'A date to reach'}
             </h2>
@@ -190,28 +236,52 @@ export default function RunwayScreen() {
           </div>
           {t ? (
             <dl class="mt-1">
-              <Line k="The date" v={<span class="serif text-[1.15rem]">{formatLong(t.date)}</span>} note={`${formatSpan(today, t.date)} from today`} />
-              <Line k="Savings on that day" v={<Money value={t.balanceAt} code={base} class="text-[1.15rem]" />} />
+              <Line
+                k="The date"
+                v={<span class="serif text-[1.15rem]">{formatLong(t.date)}</span>}
+                note={`${formatSpan(today, t.date)} from today`}
+              />
+              <Line
+                k="Savings on that day"
+                v={<Money value={t.balanceAt} code={base} class="text-[1.15rem]" />}
+              />
               <Line
                 k={t.status === 'reaches' ? 'To spare' : 'Short by'}
-                v={<Money value={Math.abs(t.surplus)} code={base} class={`text-[1.15rem] ${t.status === 'reaches' ? 'text-good' : 'text-bad'}`} />}
+                v={
+                  <Money
+                    value={Math.abs(t.surplus)}
+                    code={base}
+                    class={`text-[1.15rem] ${t.status === 'reaches' ? 'text-good' : 'text-bad'}`}
+                  />
+                }
                 note={t.floor ? `above your floor of ${formatMoney(t.floor, base)}` : undefined}
               />
               {t.sustainable !== null && (
                 <Line
-                  k={salaryMode ? 'The most you can pay yourself' : 'The most you can overspend a month'}
+                  k={
+                    salaryMode
+                      ? 'The most you can pay yourself'
+                      : 'The most you can overspend a month'
+                  }
                   v={<Money value={t.sustainable} code={base} class="text-[1.45rem] font-[520]" />}
                   total
                 />
               )}
             </dl>
           ) : (
-            <p class="mt-4 max-w-md text-muted">Graduation, a new job, the month income starts again. Pick the day your savings have to reach, and Ledger tells you what salary gets you there.</p>
+            <p class="text-muted mt-4 max-w-md">
+              Graduation, a new job, the month income starts again. Pick the day your savings have
+              to reach, and Ledger tells you what salary gets you there.
+            </p>
           )}
         </section>
 
-        <section aria-labelledby="ev-title" class="animate-rise" style={{ animationDelay: '140ms' }}>
-          <div class="border-b-2 border-fg pb-2">
+        <section
+          aria-labelledby="ev-title"
+          class="animate-rise"
+          style={{ animationDelay: '140ms' }}
+        >
+          <div class="border-fg border-b-2 pb-2">
             <h2 id="ev-title" class="serif text-[1.6rem] font-[480]">
               Along the way
             </h2>
@@ -222,14 +292,27 @@ export default function RunwayScreen() {
                 <Line
                   key={f.label}
                   k={f.label}
-                  note={f.count > 1 ? `${f.cadence}, from ${formatShort(f.first, today)}` : formatShort(f.first, today)}
-                  v={<Money value={f.delta} code={base} sign="always" tone={f.delta > 0 ? 'income' : 'none'} class="text-[1.1rem]" />}
+                  note={
+                    f.count > 1
+                      ? `${f.cadence}, from ${formatShort(f.first, today)}`
+                      : formatShort(f.first, today)
+                  }
+                  v={
+                    <Money
+                      value={f.delta}
+                      code={base}
+                      sign="always"
+                      tone={f.delta > 0 ? 'income' : 'none'}
+                      class="text-[1.1rem]"
+                    />
+                  }
                 />
               ))}
             </dl>
           ) : (
-            <p class="mt-4 max-w-md text-muted">
-              Nothing else is planned on your savings. A job that starts later, or a yearly bill, belongs in{' '}
+            <p class="text-muted mt-4 max-w-md">
+              Nothing else is planned on your savings. A job that starts later, or a yearly bill,
+              belongs in{' '}
               <a class="link" href={url('plan/#recurring')}>
                 Plan
               </a>{' '}
@@ -239,14 +322,29 @@ export default function RunwayScreen() {
         </section>
       </div>
 
-      <section class="card card-pad animate-rise" aria-labelledby="exact-title" style={{ animationDelay: '200ms' }}>
+      <section
+        class="card card-pad animate-rise"
+        aria-labelledby="exact-title"
+        style={{ animationDelay: '200ms' }}
+      >
         <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
           <h2 id="exact-title" class="serif text-[1.35rem] font-[480]">
             The figures behind the road
           </h2>
-          <span class="text-sm text-subtle">Every payday and planned flow, step by step. Arrow keys move through it.</span>
+          <span class="text-subtle text-sm">
+            Every payday and planned flow, step by step. Arrow keys move through it.
+          </span>
         </div>
-        <RunwayChart points={plan.points} compare={tried?.points} floor={plan.floor} target={plan.target} runOut={view.runOut} code={base} label="Savings over time" height={phone ? 220 : 260} />
+        <RunwayChart
+          points={plan.points}
+          compare={tried?.points}
+          floor={plan.floor}
+          target={plan.target}
+          runOut={view.runOut}
+          code={base}
+          label="Savings over time"
+          height={phone ? 220 : 260}
+        />
       </section>
 
       <TargetSheet open={targetOpen} onClose={() => setTargetOpen(false)} today={today} />
@@ -254,19 +352,39 @@ export default function RunwayScreen() {
   );
 }
 
-function Line({ k, v, note, total }: { k: string; v: preact.ComponentChildren; note?: string; total?: boolean }) {
+function Line({
+  k,
+  v,
+  note,
+  total,
+}: {
+  k: string;
+  v: preact.ComponentChildren;
+  note?: string;
+  total?: boolean;
+}) {
   return (
-    <div class={`flex items-baseline justify-between gap-4 py-3 ${total ? 'rule-double' : 'border-b border-line'}`}>
+    <div
+      class={`flex items-baseline justify-between gap-4 py-3 ${total ? 'rule-double' : 'border-line border-b'}`}
+    >
       <dt>
         <span class={total ? 'font-bold' : ''}>{k}</span>
-        {note && <span class="block text-sm text-subtle">{note}</span>}
+        {note && <span class="text-subtle block text-sm">{note}</span>}
       </dt>
       <dd class="text-right">{v}</dd>
     </div>
   );
 }
 
-function TargetSheet({ open, onClose, today }: { open: boolean; onClose: () => void; today: string }) {
+function TargetSheet({
+  open,
+  onClose,
+  today,
+}: {
+  open: boolean;
+  onClose: () => void;
+  today: string;
+}) {
   const { data } = useLedger();
   const base = data.settings.base;
   const t = data.target;
@@ -299,7 +417,14 @@ function TargetSheet({ open, onClose, today }: { open: boolean; onClose: () => v
             class="btn btn-primary"
             disabled={!date || date <= today}
             onClick={() => {
-              apply(setTarget({ label: label.trim() || 'Target', date, floor: fromInput(floor, base) ?? 0 }), 'Target');
+              apply(
+                setTarget({
+                  label: label.trim() || 'Target',
+                  date,
+                  floor: fromInput(floor, base) ?? 0,
+                }),
+                'Target',
+              );
               onClose();
               toast({ message: 'Saved. The flag is on the road.', tone: 'good' });
             }}
@@ -311,12 +436,28 @@ function TargetSheet({ open, onClose, today }: { open: boolean; onClose: () => v
     >
       <div class="grid gap-5">
         <Field id="tg-label" label="Call it">
-          <input id="tg-label" class="input" value={label} onInput={(e) => setLabel((e.target as HTMLInputElement).value)} />
+          <input
+            id="tg-label"
+            class="input"
+            value={label}
+            onInput={(e) => setLabel((e.target as HTMLInputElement).value)}
+          />
         </Field>
         <Field id="tg-date" label="Date">
-          <input id="tg-date" type="date" class="input" min={today} value={date} onInput={(e) => setDate((e.target as HTMLInputElement).value)} />
+          <input
+            id="tg-date"
+            type="date"
+            class="input"
+            min={today}
+            value={date}
+            onInput={(e) => setDate((e.target as HTMLInputElement).value)}
+          />
         </Field>
-        <Field id="tg-floor" label="Never go below (optional)" hint="A cushion for the unexpected. The plan leaves it alone.">
+        <Field
+          id="tg-floor"
+          label="Never go below (optional)"
+          hint="A cushion for the unexpected. The plan leaves it alone."
+        >
           <AmountInput id="tg-floor" value={floor} onInput={setFloor} code={base} />
         </Field>
       </div>

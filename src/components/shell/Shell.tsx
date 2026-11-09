@@ -43,7 +43,10 @@ export default function Shell() {
             message: 'A new version of Ledger is ready.',
             action: {
               label: 'Reload',
-              run: () => ((wanted = true), (reg.waiting ?? w).postMessage({ type: 'skip-waiting' })),
+              run: () => (
+                (wanted = true),
+                (reg.waiting ?? w).postMessage({ type: 'skip-waiting' })
+              ),
             },
             ms: Infinity,
           });

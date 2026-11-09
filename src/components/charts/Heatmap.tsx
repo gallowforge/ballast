@@ -68,7 +68,9 @@ export function Heatmap({
           <span
             key={o}
             class="size-3 rounded"
-            style={{ background: `color-mix(in oklab, var(--fg) ${Math.round(o * 88)}%, var(--raised))` }}
+            style={{
+              background: `color-mix(in oklab, var(--fg) ${Math.round(o * 88)}%, var(--raised))`,
+            }}
           />
         ))}
         More

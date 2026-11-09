@@ -205,7 +205,12 @@ export function RunwayChart({
                       ? 'start'
                       : 'middle'
                 }
-                style={{ fill: 'var(--gold-ink)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '14px' }}
+                style={{
+                  fill: 'var(--gold-ink)',
+                  fontFamily: 'var(--font-serif)',
+                  fontStyle: 'italic',
+                  fontSize: '14px',
+                }}
               >
                 {target.label} · {formatShort(target.date)}
               </text>
@@ -266,7 +271,7 @@ export function RunwayChart({
       </svg>
       {active && (
         <div
-          class="border-line bg-raised pointer-events-none absolute top-1 rounded-[4px] border border-line-strong px-3 py-2 text-sm shadow-lg"
+          class="border-line bg-raised border-line-strong pointer-events-none absolute top-1 rounded-[4px] border px-3 py-2 text-sm shadow-lg"
           style={{ left: Math.min(Math.max(x(active.date) - 80, 0), width - 170), width: 160 }}
           aria-live="polite"
         >

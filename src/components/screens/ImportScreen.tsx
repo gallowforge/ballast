@@ -105,14 +105,15 @@ export default function ImportScreen() {
         const src = sourceFromPdf(items, name);
         if (!src)
           throw new Error(
-            'No transaction table was found in this PDF. If your bank offers a CSV or Excel export, that works too.',
+            'Ledger read this PDF but could not find a table of transactions in it. If your bank offers a CSV export, that will work.',
           );
         setPassword('');
         begin(src);
       } else {
         const text = new TextDecoder('utf-8').decode(bytes);
         const src = sourceFromCSV(text, name);
-        if (src.table.length < 2) throw new Error('This file has no rows to import.');
+        if (src.table.length < 2)
+          throw new Error('This file is empty: there are no rows in it to bring in.');
         begin(src);
       }
     } catch (e) {
@@ -120,7 +121,11 @@ export default function ImportScreen() {
         setStep('password');
         if (e.reason === 'wrong') setError('That password did not open it. Try again.');
       } else if (e instanceof PdfNoTextError) setError(e.message);
-      else setError((e as Error).message || 'This file could not be read.');
+      else
+        setError(
+          (e as Error).message ||
+            'Ledger could not read this file. Is it a statement in PDF or CSV form?',
+        );
     } finally {
       setBusy(false);
     }
@@ -130,7 +135,7 @@ export default function ImportScreen() {
     if (!f) return;
     if (f.size > 25 * 1024 * 1024)
       return setError(
-        'That file is over 25 MB. A statement should be much smaller: is it the right file?',
+        'That file is over 25 MB, which is far bigger than a statement. Is it the right file?',
       );
     const bytes = new Uint8Array(await f.arrayBuffer());
     setFile({ name: f.name, bytes });
@@ -232,7 +237,7 @@ export default function ImportScreen() {
   return (
     <div class="grid grid-cols-1 gap-10">
       <ol
-        class="animate-rise flex flex-wrap items-baseline gap-x-6 gap-y-2 border-b border-line pb-3 text-sm font-bold"
+        class="animate-rise border-line flex flex-wrap items-baseline gap-x-6 gap-y-2 border-b pb-3 text-sm font-bold"
         aria-label="Import steps"
       >
         {steps.map((s, i) => (
@@ -241,7 +246,9 @@ export default function ImportScreen() {
             class={`flex items-baseline gap-2 ${i === stepIndex ? 'text-fg' : 'text-subtle'}`}
             aria-current={i === stepIndex ? 'step' : undefined}
           >
-            <span class={`figure text-[1.35rem] ${i < stepIndex ? 'text-good' : i === stepIndex ? 'text-gold-ink' : ''}`}>
+            <span
+              class={`figure text-[1.35rem] ${i < stepIndex ? 'text-good' : i === stepIndex ? 'text-gold-ink' : ''}`}
+            >
               {i < stepIndex ? <Icon name="check" size={16} stroke={2.6} /> : i + 1}
             </span>
             <span>{s.label}</span>
@@ -353,7 +360,10 @@ export default function ImportScreen() {
               </p>
             )}
           </section>
-          <aside class="animate-rise self-start border-l-2 border-gold pl-5" style={{ animationDelay: '60ms' }}>
+          <aside
+            class="animate-rise border-gold self-start border-l-2 pl-5"
+            style={{ animationDelay: '60ms' }}
+          >
             <p class="caps text-gold-ink">Read here, never uploaded</p>
             <ul class="text-muted mt-3 grid gap-3 text-[0.95rem]">
               <li>
@@ -370,7 +380,10 @@ export default function ImportScreen() {
           </aside>
           {data.imports.length > 0 && (
             <section class="lg:col-span-2" aria-labelledby="hist-title">
-              <h2 id="hist-title" class="serif border-fg mb-1 border-b-2 pb-2 text-[1.45rem] font-[480]">
+              <h2
+                id="hist-title"
+                class="serif border-fg mb-1 border-b-2 pb-2 text-[1.45rem] font-[480]"
+              >
                 Earlier imports
               </h2>
               <div class="divide">
@@ -750,7 +763,12 @@ function Review({
   return (
     <section class="animate-rise grid gap-5" aria-labelledby="review-title">
       <div class="card card-pad">
-        <h2 id="review-title" ref={headingRef} tabIndex={-1} class="serif text-[1.6rem] leading-tight font-[480] outline-none">
+        <h2
+          id="review-title"
+          ref={headingRef}
+          tabIndex={-1}
+          class="serif text-[1.6rem] leading-tight font-[480] outline-none"
+        >
           Review before importing
         </h2>
         <p class="text-muted">

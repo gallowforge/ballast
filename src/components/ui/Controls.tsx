@@ -233,7 +233,14 @@ export function Empty({
   return (
     <div class="grid gap-5 py-8 sm:grid-cols-[7rem_1fr] sm:items-start sm:gap-8">
       <svg width="112" height="64" viewBox="0 0 112 64" aria-hidden="true" class="hidden sm:block">
-        <line x1="14" y1="0" x2="14" y2="64" style={{ stroke: 'var(--margin)' }} stroke-width="1.5" />
+        <line
+          x1="14"
+          y1="0"
+          x2="14"
+          y2="64"
+          style={{ stroke: 'var(--margin)' }}
+          stroke-width="1.5"
+        />
         {[14, 30, 46, 62].map((y) => (
           <line key={y} x1="0" x2="112" y1={y} y2={y} style={{ stroke: 'var(--line-strong)' }} />
         ))}
@@ -241,7 +248,7 @@ export function Empty({
       </svg>
       <div>
         <H class="serif text-[1.55rem] leading-tight font-[460]">{title}</H>
-        <p class="mt-2 max-w-md text-muted">{body}</p>
+        <p class="text-muted mt-2 max-w-md">{body}</p>
         {children && <div class="mt-5 flex flex-wrap gap-2">{children}</div>}
       </div>
     </div>

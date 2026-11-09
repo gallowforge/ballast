@@ -13,7 +13,9 @@ export class PdfPasswordError extends Error {
 
 export class PdfNoTextError extends Error {
   constructor() {
-    super('This PDF has no text layer (it is probably a scan), so there is nothing to read.');
+    super(
+      'This PDF is a picture of a page, so there is no text in it to read. A CSV export from your bank will work.',
+    );
     this.name = 'PdfNoTextError';
   }
 }

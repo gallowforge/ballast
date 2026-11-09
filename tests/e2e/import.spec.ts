@@ -63,7 +63,7 @@ test('an import can be undone from the history', async ({ page }) => {
   await expect(page.getByRole('status')).toContainText('Removed 33 imported transactions');
   await open(page, 'activity/');
   await page.getByLabel('Search transactions').fill('talabat');
-  await expect(page.getByText('No transactions yet')).toBeVisible();
+  await expect(page.getByText('A clean page.')).toBeVisible();
 });
 
 test('the sample statement shows the columns it found', async ({ page }) => {

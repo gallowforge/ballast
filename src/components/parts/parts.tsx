@@ -22,7 +22,8 @@ import { url } from '@/lib/site';
 import { Icon } from '../ui/Icon';
 import { Money } from '../ui/Money';
 
-export const catColor = (c?: Category | null) => (c ? `oklch(var(--cat-l) 0.1 ${c.hue})` : 'var(--subtle)');
+export const catColor = (c?: Category | null) =>
+  c ? `oklch(var(--cat-l) 0.1 ${c.hue})` : 'var(--subtle)';
 
 /** A category as ledgers mark it: a small square of its colour. */
 export function Swatch({ category }: { category?: Category | null }) {
@@ -30,9 +31,21 @@ export function Swatch({ category }: { category?: Category | null }) {
 }
 
 /** A section heading sitting on a heavy rule, like a ledger page head. */
-export function SectionTitle({ title, href, link, id, children }: { title: string; href?: string; link?: string; id?: string; children?: ComponentChildren }) {
+export function SectionTitle({
+  title,
+  href,
+  link,
+  id,
+  children,
+}: {
+  title: string;
+  href?: string;
+  link?: string;
+  id?: string;
+  children?: ComponentChildren;
+}) {
   return (
-    <div class="mb-1 flex items-baseline justify-between gap-3 border-b-2 border-fg pb-2">
+    <div class="border-fg mb-1 flex items-baseline justify-between gap-3 border-b-2 pb-2">
       <h2 id={id} class="serif text-[1.45rem] leading-tight font-[480]">
         {title}
       </h2>
@@ -68,13 +81,19 @@ export function TxnRow({
   const meta =
     t.kind === 'transfer'
       ? `${acct?.name ?? 'Account'} to ${to?.name ?? 'account'}`
-      : [cat?.name ?? 'Needs a category', acct && acct.role !== 'spending' ? acct.name : null].filter(Boolean).join(' · ');
+      : [cat?.name ?? 'Needs a category', acct && acct.role !== 'spending' ? acct.name : null]
+          .filter(Boolean)
+          .join(' · ');
   return (
     <button type="button" class="row-link" onClick={() => openTxn({ id: t.id })}>
-      {showDate && <span class="caps hidden w-14 flex-none sm:block">{shortDay(t.date, today)}</span>}
+      {showDate && (
+        <span class="caps hidden w-14 flex-none sm:block">{shortDay(t.date, today)}</span>
+      )}
       <span class="min-w-0 flex-1">
         <span class="block truncate font-bold">{t.payee || 'Untitled'}</span>
-        <span class={`mt-0.5 flex items-center gap-2 text-[0.82rem] ${!cat && t.kind !== 'transfer' ? 'text-warn' : 'text-subtle'}`}>
+        <span
+          class={`mt-0.5 flex items-center gap-2 text-[0.82rem] ${!cat && t.kind !== 'transfer' ? 'text-warn' : 'text-subtle'}`}
+        >
           {t.kind === 'transfer' ? <Icon name="swap" size={13} /> : <Swatch category={cat} />}
           <span class="truncate">{meta}</span>
         </span>
@@ -87,8 +106,14 @@ export function TxnRow({
           tone={t.kind === 'income' ? 'income' : 'none'}
           class="text-[1.12rem]"
         />
-        {t.original && <span class="block text-xs text-subtle">{formatMoney(t.original.amount, t.original.currency)}</span>}
-        {code !== data.settings.base && !t.original && <span class="block text-xs text-subtle">{formatMoney(t.base, data.settings.base)}</span>}
+        {t.original && (
+          <span class="text-subtle block text-xs">
+            {formatMoney(t.original.amount, t.original.currency)}
+          </span>
+        )}
+        {code !== data.settings.base && !t.original && (
+          <span class="text-subtle block text-xs">{formatMoney(t.base, data.settings.base)}</span>
+        )}
       </span>
     </button>
   );
@@ -97,14 +122,16 @@ export function TxnRow({
 /** A budget as a ledger line: spent against the line, a brass tick where an even pace is today. */
 export function BudgetRow({ b, cat, code }: { b: BudgetState; cat?: Category; code: string }) {
   const pct = Math.min(1, b.used === Infinity ? 1 : b.used);
-  const colour = b.status === 'over' ? 'var(--bad)' : b.status === 'ahead' ? 'var(--warn)' : 'var(--fg)';
+  const colour =
+    b.status === 'over' ? 'var(--bad)' : b.status === 'ahead' ? 'var(--warn)' : 'var(--fg)';
   return (
     <div class="grid gap-2 py-3">
       <div class="flex items-baseline gap-3">
         <Swatch category={cat} />
         <span class="min-w-0 flex-1 truncate font-bold">{cat?.name ?? 'Category'}</span>
-        <span class="text-sm text-subtle">
-          <Money value={b.spent} code={code} unit={false} class="text-[1.08rem] text-fg" /> of <Money value={b.available} code={code} />
+        <span class="text-subtle text-sm">
+          <Money value={b.spent} code={code} unit={false} class="text-fg text-[1.08rem]" /> of{' '}
+          <Money value={b.available} code={code} />
         </span>
       </div>
       <div
@@ -116,28 +143,58 @@ export function BudgetRow({ b, cat, code }: { b: BudgetState; cat?: Category; co
         aria-valuenow={Math.min(b.spent, b.available)}
       >
         <span style={{ width: `${pct * 100}%`, background: colour }} />
-        <i class="absolute -top-1.5 -bottom-1.5 w-[2px] bg-gold" style={{ left: `${b.elapsed * 100}%` }} title="Where an even pace would be today" />
+        <i
+          class="bg-gold absolute -top-1.5 -bottom-1.5 w-[2px]"
+          style={{ left: `${b.elapsed * 100}%` }}
+          title="Where an even pace would be today"
+        />
       </div>
-      <div class="flex justify-between gap-3 text-[0.8rem] text-subtle">
-        <span class={b.status === 'over' ? 'font-bold text-bad' : b.status === 'ahead' ? 'font-bold text-warn' : ''}>
-          {b.status === 'over' ? `${formatMoney(-b.left, code)} past the line` : b.status === 'ahead' ? 'A little ahead of pace' : b.status === 'idle' ? 'Nothing yet' : 'On pace'}
+      <div class="text-subtle flex justify-between gap-3 text-[0.8rem]">
+        <span
+          class={
+            b.status === 'over'
+              ? 'text-bad font-bold'
+              : b.status === 'ahead'
+                ? 'text-warn font-bold'
+                : ''
+          }
+        >
+          {b.status === 'over'
+            ? `${formatMoney(-b.left, code)} past the line`
+            : b.status === 'ahead'
+              ? 'A little ahead of pace'
+              : b.status === 'idle'
+                ? 'Nothing yet'
+                : 'On pace'}
         </span>
-        <span>{b.left > 0 ? `${formatMoney(b.perDayLeft, code)} a day left` : 'Nothing left this month'}</span>
+        <span>
+          {b.left > 0 ? `${formatMoney(b.perDayLeft, code)} a day left` : 'Nothing left this month'}
+        </span>
       </div>
     </div>
   );
 }
 
-export function UpcomingRow({ u, cat, code, today }: { u: Upcoming; cat?: Category; code: string; today: string }) {
+export function UpcomingRow({
+  u,
+  cat,
+  code,
+  today,
+}: {
+  u: Upcoming;
+  cat?: Category;
+  code: string;
+  today: string;
+}) {
   return (
-    <div class="flex items-baseline gap-4 border-b border-line py-3">
+    <div class="border-line flex items-baseline gap-4 border-b py-3">
       <span class="caps w-14 flex-none">{formatShort(u.date, today)}</span>
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2 truncate font-bold">
           <Swatch category={cat} />
           {u.recurring.name}
         </div>
-        <div class="text-[0.8rem] text-subtle">{formatIn(u.date, today)}</div>
+        <div class="text-subtle text-[0.8rem]">{formatIn(u.date, today)}</div>
       </div>
       <Money
         value={u.recurring.kind === 'income' ? u.recurring.amount : -u.recurring.amount}
@@ -178,21 +235,31 @@ export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
       }),
       'Track recurring',
     );
-    toast({ message: `${s.payee} is on the list now. You'll see it coming.`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
+    toast({
+      message: `${s.payee} is on the list now. You'll see it coming.`,
+      tone: 'good',
+      action: { label: 'Undo', run: () => undo() },
+    });
   };
   const tone = TONE[i.tone];
   return (
-    <article class={`border-l-2 py-1 pl-4 ${i.tone === 'warn' ? 'border-warn' : i.tone === 'good' ? 'border-good' : 'border-gold'} ${compact ? '' : 'pr-2'}`}>
+    <article
+      class={`border-l-2 py-1 pl-4 ${i.tone === 'warn' ? 'border-warn' : i.tone === 'good' ? 'border-good' : 'border-gold'} ${compact ? '' : 'pr-2'}`}
+    >
       <p class={`caps ${tone.cls}`}>{tone.label}</p>
       <h3 class="serif mt-1 text-[1.2rem] leading-snug font-[470]">{i.title}</h3>
-      <p class="mt-1 text-[0.92rem] text-muted">{i.body}</p>
+      <p class="text-muted mt-1 text-[0.92rem]">{i.body}</p>
       <div class="mt-2 flex flex-wrap items-center gap-4 text-sm">
         {i.action && (
           <button type="button" class="link" onClick={act}>
             {i.action.label}
           </button>
         )}
-        <button type="button" class="font-bold text-subtle hover:text-fg" onClick={() => apply(dismiss(i.id), 'Dismiss')}>
+        <button
+          type="button"
+          class="text-subtle hover:text-fg font-bold"
+          onClick={() => apply(dismiss(i.id), 'Dismiss')}
+        >
           Not now
         </button>
       </div>
@@ -202,8 +269,10 @@ export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
 
 export function DemoBanner() {
   return (
-    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-l-2 border-gold py-1 pl-4">
-      <p class="serif text-[1.05rem] italic">This is Alex's ledger, and Alex is made up. Nothing here is real.</p>
+    <div class="border-gold flex flex-wrap items-baseline gap-x-4 gap-y-1 border-l-2 py-1 pl-4">
+      <p class="serif text-[1.05rem] italic">
+        This is Alex's ledger, and Alex is made up. Nothing here is real.
+      </p>
       <a href={url('settings/#data')} class="link text-sm">
         Start your own
       </a>

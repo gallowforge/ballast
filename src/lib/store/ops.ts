@@ -324,7 +324,9 @@ export function applyImport(rows: readonly ReviewRow[], meta: ImportMeta): { op:
           from: meta.from,
           to: meta.to,
           closing: meta.closing,
-          ...(meta.opening && before ? { prevOpening: { amount: before.opening, on: before.openedOn } } : {}),
+          ...(meta.opening && before
+            ? { prevOpening: { amount: before.opening, on: before.openedOn } }
+            : {}),
         },
       ],
     };
@@ -340,7 +342,9 @@ export const undoImport =
     return {
       ...d,
       accounts: prev
-        ? d.accounts.map((a) => (a.id === batch!.accountId ? { ...a, opening: prev.amount, openedOn: prev.on } : a))
+        ? d.accounts.map((a) =>
+            a.id === batch!.accountId ? { ...a, opening: prev.amount, openedOn: prev.on } : a,
+          )
         : d.accounts,
       txns: d.txns.filter((t) => t.importId !== importId),
       imports: d.imports.filter((b) => b.id !== importId),

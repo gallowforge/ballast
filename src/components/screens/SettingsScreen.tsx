@@ -104,7 +104,10 @@ export default function SettingsScreen() {
   return (
     <div class="grid grid-cols-1 gap-14">
       <section class="animate-rise" aria-labelledby="gen-title" id="general">
-        <h2 id="gen-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
+        <h2
+          id="gen-title"
+          class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]"
+        >
           General
         </h2>
         <div class="mt-4 grid gap-5 md:grid-cols-2">
@@ -238,7 +241,10 @@ export default function SettingsScreen() {
         id="rates"
         style={{ animationDelay: '80ms' }}
       >
-        <h2 id="rates-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
+        <h2
+          id="rates-title"
+          class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]"
+        >
           Exchange rates
         </h2>
         <p class="text-muted text-sm">
@@ -329,7 +335,12 @@ export default function SettingsScreen() {
               {data.categories
                 .filter((c) => c.kind === k)
                 .map((c) => (
-                  <button type="button" key={c.id} class="row-link py-2" onClick={() => setCategory(c)}>
+                  <button
+                    type="button"
+                    key={c.id}
+                    class="row-link py-2"
+                    onClick={() => setCategory(c)}
+                  >
                     <Swatch category={c} />
                     <span class="flex-1 font-bold">{c.name}</span>
                     <Icon name={c.icon} size={16} class="text-subtle" />
@@ -342,7 +353,10 @@ export default function SettingsScreen() {
 
       {data.rules.length > 0 && (
         <section class="animate-rise" aria-labelledby="rules-title" id="rules">
-          <h2 id="rules-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
+          <h2
+            id="rules-title"
+            class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]"
+          >
             What Ledger has learned
           </h2>
           <p class="text-muted text-sm">
@@ -375,7 +389,10 @@ export default function SettingsScreen() {
         id="data"
         style={{ animationDelay: '160ms' }}
       >
-        <h2 id="data-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
+        <h2
+          id="data-title"
+          class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]"
+        >
           Your data
         </h2>
         <p class="text-muted text-sm">
@@ -457,7 +474,10 @@ export default function SettingsScreen() {
       </section>
 
       <section class="animate-rise" aria-labelledby="inst-title" id="install">
-        <h2 id="inst-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
+        <h2
+          id="inst-title"
+          class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]"
+        >
           Install Ledger
         </h2>
         <p class="text-muted text-sm">
@@ -571,7 +591,7 @@ export default function SettingsScreen() {
         open={confirmWipe}
         onClose={() => setConfirmWipe(false)}
         title="Delete everything?"
-        description="Every account, transaction, budget and setting on this device. This cannot be undone."
+        description="This removes every account, transaction, budget and setting from this device. There is no copy anywhere else: that is the point, and also the risk."
         footer={
           <>
             <button
@@ -597,8 +617,8 @@ export default function SettingsScreen() {
       >
         <p class="text-muted">
           {data.txns.length && !data.settings.demo
-            ? 'Export a backup first if you might want it back.'
-            : 'Nothing personal is stored yet.'}
+            ? 'If you might want any of it back, export a backup first.'
+            : 'Nothing of yours is stored yet, so there is nothing to lose.'}
         </p>
       </Sheet>
     </div>

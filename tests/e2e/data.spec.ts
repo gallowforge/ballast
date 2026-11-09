@@ -61,7 +61,7 @@ test('the whole app works offline after the first visit', async ({ page, context
   });
   await context.setOffline(true);
   await page.goto('runway/');
-  await expect(page.getByRole('heading', { name: /salaries left/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /carry you to/ })).toBeVisible();
   await page.goto('import/');
   await page.getByRole('button', { name: 'Try a sample PDF' }).click();
   await expect(page.getByRole('heading', { name: 'Check the columns' })).toBeVisible();

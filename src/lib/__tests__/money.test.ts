@@ -153,7 +153,10 @@ describe('what people actually type', () => {
     ['1,500', 3, 1500000],
   ])('%s → %i', (input, exp, out) => expect(parseMinor(input, exp)).toBe(out));
   it('reads Arabic-Indic digits and the Arabic decimal separator', () => {
-    const ar = (s: string) => s.replace(/\d/g, (d) => String.fromCharCode(0x660 + Number(d))).replace('.', String.fromCharCode(0x66b));
+    const ar = (s: string) =>
+      s
+        .replace(/\d/g, (d) => String.fromCharCode(0x660 + Number(d)))
+        .replace('.', String.fromCharCode(0x66b));
     expect(parseMinor(ar('4.750'), 3)).toBe(4750);
   });
   it('still refuses two decimal commas', () => expect(parseMinor('1,2,3', 3)).toBeNull());

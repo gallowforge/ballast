@@ -110,7 +110,7 @@ export default function InsightsScreen() {
 
   return (
     <div class="grid grid-cols-1 gap-14">
-      <div class="flex flex-wrap items-end justify-between gap-4 animate-rise">
+      <div class="animate-rise flex flex-wrap items-end justify-between gap-4">
         <Segmented
           label="Period"
           value={range}
@@ -134,7 +134,7 @@ export default function InsightsScreen() {
           <h2 id="where-title" class="figure text-[4.2rem] sm:text-[5.5rem]">
             <Money value={view.out} code={base} count />
           </h2>
-          <p class="serif pb-3 text-[1.2rem] text-muted italic">
+          <p class="serif text-muted pb-3 text-[1.2rem] italic">
             {change === null
               ? 'Nothing earlier to compare with yet.'
               : change === 0
@@ -143,7 +143,7 @@ export default function InsightsScreen() {
             {view.inc ? (
               <>
                 {' '}
-                <Money value={view.inc} code={base} class="not-italic text-good" /> came in.
+                <Money value={view.inc} code={base} class="text-good not-italic" /> came in.
               </>
             ) : null}
           </p>
@@ -156,65 +156,97 @@ export default function InsightsScreen() {
           {strip.map((c, i) => (
             <span
               key={c.categoryId}
-              class="h-full border-r-2 border-bg"
-              style={{ width: `${(c.total / Math.max(1, view.out)) * 100}%`, background: catColor(catMap.get(c.categoryId)), animation: `grow .9s var(--ease-out-quint) ${i * 50}ms backwards`, transformOrigin: 'left' }}
+              class="border-bg h-full border-r-2"
+              style={{
+                width: `${(c.total / Math.max(1, view.out)) * 100}%`,
+                background: catColor(catMap.get(c.categoryId)),
+                animation: `grow .9s var(--ease-out-quint) ${i * 50}ms backwards`,
+                transformOrigin: 'left',
+              }}
             />
           ))}
-          {rest > 0 && <span class="h-full bg-line-strong" style={{ width: `${(rest / Math.max(1, view.out)) * 100}%` }} />}
+          {rest > 0 && (
+            <span
+              class="bg-line-strong h-full"
+              style={{ width: `${(rest / Math.max(1, view.out)) * 100}%` }}
+            />
+          )}
         </div>
-        <dl class="mt-6 grid gap-x-12 sm:grid-cols-2">
+        <ul class="mt-6 grid gap-x-12 sm:grid-cols-2">
           {cats.slice(0, 10).map((c) => {
             const before = prevCats.get(c.categoryId) ?? 0;
             const diff = c.total - before;
             return (
-              <div key={c.categoryId} class="flex items-baseline gap-3 border-b border-line py-2.5">
+              <li key={c.categoryId} class="border-line flex items-baseline gap-3 border-b py-2.5">
                 <Swatch category={catMap.get(c.categoryId)} />
-                <dt class="min-w-0 flex-1 truncate font-bold">{catMap.get(c.categoryId)?.name ?? 'Needs a category'}</dt>
-                <span class={`w-16 text-right text-[0.78rem] ${diff > 0 ? 'text-warn' : 'text-subtle'}`}>
-                  {!before ? 'new' : diff === 0 ? 'same' : formatMinor(diff, exp, { sign: 'always' })}
+                <span class="min-w-0 flex-1 truncate font-bold">
+                  {catMap.get(c.categoryId)?.name ?? 'Needs a category'}
                 </span>
-                <dd class="w-24 text-right">
+                <span
+                  class={`w-16 text-right text-[0.78rem] ${diff > 0 ? 'text-warn' : 'text-subtle'}`}
+                >
+                  {!before
+                    ? 'new'
+                    : diff === 0
+                      ? 'same'
+                      : formatMinor(diff, exp, { sign: 'always' })}
+                </span>
+                <span class="w-24 text-right">
                   <Money value={c.total} code={base} unit={false} class="text-[1.1rem]" />
-                </dd>
-              </div>
+                </span>
+              </li>
             );
           })}
-        </dl>
+        </ul>
       </section>
 
       {view.flow.length > 1 && (
-        <section aria-labelledby="flow-title" class="animate-rise" style={{ animationDelay: '60ms' }}>
+        <section
+          aria-labelledby="flow-title"
+          class="animate-rise"
+          style={{ animationDelay: '60ms' }}
+        >
           <SectionTitle id="flow-title" title="In and out, month by month">
-            <span class="ml-auto flex gap-4 text-xs font-bold text-subtle">
+            <span class="text-subtle ml-auto flex gap-4 text-xs font-bold">
               <span class="inline-flex items-center gap-1.5">
-                <i class="size-2.5 bg-good" /> In
+                <i class="bg-good size-2.5" /> In
               </span>
               <span class="inline-flex items-center gap-1.5">
-                <i class="size-2.5 bg-fg" /> Out
+                <i class="bg-fg size-2.5" /> Out
               </span>
             </span>
           </SectionTitle>
-          <p class="mt-2 mb-4 text-sm text-subtle">Moving money between your own accounts is left out.</p>
+          <p class="text-subtle mt-2 mb-4 text-sm">
+            Moving money between your own accounts is left out.
+          </p>
           <Cashflow rows={view.flow} code={base} />
         </section>
       )}
 
       <div class="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:gap-12">
-        <section aria-labelledby="cal-title" class="animate-rise" style={{ animationDelay: '100ms' }}>
+        <section
+          aria-labelledby="cal-title"
+          class="animate-rise"
+          style={{ animationDelay: '100ms' }}
+        >
           <SectionTitle id="cal-title" title={`Day by day, ${view.heatLabel}`} />
           <div class="mt-4">
             <Heatmap days={view.heat} code={base} today={today} />
           </div>
         </section>
-        <section aria-labelledby="payee-title" class="animate-rise" style={{ animationDelay: '140ms' }}>
+        <section
+          aria-labelledby="payee-title"
+          class="animate-rise"
+          style={{ animationDelay: '140ms' }}
+        >
           <SectionTitle id="payee-title" title="Where you spend most" />
           <ol>
             {view.payees.map((p, i) => (
-              <li key={p.payee} class="flex items-baseline gap-3 border-b border-line py-2.5">
-                <span class="figure w-6 text-[1.2rem] text-gold-ink">{i + 1}</span>
+              <li key={p.payee} class="border-line flex items-baseline gap-3 border-b py-2.5">
+                <span class="figure text-gold-ink w-6 text-[1.2rem]">{i + 1}</span>
                 <span class="min-w-0 flex-1">
                   <span class="block truncate font-bold">{p.payee}</span>
-                  <span class="flex items-center gap-1.5 text-xs text-subtle">
+                  <span class="text-subtle flex items-center gap-1.5 text-xs">
                     <Swatch category={p.categoryId ? catMap.get(p.categoryId) : null} />
                     {p.count === 1 ? 'once' : `${p.count} times`}
                   </span>
@@ -224,28 +256,52 @@ export default function InsightsScreen() {
             ))}
           </ol>
         </section>
-        <section aria-labelledby="wd-title" class="animate-rise" style={{ animationDelay: '180ms' }}>
+        <section
+          aria-labelledby="wd-title"
+          class="animate-rise"
+          style={{ animationDelay: '180ms' }}
+        >
           <SectionTitle id="wd-title" title="By day of the week" />
-          <div class="mt-5 flex h-40 items-end gap-2" role="list" aria-label="Average spending by day of the week">
+          <div
+            class="mt-5 flex h-40 items-end gap-2"
+            role="list"
+            aria-label="Average spending by day of the week"
+          >
             {view.weekdays.map((v, i) => {
               const d = addDays('2026-01-04', i); // any Sunday: only the weekday name is used
               return (
-                <div key={i} role="listitem" class="flex h-full flex-1 flex-col items-center justify-end gap-1.5" aria-label={`${formatWeekday(d)}: ${formatMoney(v, base)} on average`}>
+                <div
+                  key={i}
+                  role="listitem"
+                  class="flex h-full flex-1 flex-col items-center justify-end gap-1.5"
+                  aria-label={`${formatWeekday(d)}: ${formatMoney(v, base)} on average`}
+                >
                   <div
                     class={`w-full ${v === wdMax ? 'bg-gold' : 'bg-fg/25'}`}
-                    style={{ height: `${Math.max(3, (v / wdMax) * 100)}%`, animation: `rise .6s var(--ease-out-quint) ${i * 40}ms backwards` }}
+                    style={{
+                      height: `${Math.max(3, (v / wdMax) * 100)}%`,
+                      animation: `rise .6s var(--ease-out-quint) ${i * 40}ms backwards`,
+                    }}
                   />
-                  <span class="text-xs font-bold text-subtle">{formatWeekday(d, true).slice(0, 2)}</span>
+                  <span class="text-subtle text-xs font-bold">
+                    {formatWeekday(d, true).slice(0, 2)}
+                  </span>
                 </div>
               );
             })}
           </div>
-          <p class="mt-3 text-xs text-subtle">Average a day, {view.period.label}, from {formatShort(view.period.start)}.</p>
+          <p class="text-subtle mt-3 text-xs">
+            Average a day, {view.period.label}, from {formatShort(view.period.start)}.
+          </p>
         </section>
       </div>
 
       {view.tips.length > 0 && (
-        <section aria-labelledby="tips-title" class="animate-rise" style={{ animationDelay: '220ms' }}>
+        <section
+          aria-labelledby="tips-title"
+          class="animate-rise"
+          style={{ animationDelay: '220ms' }}
+        >
           <SectionTitle id="tips-title" title="In the margin" />
           <div class="mt-5 grid gap-8 md:grid-cols-2">
             {view.tips.map((i) => (
