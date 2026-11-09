@@ -228,7 +228,7 @@ const css = `
 @font-face { font-family: 'Atkinson'; src: url('${font('atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2')}') format('woff2'); font-weight: 200 800; }
 @font-face { font-family: 'Figures'; src: url('${font('newsreader/files/newsreader-latin-opsz-normal.woff2')}') format('woff2'); unicode-range: U+0030-0039; }
 * { box-sizing: border-box; margin: 0; }
-:root { --paper: ${PAPER}; --sheet: #faf7f0; --ink: #1d3a2e; --ink2: #44574d; --ink3: #5c6b62; --rule: rgb(29 58 46 / .14); --brass: #b8892f; --brass-ink: #855e17; --good: #23704a; }
+:root { --paper: ${PAPER}; --sheet: #faf7f0; --ink: #1d3a2e; --ink2: #44574d; --ink3: #57665d; --rule: rgb(29 58 46 / .14); --brass: #b8892f; --brass-ink: #805a15; --good: #23704a; }
 html, body { background: var(--paper); }
 body { font-family: Figures, Atkinson, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; position: relative; overflow: hidden; }
 .serif { font-family: Newsreader, serif; font-optical-sizing: auto; }

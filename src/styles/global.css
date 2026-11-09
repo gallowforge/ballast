@@ -92,11 +92,13 @@
   --sunken: #e9e2d3;
   --fg: #1d3a2e;
   --muted: #44574d;
-  --subtle: #5c6b62;
+  --subtle: #57665d;
   --line: rgb(29 58 46 / 0.13);
   --line-strong: rgb(29 58 46 / 0.26);
   --gold: #b8892f;
-  --gold-ink: #855e17;
+  --gold-ink: #805a15;
+  /* The keyboard focus ring: brass deep enough to show on paper (3:1 or more). */
+  --focus: #805a15;
   --gold-soft: #ece1c6;
   --on-gold: #1d3a2e;
   --primary: #1d3a2e;
@@ -125,6 +127,7 @@
   --line-strong: rgb(237 230 214 / 0.22);
   --gold: #d2a955;
   --gold-ink: #dcb866;
+  --focus: #d2a955;
   --gold-soft: #3a3220;
   --on-gold: #121d18;
   --primary: #ede6d6;
@@ -169,7 +172,7 @@
     -webkit-tap-highlight-color: transparent;
   }
   :focus-visible {
-    outline: 2px solid var(--gold);
+    outline: 2px solid var(--focus);
     outline-offset: 2px;
     border-radius: 3px;
   }
@@ -891,6 +894,10 @@
 body:has(.sheet) .toast-wrap {
   top: calc(1rem + env(safe-area-inset-top));
   bottom: auto;
+}
+/* Only the newest fits in that band. */
+body:has(.sheet) .toast:not(:last-child) {
+  display: none;
 }
 .toast {
   pointer-events: auto;

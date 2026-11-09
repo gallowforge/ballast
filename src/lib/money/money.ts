@@ -27,7 +27,8 @@ export function normalizeNumber(input: string): string {
   if (lastComma >= 0 && lastDot >= 0) {
     s = lastComma > lastDot ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
   } else if (lastComma >= 0) {
-    if (/^[+-]?\d{1,3}(,\d{3})+$/.test(s)) s = s.replace(/,/g, '');
+    // "1,500" groups thousands; "0,500" cannot, so its comma is a decimal point.
+    if (/^[+-]?[1-9]\d{0,2}(,\d{3})+$/.test(s)) s = s.replace(/,/g, '');
     else if ((s.match(/,/g) ?? []).length === 1) s = s.replace(',', '.');
   }
   return s;

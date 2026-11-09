@@ -151,6 +151,9 @@ describe('what people actually type', () => {
     ['1.234,5', 3, 1234500],
     ['1,234,567.5', 3, 1234567500],
     ['1,500', 3, 1500000],
+    // A leading zero cannot start a thousands group, so this comma is a decimal point.
+    ['0,500', 3, 500],
+    ['-0,250', 3, -250],
   ])('%s → %i', (input, exp, out) => expect(parseMinor(input, exp)).toBe(out));
   it('reads Arabic-Indic digits and the Arabic decimal separator', () => {
     const ar = (s: string) =>

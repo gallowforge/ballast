@@ -146,6 +146,8 @@ export function RoadView({
       : null;
   const flagLeft = flag ? flag.x > W - 210 : false;
   const ended = runOut && shownEnd < 0.999;
+  // A road that runs past the horizon still says where it ends, so it never looks endless.
+  const beyond = runOut && diffDays(today, runOut) > total;
 
   const label = runOut
     ? `Your savings, ${formatMoney(start, code)} today, last until ${formatShort(runOut)}${target ? `; your target, ${formatShort(target.date)}, is ${tU! <= endU ? 'before' : 'past'} the end of the road` : ''}.`
@@ -168,8 +170,8 @@ export function RoadView({
             <stop offset="1" style={{ stopColor: 'var(--road)', stopOpacity: 0.28 }} />
           </linearGradient>
         </defs>
-        {rules.map((r) => (
-          <g key={r.y}>
+        {rules.map((r, i) => (
+          <g key={i}>
             <line
               x1={0}
               x2={W}
@@ -227,6 +229,19 @@ export function RoadView({
               </text>
             )}
           </g>
+        )}
+        {beyond && !compact && (
+          <text
+            x={vx - 18}
+            y={hy - 9}
+            text-anchor="end"
+            class="halo"
+            style={{ fill: 'var(--bad)', fontWeight: 700, letterSpacing: '0.1em' }}
+            font-size="11"
+          >
+            LAST SALARY · {formatMonthShort(lastFull ?? runOut!, true).toUpperCase()}, PAST THE
+            HORIZON
+          </text>
         )}
         {flag && target && (
           <g data-flag>

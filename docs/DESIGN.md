@@ -28,7 +28,7 @@ Rules: money is always set in Newsreader with tabular figures; fils are the same
 | ---------- | -------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------ |
 | Field, 60% | Paper `#F2ECDF`, sheet `#FAF7F0` | Night `#121D18`, sheet `#18261F` | Every surface                                                                              |
 | Ink, 30%   | Ink green `#1D3A2E`              | Paper `#EDE6D6`                  | Text, rules, the road, primary buttons                                                     |
-| Brass, 10% | Brass `#B8892F` (text `#855E17`) | Brass `#D2A955`                  | Spent like money: today's marker, the target flag, the sun on the horizon, the margin line |
+| Brass, 10% | Brass `#B8892F` (text `#805A15`) | Brass `#D2A955`                  | Spent like money: today's marker, the target flag, the sun on the horizon, the margin line |
 | Money in   | Leaf `#23704A`                   | `#7FC79A`                        | Income only                                                                                |
 | Over       | Clay `#A13F1D`                   | `#E58F72`                        | Going over a line, the end of the road                                                     |
 
