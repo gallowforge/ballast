@@ -4,15 +4,25 @@ import type { LedgerData } from '@/lib/model';
 import { boot } from '@/lib/client';
 import { getState, isReady, subscribe } from '@/lib/store/store';
 
-/** The data and whether it has loaded. Re-renders on every change. */
+/**
+ * The data and whether it has loaded. Re-renders on every change.
+ *
+ * `ready` turns true only once the component has mounted. The server sends each screen's
+ * skeleton, and hydration keeps the server's attributes on whatever elements it reuses, so the
+ * first render in the browser must be that same skeleton. After moving between pages the data is
+ * already loaded; without this the real screen would hydrate onto the skeleton's bare <div> and
+ * keep its missing classes and aria-busy. The layout effect re-renders before the first paint.
+ */
 export function useLedger(): { data: LedgerData; ready: boolean } {
   const [, force] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  useLayoutEffect(() => setMounted(true), []);
   useEffect(() => {
     const off = subscribe(() => force((n) => n + 1));
     void boot().then(() => force((n) => n + 1));
     return off;
   }, []);
-  return { data: getState(), ready: isReady() };
+  return { data: getState(), ready: mounted && isReady() };
 }
 
 /** Today's date, updated when the day changes while the app is open. */

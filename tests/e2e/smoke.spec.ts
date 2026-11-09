@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { hydrated } from './helpers';
+import { demo, hydrated } from './helpers';
 
 const PAGES = [
   '',
@@ -27,6 +27,27 @@ for (const path of PAGES) {
     expect(errors).toEqual([]);
   });
 }
+
+test('moving between pages leaves no screen half-built', async ({ page }) => {
+  await demo(page);
+  const tabs = [
+    ['Activity', 'activity/'],
+    ['Plan', 'plan/'],
+    ['Runway', 'runway/'],
+    ['Insights', 'insights/'],
+    ['Home', 'home/'],
+  ];
+  for (const [label, path] of tabs) {
+    await page
+      .locator('nav[aria-label="Main"]:visible')
+      .getByRole('link', { name: label, exact: true })
+      .click();
+    await expect(page).toHaveURL(new RegExp(`${path}$`));
+    await hydrated(page);
+    // A screen hydrated onto its loading skeleton keeps aria-busy and loses its layout classes.
+    await expect(page.locator('main [aria-busy="true"]')).toHaveCount(0);
+  }
+});
 
 test('unknown pages get the 404 page', async ({ page }) => {
   const res = await page.goto('nope/');

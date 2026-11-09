@@ -152,6 +152,14 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     scrollbar-gutter: stable;
+    /* Whatever is focused or jumped to stays clear of the sticky header and the phone's tab bar. */
+    scroll-padding-top: 4.5rem;
+    scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 1024px) {
+    html {
+      scroll-padding-bottom: 1rem;
+    }
   }
   body {
     font-family: var(--font-sans);
