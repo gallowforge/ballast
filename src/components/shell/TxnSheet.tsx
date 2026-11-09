@@ -270,7 +270,7 @@ export function TxnSheet({ data, today }: Props) {
               Save and add another
             </button>
           )}
-          <button type="button" class="btn btn-gold" onClick={() => save()}>
+          <button type="button" class="btn btn-primary" onClick={() => save()}>
             <Icon name="check" size={18} /> Save
           </button>
         </>

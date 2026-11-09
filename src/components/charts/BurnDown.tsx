@@ -50,8 +50,8 @@ export function BurnDown({
       >
         <defs>
           <linearGradient id="bd-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" style={{ stopColor: 'var(--gold)', stopOpacity: 0.3 }} />
-            <stop offset="1" style={{ stopColor: 'var(--gold)', stopOpacity: 0 }} />
+            <stop offset="0" style={{ stopColor: 'var(--fg)', stopOpacity: 0.13 }} />
+            <stop offset="1" style={{ stopColor: 'var(--fg)', stopOpacity: 0 }} />
           </linearGradient>
         </defs>
         <line class="grid" x1={pad.l} x2={width - pad.r} y1={y(0)} y2={y(0)} />
@@ -69,7 +69,7 @@ export function BurnDown({
         <path
           d={line}
           fill="none"
-          style={{ stroke: 'var(--gold)' }}
+          style={{ stroke: 'var(--fg)' }}
           stroke-width="2.5"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -82,7 +82,7 @@ export function BurnDown({
             y1={y(last.value)}
             x2={x(endI)}
             y2={y(projectedEnd)}
-            style={{ stroke: projectedEnd < 0 ? 'var(--bad)' : 'var(--gold)' }}
+            style={{ stroke: projectedEnd < 0 ? 'var(--bad)' : 'var(--fg)' }}
             stroke-opacity="0.7"
             stroke-width="2"
             stroke-dasharray="1 5"
@@ -107,7 +107,7 @@ export function BurnDown({
             x={x(lastI)}
             y={height - 4}
             text-anchor="middle"
-            style={{ fill: 'var(--fg)', fontWeight: 700 }}
+            style={{ fill: 'var(--gold-ink)', fontWeight: 700 }}
           >
             Today
           </text>

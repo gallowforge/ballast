@@ -2,8 +2,8 @@
 import { ClientRouter } from 'astro:transitions';
 import '@/styles/global.css';
 import { SITE, url } from '@/lib/site';
-import manrope from '../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
-import fraunces from '../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-opsz-normal.woff2?url';
+import sans from '../../node_modules/@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
+import serif from '../../node_modules/@fontsource-variable/newsreader/files/newsreader-latin-opsz-normal.woff2?url';
 
 interface Props {
   title?: string;
@@ -18,7 +18,7 @@ const og = new URL(url('og.png'), Astro.site);
 ---
 
 <!doctype html>
-<html lang="en" data-section={section} data-theme="dark">
+<html lang="en" data-section={section} data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -27,14 +27,14 @@ const og = new URL(url('og.png'), Astro.site);
       content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
     />
     <meta name="referrer" content="no-referrer" />
-    <link rel="preload" href={manrope} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={fraunces} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={sans} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={serif} as="font" type="font/woff2" crossorigin />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#1b1712" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#f2ecdf" />
+    <meta name="color-scheme" content="light dark" />
     <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
     <link rel="icon" href={url('favicon.ico')} sizes="32x32" />
     <link rel="apple-touch-icon" href={url('icons/apple-touch-icon.png')} />
@@ -60,7 +60,7 @@ const og = new URL(url('og.png'), Astro.site);
           document.documentElement.dataset.theme = dark ? 'dark' : 'light';
           document
             .querySelector('meta[name="theme-color"]')
-            ?.setAttribute('content', dark ? '#1b1712' : '#fbf8f1');
+            ?.setAttribute('content', dark ? '#121d18' : '#f2ecdf');
         };
         apply();
         document.addEventListener('astro:after-swap', apply);
@@ -70,7 +70,6 @@ const og = new URL(url('og.png'), Astro.site);
     <ClientRouter fallback="swap" />
   </head>
   <body>
-    <div class="ambient" aria-hidden="true"></div>
     <slot />
   </body>
 </html>

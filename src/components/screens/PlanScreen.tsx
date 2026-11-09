@@ -21,7 +21,7 @@ import { apply, undo } from '@/lib/store/store';
 import { toast } from '@/lib/bus';
 import { currency } from '@/lib/money/currency';
 import { url } from '@/lib/site';
-import { BudgetRow, SectionTitle, UpcomingRow } from '../parts/parts';
+import { BudgetRow, SectionTitle, Swatch, UpcomingRow } from '../parts/parts';
 import {
   AmountInput,
   CategoryTile,
@@ -63,94 +63,68 @@ export default function PlanScreen() {
   const soon = upcoming(data, today, addDays(today, 30));
 
   return (
-    <div class="grid grid-cols-1 gap-6">
-      <section
-        class="card card-pad card-glow animate-rise"
-        aria-labelledby="salary-title"
-        id="salary"
-      >
-        <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="grid grid-cols-1 gap-14">
+      <section class="animate-rise" aria-labelledby="salary-title" id="salary">
+        <div class="grid gap-8 lg:grid-cols-[auto_1fr] lg:items-end lg:gap-14">
           <div>
-            <h2 id="salary-title" class="eyebrow">
+            <h2 id="salary-title" class="caps">
               Your salary
             </h2>
             {s?.active ? (
-              <>
-                <p class="display mt-3 text-[2.6rem]">
-                  <Money value={s.amount} code={base} count />
-                </p>
-                <p class="text-muted mt-2">
-                  on the {ordinal(data.settings.cycleDay)} of each month, from{' '}
-                  {accounts.get(s.fromAccountId)?.name ?? 'savings'} to{' '}
-                  {accounts.get(s.toAccountId)?.name ?? 'spending'}
-                  {s.autoPost ? ', moved automatically.' : '. You move it yourself.'}
-                </p>
-              </>
-            ) : (
-              <p class="text-muted mt-2 max-w-xl">
-                Pay yourself a fixed amount from savings each month. Your month is then planned
-                around it, and the runway shows how long it lasts.
+              <p class="figure mt-3 text-[4.4rem] sm:text-[5.6rem]">
+                <Money value={s.amount} code={base} count />
               </p>
+            ) : (
+              <p class="serif mt-3 max-w-[30ch] text-[1.6rem] leading-snug">Pay yourself a fixed amount from your savings each month.</p>
             )}
           </div>
-          <button
-            type="button"
-            class={`btn ${s?.active ? 'btn-soft' : 'btn-gold'}`}
-            onClick={() => setSalaryOpen(true)}
-          >
-            <Icon name={s?.active ? 'edit' : 'plus'} size={17} />{' '}
-            {s?.active ? 'Change' : 'Set a salary'}
-          </button>
+          <div class="pb-2">
+            <p class="serif text-[1.2rem] leading-snug text-muted italic">
+              {s?.active
+                ? `On the ${ordinal(data.settings.cycleDay)} of every month, from ${accounts.get(s.fromAccountId)?.name ?? 'savings'} to ${accounts.get(s.toAccountId)?.name ?? 'spending'}${s.autoPost ? ', moved for you.' : '. You move it yourself.'}`
+                : 'The month is then planned around it, and the runway shows how far it carries you.'}
+            </p>
+            <button type="button" class={`btn ${s?.active ? 'btn-soft' : 'btn-primary'} btn-sm mt-4`} onClick={() => setSalaryOpen(true)}>
+              {s?.active ? 'Change the salary' : 'Set a salary'}
+            </button>
+          </div>
         </div>
         {s?.active && (
-          <div class="mt-5 grid gap-3">
-            <div class="flex justify-between text-sm font-semibold">
-              <span class="text-muted">Budgets and fixed costs take</span>
-              <span>
-                <Money value={committed} code={base} /> of <Money value={s.amount} code={base} />
-              </span>
-            </div>
+          <div class="mt-8">
             <div
-              class="bar h-3"
+              class="relative flex h-10 w-full overflow-hidden rounded-[3px] bg-sunken"
               role="meter"
-              aria-label="Share of the salary planned"
+              aria-label={`Of your ${formatMoney(s.amount, base)} salary, fixed costs take ${formatMoney(fixed, base)} and budgets ${formatMoney(committed - fixed, base)}`}
               aria-valuemin={0}
               aria-valuemax={s.amount}
               aria-valuenow={Math.min(committed, s.amount)}
             >
-              <span
-                style={{
-                  width: `${Math.min(100, (fixed / s.amount) * 100)}%`,
-                  background: 'oklch(70% 0.12 290)',
-                }}
-              />
-              <span
-                style={{
-                  left: `${Math.min(100, (fixed / s.amount) * 100)}%`,
-                  width: `${Math.max(0, Math.min(100 - (fixed / s.amount) * 100, ((committed - fixed) / s.amount) * 100))}%`,
-                  animationDelay: '.15s',
-                }}
-              />
+              <span class="h-full border-r-2 border-bg" style={{ width: `${Math.min(100, (fixed / s.amount) * 100)}%`, background: 'repeating-linear-gradient(135deg, var(--gold) 0 6px, color-mix(in oklab, var(--gold) 70%, var(--bg)) 6px 12px)' }} />
+              <span class="h-full bg-fg" style={{ width: `${Math.max(0, Math.min(100 - (fixed / s.amount) * 100, ((committed - fixed) / s.amount) * 100))}%` }} />
             </div>
-            <div class="text-subtle flex flex-wrap gap-x-5 gap-y-1 text-xs font-semibold">
-              <span class="inline-flex items-center gap-1.5">
-                <i class="size-2.5 rounded-full" style={{ background: 'oklch(70% 0.12 290)' }} />{' '}
-                Fixed costs {formatMoney(fixed, base)}
-              </span>
-              <span class="inline-flex items-center gap-1.5">
-                <i class="bg-gold size-2.5 rounded-full" /> Budgets{' '}
-                {formatMoney(committed - fixed, base)}
-              </span>
-              <span>
-                {committed <= s.amount
-                  ? `${formatMoney(s.amount - committed, base)} unplanned`
-                  : `${formatMoney(committed - s.amount, base)} over the salary`}
-              </span>
-            </div>
+            <dl class="mt-3 grid gap-x-10 gap-y-1 text-sm sm:grid-cols-3">
+              <div class="flex items-baseline justify-between gap-3 border-b border-line py-2">
+                <dt class="flex items-center gap-2">
+                  <i class="size-2.5 bg-gold" /> Fixed costs
+                </dt>
+                <dd><Money value={fixed} code={base} class="text-[1.05rem]" /></dd>
+              </div>
+              <div class="flex items-baseline justify-between gap-3 border-b border-line py-2">
+                <dt class="flex items-center gap-2">
+                  <i class="size-2.5 bg-fg" /> Budgets
+                </dt>
+                <dd><Money value={committed - fixed} code={base} class="text-[1.05rem]" /></dd>
+              </div>
+              <div class="flex items-baseline justify-between gap-3 border-b border-line py-2">
+                <dt class="flex items-center gap-2">
+                  <i class="size-2.5 border border-line-strong" /> {committed <= s.amount ? 'Left unplanned' : 'Over the salary'}
+                </dt>
+                <dd><Money value={Math.abs(s.amount - committed)} code={base} class={`text-[1.05rem] ${committed > s.amount ? 'text-bad' : ''}`} /></dd>
+              </div>
+            </dl>
             {r?.target?.sustainable != null && (
-              <p class="text-muted text-sm">
-                To reach “{r.target.label}” on {formatLong(r.target.date)}, the most you can pay
-                yourself is{' '}
+              <p class="mt-4 text-sm text-muted">
+                To reach “{r.target.label}” on {formatLong(r.target.date)}, you could pay yourself up to{' '}
                 <a href={url('runway/')} class="link">
                   {formatMoney(r.target.sustainable, base)} a month
                 </a>
@@ -161,215 +135,125 @@ export default function PlanScreen() {
         )}
       </section>
 
-      <section
-        class="animate-rise"
-        aria-labelledby="budgets-title"
-        id="budgets"
-        style={{ animationDelay: '60ms' }}
-      >
-        <div class="card card-pad">
-          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 id="budgets-title" class="text-lg font-bold">
-                Budgets
-              </h2>
-              <p class="text-muted text-sm">
-                {data.budgets.length
-                  ? `${formatMoney(totals.spent, base)} spent of ${formatMoney(totals.budgeted, base)} this month. ${totals.unbudgeted ? `${formatMoney(totals.unbudgeted, base)} went on things without a budget.` : ''}`
-                  : 'A limit for the things that drift. The line on each bar is where an even pace would be today.'}
-              </p>
-            </div>
-            <button type="button" class="btn btn-soft btn-sm" onClick={() => setBudgetFor('')}>
-              <Icon name="plus" size={16} /> Add a budget
-            </button>
+      <section class="animate-rise" aria-labelledby="budgets-title" id="budgets" style={{ animationDelay: '60ms' }}>
+        <SectionTitle id="budgets-title" title="Budgets">
+          <button type="button" class="link ml-auto text-sm" onClick={() => setBudgetFor('')}>
+            Draw a new line
+          </button>
+        </SectionTitle>
+        <p class="mt-2 text-sm text-subtle">
+          {data.budgets.length
+            ? `${formatMoney(totals.spent, base)} spent of ${formatMoney(totals.budgeted, base)} this month.${totals.unbudgeted ? ` Another ${formatMoney(totals.unbudgeted, base)} went on things with no line.` : ''} The brass tick is where an even pace would be today.`
+            : 'A line for the things that drift. Ledger suggests one from your last three months.'}
+        </p>
+        {states.length ? (
+          <div class="mt-2 grid gap-x-12 md:grid-cols-2">
+            {states.map((b) => (
+              <button type="button" key={b.budget.categoryId} class="border-b border-line text-left transition hover:bg-sunken/50" onClick={() => setBudgetFor(b.budget.categoryId)}>
+                <BudgetRow b={b} cat={cats.get(b.budget.categoryId)} code={base} />
+                {b.carry !== 0 && <p class="-mt-2 pb-2 text-xs text-subtle">Includes {formatMoney(b.carry, base, { sign: 'always' })} rolled over</p>}
+              </button>
+            ))}
           </div>
-          {states.length ? (
-            <div class="grid gap-x-10 gap-y-6 md:grid-cols-2">
-              {states.map((b) => (
-                <button
-                  type="button"
-                  key={b.budget.categoryId}
-                  class="hover:bg-sunken -m-2 rounded-2xl p-2 text-left transition"
-                  onClick={() => setBudgetFor(b.budget.categoryId)}
-                >
-                  <BudgetRow b={b} cat={cats.get(b.budget.categoryId)} code={base} />
-                  {b.carry !== 0 && (
-                    <p class="text-subtle mt-1 text-xs">
-                      Includes {formatMoney(b.carry, base, { sign: 'always' })} rolled over
-                    </p>
-                  )}
-                </button>
-              ))}
-            </div>
-          ) : (
-            <Empty
-              icon="plan"
-              title="No budgets yet"
-              body="Pick a category and a monthly amount. Ledger suggests one from your last three months."
-            />
-          )}
-        </div>
+        ) : (
+          <Empty title="No lines drawn yet." body="Pick a category and a monthly amount, like 25 KD for eating out. Ledger keeps an eye on the pace for you." />
+        )}
       </section>
 
-      <section
-        class="grid gap-6 lg:grid-cols-[1.5fr_1fr]"
-        aria-labelledby="rec-title"
-        id="recurring"
-      >
-        <div class="card card-pad animate-rise" style={{ animationDelay: '120ms' }}>
-          <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 id="rec-title" class="text-lg font-bold">
-                Recurring
-              </h2>
-              <p class="text-muted text-sm">
-                Bills, subscriptions and regular income.{' '}
-                {fixed ? `Costs from your salary come to ${formatMoney(fixed, base)} a month.` : ''}
-              </p>
-            </div>
-            <button type="button" class="btn btn-soft btn-sm" onClick={() => setRecurring('new')}>
-              <Icon name="plus" size={16} /> Add
+      <div class="grid grid-cols-1 gap-12 lg:grid-cols-[1.5fr_1fr] lg:gap-14" id="recurring">
+        <section class="animate-rise" aria-labelledby="rec-title" style={{ animationDelay: '120ms' }}>
+          <SectionTitle id="rec-title" title="What repeats">
+            <button type="button" class="link ml-auto text-sm" onClick={() => setRecurring('new')}>
+              Add one
             </button>
-          </div>
+          </SectionTitle>
+          <p class="mt-2 text-sm text-subtle">Bills, subscriptions and regular income.{fixed ? ` The costs from your salary come to ${formatMoney(fixed, base)} a month.` : ''}</p>
           {data.recurring.length ? (
-            <div class="divide">
+            <div class="mt-1">
               {[...data.recurring]
                 .sort((a, b) => ((nextDue(a, today) ?? '9') < (nextDue(b, today) ?? '9') ? -1 : 1))
                 .map((r) => {
                   const next = nextDue(r, today);
                   const code = accounts.get(r.accountId)?.currency ?? base;
                   return (
-                    <button
-                      type="button"
-                      key={r.id}
-                      class="row-link"
-                      onClick={() => setRecurring(r)}
-                    >
-                      <CategoryTile category={r.categoryId ? cats.get(r.categoryId) : null} />
+                    <button type="button" key={r.id} class="row-link items-baseline" onClick={() => setRecurring(r)}>
+                      <span class="caps w-16 flex-none">{next ? formatShort(next, today) : 'ended'}</span>
                       <span class="min-w-0 flex-1">
-                        <span class="block truncate font-semibold">{r.name}</span>
-                        <span class="text-subtle block truncate text-sm">
+                        <span class="flex items-center gap-2 truncate font-bold">
+                          <Swatch category={r.categoryId ? cats.get(r.categoryId) : null} />
+                          {r.name}
+                        </span>
+                        <span class="block truncate text-[0.82rem] text-subtle">
                           {describeCadence(r)}
-                          {next ? ` · next ${formatShort(next, today)}` : ' · ended'}
-                          {r.autoPost ? ' · automatic' : ''}
-                          {accounts.get(r.accountId)?.role === 'savings' ? ' · from savings' : ''}
+                          {r.autoPost ? ', recorded for you' : ', you tick it off'}
+                          {accounts.get(r.accountId)?.role === 'savings' ? ', from savings' : ''}
                         </span>
                       </span>
                       <span class="text-right">
-                        <Money
-                          value={r.kind === 'income' ? r.amount : -r.amount}
-                          code={code}
-                          sign={r.kind === 'income' ? 'always' : 'auto'}
-                          tone={r.kind === 'income' ? 'income' : 'none'}
-                          class="font-bold"
-                        />
-                        {r.unit !== 'month' && (
-                          <span class="text-subtle block text-xs">
-                            {formatMoney(monthlyEquivalent(r), code)} a month
-                          </span>
-                        )}
+                        <Money value={r.kind === 'income' ? r.amount : -r.amount} code={code} sign={r.kind === 'income' ? 'always' : 'auto'} tone={r.kind === 'income' ? 'income' : 'none'} class="text-[1.1rem]" />
+                        {r.unit !== 'month' && <span class="block text-xs text-subtle">{formatMoney(monthlyEquivalent(r), code)} a month</span>}
                       </span>
                     </button>
                   );
                 })}
             </div>
           ) : (
-            <Empty
-              icon="repeat"
-              title="Nothing recurring yet"
-              body="Add rent, phone, subscriptions and regular income. They show up before they are due, and safe-to-spend keeps them aside."
-            />
+            <Empty title="Nothing repeats yet." body="Add rent, phone, subscriptions and regular income. They show up before they are due, and safe-to-spend keeps them aside." />
           )}
           {suggestions.length > 0 && (
-            <div class="border-line-strong mt-5 rounded-2xl border border-dashed p-4">
-              <h3 class="font-bold">Spotted in your history</h3>
-              <div class="divide mt-2">
-                {suggestions.slice(0, 4).map((sg) => (
-                  <div key={sg.key} class="flex items-center gap-3 py-2.5">
-                    <CategoryTile
-                      category={sg.categoryId ? cats.get(sg.categoryId) : null}
-                      size="sm"
-                    />
-                    <div class="min-w-0 flex-1">
-                      <div class="truncate font-semibold">{sg.payee}</div>
-                      <div class="text-subtle text-sm">
-                        {formatMoney(sg.amount, accounts.get(sg.accountId)?.currency ?? base)}{' '}
-                        {sg.unit === 'month' ? 'monthly' : sg.unit === 'week' ? 'weekly' : 'yearly'}{' '}
-                        · seen {plural(sg.count, 'time')}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      class="btn btn-soft btn-sm"
-                      onClick={() => {
-                        apply(
-                          addRecurring({
-                            name: sg.payee,
-                            kind: 'expense',
-                            amount: sg.amount,
-                            accountId: sg.accountId,
-                            categoryId: sg.categoryId,
-                            every: 1,
-                            unit: sg.unit,
-                            startOn: sg.last,
-                            autoPost: false,
-                            lastPostedOn: sg.last,
-                          }),
-                          'Track',
-                        );
-                        toast({
-                          message: `Tracking ${sg.payee}`,
-                          tone: 'good',
-                          action: { label: 'Undo', run: () => undo() },
-                        });
-                      }}
-                    >
-                      Track
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-        <div class="card card-pad animate-rise self-start" style={{ animationDelay: '160ms' }}>
-          <SectionTitle title="Next 30 days" />
-          {soon.length ? (
-            <div class="divide">
-              {soon.slice(0, 8).map((u) => (
-                <div key={u.recurring.id + u.date} class="flex items-center gap-2">
+            <div class="mt-8 border-l-2 border-gold pl-4">
+              <p class="caps text-gold-ink">Spotted in your history</p>
+              {suggestions.slice(0, 4).map((sg) => (
+                <div key={sg.key} class="flex items-baseline gap-3 border-b border-line py-2.5">
+                  <Swatch category={sg.categoryId ? cats.get(sg.categoryId) : null} />
                   <div class="min-w-0 flex-1">
-                    <UpcomingRow
-                      u={u}
-                      cat={u.recurring.categoryId ? cats.get(u.recurring.categoryId) : undefined}
-                      code={accounts.get(u.recurring.accountId)?.currency ?? base}
-                      today={today}
-                    />
+                    <div class="truncate font-bold">{sg.payee}</div>
+                    <div class="text-[0.82rem] text-subtle">
+                      {formatMoney(sg.amount, accounts.get(sg.accountId)?.currency ?? base)} {sg.unit === 'month' ? 'monthly' : sg.unit === 'week' ? 'weekly' : 'yearly'}, seen {plural(sg.count, 'time')}
+                    </div>
                   </div>
-                  {!u.recurring.autoPost && u.date <= today && (
-                    <button
-                      type="button"
-                      class="btn btn-soft btn-sm"
-                      onClick={() => (
-                        apply(payRecurring(data, u.recurring.id, u.date), 'Pay'),
-                        toast({
-                          message: `Recorded ${u.recurring.name}`,
-                          tone: 'good',
-                          action: { label: 'Undo', run: () => undo() },
-                        })
-                      )}
-                    >
-                      Paid
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    class="link text-sm"
+                    onClick={() => {
+                      apply(
+                        addRecurring({ name: sg.payee, kind: 'expense', amount: sg.amount, accountId: sg.accountId, categoryId: sg.categoryId, every: 1, unit: sg.unit, startOn: sg.last, autoPost: false, lastPostedOn: sg.last }),
+                        'Track',
+                      );
+                      toast({ message: `${sg.payee} is on the list now. You'll see it coming.`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
+                    }}
+                  >
+                    Keep track
+                  </button>
                 </div>
               ))}
             </div>
-          ) : (
-            <p class="text-muted text-sm">Nothing due.</p>
           )}
-        </div>
-      </section>
+        </section>
+        <section class="animate-rise self-start" aria-labelledby="next-title" style={{ animationDelay: '160ms' }}>
+          <SectionTitle id="next-title" title="The next 30 days" />
+          {soon.length ? (
+            soon.slice(0, 8).map((u) => (
+              <div key={u.recurring.id + u.date} class="flex items-center gap-2">
+                <div class="min-w-0 flex-1">
+                  <UpcomingRow u={u} cat={u.recurring.categoryId ? cats.get(u.recurring.categoryId) : undefined} code={accounts.get(u.recurring.accountId)?.currency ?? base} today={today} />
+                </div>
+                {!u.recurring.autoPost && u.date <= today && (
+                  <button
+                    type="button"
+                    class="link text-sm"
+                    onClick={() => (apply(payRecurring(data, u.recurring.id, u.date), 'Pay'), toast({ message: `Ticked off: ${u.recurring.name}`, tone: 'good', action: { label: 'Undo', run: () => undo() } }))}
+                  >
+                    Paid
+                  </button>
+                )}
+              </div>
+            ))
+          ) : (
+            <p class="mt-4 text-muted">Nothing due. A quiet month ahead.</p>
+          )}
+        </section>
+      </div>
 
       <SalarySheet
         open={salaryOpen}
@@ -448,7 +332,7 @@ function SalarySheet({
           <button type="button" class="btn btn-ghost mr-auto" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" class="btn btn-gold" disabled={!ok} onClick={save}>
+          <button type="button" class="btn btn-primary" disabled={!ok} onClick={save}>
             <Icon name="check" size={18} /> Save
           </button>
         </>
@@ -592,7 +476,7 @@ function BudgetSheet({
           )}
           <button
             type="button"
-            class="btn btn-gold"
+            class="btn btn-primary"
             disabled={!value || !cat}
             onClick={() => {
               apply(setBudget(cat, value!, rollover, today), 'Budget');
@@ -768,7 +652,7 @@ function RecurringSheet({
               <Icon name="trash" size={17} /> Remove
             </button>
           )}
-          <button type="button" class="btn btn-gold" disabled={!ok} onClick={save}>
+          <button type="button" class="btn btn-primary" disabled={!ok} onClick={save}>
             <Icon name="check" size={18} /> Save
           </button>
         </>

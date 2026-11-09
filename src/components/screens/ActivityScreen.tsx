@@ -130,8 +130,8 @@ export default function ActivityScreen() {
   };
 
   return (
-    <div class="grid grid-cols-1 gap-4">
-      <div class="card card-pad animate-rise grid gap-4">
+    <div class="grid grid-cols-1 gap-8">
+      <div class="animate-rise grid gap-4">
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative min-w-[14rem] flex-1">
             <Icon
@@ -224,7 +224,7 @@ export default function ActivityScreen() {
 
       {selecting && picked.size > 0 && (
         <div
-          class="card animate-pop sticky top-[4.5rem] z-10 flex flex-wrap items-center gap-2 px-4 py-3"
+          class="bg-raised border-fg animate-pop sticky top-[4.5rem] z-10 flex flex-wrap items-center gap-2 border-y-2 px-1 py-3"
           role="region"
           aria-label="Selected transactions"
         >
@@ -251,15 +251,15 @@ export default function ActivityScreen() {
       )}
 
       {groups.length === 0 ? (
-        <div class="card">
+        <div>
           {data.txns.length === 0 ? (
             <Empty
               level={2}
               icon="activity"
-              title="No transactions yet"
-              body="Add one with the + button or press N. Or import a bank statement to bring in months at once."
+              title="A clean page."
+              body="Nothing written here yet. Add what you spend with the + button (or press N), or bring in a bank statement and the past months fill in at once."
             >
-              <button type="button" class="btn btn-gold btn-sm" onClick={() => openTxn()}>
+              <button type="button" class="btn btn-primary btn-sm" onClick={() => openTxn()}>
                 <Icon name="plus" size={16} /> Add a transaction
               </button>
               <a class="btn btn-soft btn-sm" href={url('import/')}>
@@ -270,30 +270,30 @@ export default function ActivityScreen() {
             <Empty
               level={2}
               icon="search"
-              title="Nothing matches"
+              title="Nothing matches that."
               body={
                 searching
-                  ? `No transaction mentions “${query}”.`
-                  : 'Nothing here for this month and filter.'
+                  ? `No payee, note or category mentions “${query}”. Try fewer letters.`
+                  : 'This month has nothing of that kind. Try another month or filter.'
               }
             />
           )}
         </div>
       ) : (
-        <div class="grid gap-4">
+        <div class="grid gap-9">
           {groups.map((g, gi) => (
             <section
               key={g.date}
-              class="card card-pad animate-row"
+              class="animate-row"
               style={{ animationDelay: `${Math.min(gi, 8) * 35}ms` }}
               aria-label={formatDay(g.date)}
             >
-              <div class="mb-1 flex items-baseline justify-between">
-                <h2 class="text-sm font-bold">
+              <div class="border-fg flex items-baseline justify-between border-b-2 pb-1.5">
+                <h2 class="serif text-[1.3rem] font-[480]">
                   {/^[A-Z][a-z]+$/.test(formatRelative(g.date, today)) ? (
                     <>
                       {formatRelative(g.date, today)}
-                      <span class="text-subtle ml-2 font-semibold">{formatDay(g.date)}</span>
+                      <span class="caps ml-3 align-middle">{formatDay(g.date)}</span>
                     </>
                   ) : (
                     formatDay(g.date)

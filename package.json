@@ -29,8 +29,8 @@
   "dependencies": {
     "@astrojs/preact": "^6.1.2",
     "@astrojs/sitemap": "^3.7.4",
-    "@fontsource-variable/fraunces": "^5.3.0",
-    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
     "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.7",
     "pdfjs-dist": "^6.5.438",

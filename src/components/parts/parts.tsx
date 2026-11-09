@@ -1,6 +1,16 @@
+import type { ComponentChildren } from 'preact';
 import { navigate } from 'astro:transitions/client';
 import { openTxn, toast } from '@/lib/bus';
-import { formatIn, formatRelative, formatShort } from '@/lib/dates';
+import { diffDays, formatIn, formatShort, formatWeekday } from '@/lib/dates';
+
+/** A date for the narrow ledger column: Today, Yest., Thu, or 4 Nov. */
+function shortDay(date: string, today: string): string {
+  const n = diffDays(today, date);
+  if (n === 0) return 'Today';
+  if (n === -1) return 'Yest.';
+  if (n < 0 && n > -7) return formatWeekday(date, true);
+  return formatShort(date, today);
+}
 import { formatMoney } from '@/lib/money/money';
 import type { BudgetState } from '@/lib/calc/budgets';
 import type { Insight } from '@/lib/calc/insights';
@@ -9,29 +19,27 @@ import type { Account, Category, LedgerData, Txn } from '@/lib/model';
 import { addRecurring, dismiss } from '@/lib/store/ops';
 import { apply, undo } from '@/lib/store/store';
 import { url } from '@/lib/site';
-import { CategoryTile } from '../ui/Controls';
 import { Icon } from '../ui/Icon';
 import { Money } from '../ui/Money';
 
-export function SectionTitle({
-  title,
-  href,
-  link,
-  id,
-}: {
-  title: string;
-  href?: string;
-  link?: string;
-  id?: string;
-}) {
+export const catColor = (c?: Category | null) => (c ? `oklch(var(--cat-l) 0.1 ${c.hue})` : 'var(--subtle)');
+
+/** A category as ledgers mark it: a small square of its colour. */
+export function Swatch({ category }: { category?: Category | null }) {
+  return <span class="swatch" style={{ '--tile': catColor(category) }} aria-hidden="true" />;
+}
+
+/** A section heading sitting on a heavy rule, like a ledger page head. */
+export function SectionTitle({ title, href, link, id, children }: { title: string; href?: string; link?: string; id?: string; children?: ComponentChildren }) {
   return (
-    <div class="mb-3 flex items-center justify-between gap-3">
-      <h2 id={id} class="text-[0.95rem] font-bold tracking-tight">
+    <div class="mb-1 flex items-baseline justify-between gap-3 border-b-2 border-fg pb-2">
+      <h2 id={id} class="serif text-[1.45rem] leading-tight font-[480]">
         {title}
       </h2>
+      {children}
       {href && (
-        <a href={url(href)} class="link inline-flex items-center gap-1 text-sm">
-          {link ?? 'See all'} <Icon name="arrow-right" size={15} />
+        <a href={url(href)} class="link text-sm">
+          {link ?? 'See all'}
         </a>
       )}
     </div>
@@ -59,26 +67,16 @@ export function TxnRow({
   const to = t.toAccountId ? accounts.get(t.toAccountId) : null;
   const meta =
     t.kind === 'transfer'
-      ? `${acct?.name ?? 'Account'} → ${to?.name ?? 'Account'}`
-      : [cat?.name ?? 'Uncategorised', acct && acct.role !== 'spending' ? acct.name : null]
-          .filter(Boolean)
-          .join(' · ');
+      ? `${acct?.name ?? 'Account'} to ${to?.name ?? 'account'}`
+      : [cat?.name ?? 'Needs a category', acct && acct.role !== 'spending' ? acct.name : null].filter(Boolean).join(' · ');
   return (
     <button type="button" class="row-link" onClick={() => openTxn({ id: t.id })}>
-      {t.kind === 'transfer' ? (
-        <span class="tile" style={{ '--tile': 'var(--subtle)' }} aria-hidden="true">
-          <Icon name="swap" size={19} />
-        </span>
-      ) : (
-        <CategoryTile category={cat} />
-      )}
+      {showDate && <span class="caps hidden w-14 flex-none sm:block">{shortDay(t.date, today)}</span>}
       <span class="min-w-0 flex-1">
-        <span class="block truncate font-semibold">{t.payee || 'Untitled'}</span>
-        <span
-          class={`block truncate text-sm ${!cat && t.kind !== 'transfer' ? 'text-warn' : 'text-subtle'}`}
-        >
-          {showDate ? `${formatRelative(t.date, today)} · ` : ''}
-          {meta}
+        <span class="block truncate font-bold">{t.payee || 'Untitled'}</span>
+        <span class={`mt-0.5 flex items-center gap-2 text-[0.82rem] ${!cat && t.kind !== 'transfer' ? 'text-warn' : 'text-subtle'}`}>
+          {t.kind === 'transfer' ? <Icon name="swap" size={13} /> : <Swatch category={cat} />}
+          <span class="truncate">{meta}</span>
         </span>
       </span>
       <span class="text-right">
@@ -87,33 +85,26 @@ export function TxnRow({
           code={code}
           sign={t.kind === 'income' ? 'always' : t.kind === 'transfer' ? 'never' : 'auto'}
           tone={t.kind === 'income' ? 'income' : 'none'}
-          class="font-bold"
+          class="text-[1.12rem]"
         />
-        {t.original && (
-          <span class="text-subtle block text-xs">
-            {formatMoney(t.original.amount, t.original.currency)}
-          </span>
-        )}
-        {code !== data.settings.base && !t.original && (
-          <span class="text-subtle block text-xs">{formatMoney(t.base, data.settings.base)}</span>
-        )}
+        {t.original && <span class="block text-xs text-subtle">{formatMoney(t.original.amount, t.original.currency)}</span>}
+        {code !== data.settings.base && !t.original && <span class="block text-xs text-subtle">{formatMoney(t.base, data.settings.base)}</span>}
       </span>
     </button>
   );
 }
 
+/** A budget as a ledger line: spent against the line, a brass tick where an even pace is today. */
 export function BudgetRow({ b, cat, code }: { b: BudgetState; cat?: Category; code: string }) {
   const pct = Math.min(1, b.used === Infinity ? 1 : b.used);
-  const colour =
-    b.status === 'over' ? 'var(--bad)' : b.status === 'ahead' ? 'var(--warn)' : 'var(--gold)';
+  const colour = b.status === 'over' ? 'var(--bad)' : b.status === 'ahead' ? 'var(--warn)' : 'var(--fg)';
   return (
-    <div class="grid gap-2">
-      <div class="flex items-center gap-3">
-        <CategoryTile category={cat} size="sm" />
-        <span class="min-w-0 flex-1 truncate font-semibold">{cat?.name ?? 'Category'}</span>
-        <span class="text-muted text-sm">
-          <Money value={b.spent} code={code} class="text-fg font-bold" /> of{' '}
-          <Money value={b.available} code={code} />
+    <div class="grid gap-2 py-3">
+      <div class="flex items-baseline gap-3">
+        <Swatch category={cat} />
+        <span class="min-w-0 flex-1 truncate font-bold">{cat?.name ?? 'Category'}</span>
+        <span class="text-sm text-subtle">
+          <Money value={b.spent} code={code} unit={false} class="text-[1.08rem] text-fg" /> of <Money value={b.available} code={code} />
         </span>
       </div>
       <div
@@ -125,69 +116,47 @@ export function BudgetRow({ b, cat, code }: { b: BudgetState; cat?: Category; co
         aria-valuenow={Math.min(b.spent, b.available)}
       >
         <span style={{ width: `${pct * 100}%`, background: colour }} />
-        <i
-          class="bg-fg/60 absolute top-[-3px] bottom-[-3px] w-0.5 rounded"
-          style={{ left: `${b.elapsed * 100}%` }}
-          title="Where an even pace would be today"
-        />
+        <i class="absolute -top-1.5 -bottom-1.5 w-[2px] bg-gold" style={{ left: `${b.elapsed * 100}%` }} title="Where an even pace would be today" />
       </div>
-      <div class="text-subtle flex justify-between text-xs font-semibold">
-        <span class={b.status === 'over' ? 'text-bad' : b.status === 'ahead' ? 'text-warn' : ''}>
-          {b.status === 'over'
-            ? `${formatMoney(-b.left, code)} over`
-            : b.status === 'ahead'
-              ? 'Ahead of pace'
-              : b.status === 'idle'
-                ? 'Nothing spent yet'
-                : 'On pace'}
+      <div class="flex justify-between gap-3 text-[0.8rem] text-subtle">
+        <span class={b.status === 'over' ? 'font-bold text-bad' : b.status === 'ahead' ? 'font-bold text-warn' : ''}>
+          {b.status === 'over' ? `${formatMoney(-b.left, code)} past the line` : b.status === 'ahead' ? 'A little ahead of pace' : b.status === 'idle' ? 'Nothing yet' : 'On pace'}
         </span>
-        <span>
-          {b.left > 0
-            ? `${formatMoney(b.left, code)} left · ${formatMoney(b.perDayLeft, code)} a day`
-            : 'Nothing left this month'}
-        </span>
+        <span>{b.left > 0 ? `${formatMoney(b.perDayLeft, code)} a day left` : 'Nothing left this month'}</span>
       </div>
     </div>
   );
 }
 
-export function UpcomingRow({
-  u,
-  cat,
-  code,
-  today,
-}: {
-  u: Upcoming;
-  cat?: Category;
-  code: string;
-  today: string;
-}) {
+export function UpcomingRow({ u, cat, code, today }: { u: Upcoming; cat?: Category; code: string; today: string }) {
   return (
-    <div class="flex items-center gap-3 py-2.5">
-      <CategoryTile category={cat} size="sm" />
+    <div class="flex items-baseline gap-4 border-b border-line py-3">
+      <span class="caps w-14 flex-none">{formatShort(u.date, today)}</span>
       <div class="min-w-0 flex-1">
-        <div class="truncate font-semibold">{u.recurring.name}</div>
-        <div class="text-subtle text-sm">
-          {formatShort(u.date, today)} · {formatIn(u.date, today)}
+        <div class="flex items-center gap-2 truncate font-bold">
+          <Swatch category={cat} />
+          {u.recurring.name}
         </div>
+        <div class="text-[0.8rem] text-subtle">{formatIn(u.date, today)}</div>
       </div>
       <Money
         value={u.recurring.kind === 'income' ? u.recurring.amount : -u.recurring.amount}
         code={code}
         sign={u.recurring.kind === 'income' ? 'always' : 'auto'}
         tone={u.recurring.kind === 'income' ? 'income' : 'none'}
-        class="font-bold"
+        class="text-[1.08rem]"
       />
     </div>
   );
 }
 
-const TONE: Record<Insight['tone'], string> = {
-  good: 'var(--good)',
-  neutral: 'var(--gold)',
-  warn: 'var(--warn)',
+const TONE: Record<Insight['tone'], { label: string; cls: string }> = {
+  good: { label: 'Good news', cls: 'text-good' },
+  neutral: { label: 'Worth knowing', cls: 'text-gold-ink' },
+  warn: { label: 'Heads up', cls: 'text-warn' },
 };
 
+/** An observation, written like a note in the margin of the ledger. */
 export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
   const act = () => {
     const a = i.action;
@@ -209,34 +178,23 @@ export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
       }),
       'Track recurring',
     );
-    toast({
-      message: `Tracking ${s.payee} ${s.unit === 'month' ? 'monthly' : s.unit === 'week' ? 'weekly' : 'yearly'}`,
-      tone: 'good',
-      action: { label: 'Undo', run: () => undo() },
-    });
+    toast({ message: `${s.payee} is on the list now. You'll see it coming.`, tone: 'good', action: { label: 'Undo', run: () => undo() } });
   };
+  const tone = TONE[i.tone];
   return (
-    <article class={`flex gap-3.5 ${compact ? '' : 'card card-pad'}`}>
-      <span class="tile" style={{ '--tile': TONE[i.tone] }} aria-hidden="true">
-        <Icon name={i.icon} size={19} />
-      </span>
-      <div class="min-w-0 flex-1">
-        <h3 class="leading-snug font-bold">{i.title}</h3>
-        <p class="text-muted mt-1 text-sm">{i.body}</p>
-        <div class="mt-2.5 flex flex-wrap gap-2">
-          {i.action && (
-            <button type="button" class="btn btn-soft btn-sm" onClick={act}>
-              {i.action.label}
-            </button>
-          )}
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm text-subtle px-2.5"
-            onClick={() => apply(dismiss(i.id), 'Dismiss')}
-          >
-            Dismiss
+    <article class={`border-l-2 py-1 pl-4 ${i.tone === 'warn' ? 'border-warn' : i.tone === 'good' ? 'border-good' : 'border-gold'} ${compact ? '' : 'pr-2'}`}>
+      <p class={`caps ${tone.cls}`}>{tone.label}</p>
+      <h3 class="serif mt-1 text-[1.2rem] leading-snug font-[470]">{i.title}</h3>
+      <p class="mt-1 text-[0.92rem] text-muted">{i.body}</p>
+      <div class="mt-2 flex flex-wrap items-center gap-4 text-sm">
+        {i.action && (
+          <button type="button" class="link" onClick={act}>
+            {i.action.label}
           </button>
-        </div>
+        )}
+        <button type="button" class="font-bold text-subtle hover:text-fg" onClick={() => apply(dismiss(i.id), 'Dismiss')}>
+          Not now
+        </button>
       </div>
     </article>
   );
@@ -244,13 +202,10 @@ export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
 
 export function DemoBanner() {
   return (
-    <div class="border-gold/40 bg-gold-soft flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm">
-      <Icon name="sparkle" size={18} class="text-gold-ink flex-none" />
-      <span class="min-w-0 flex-1 font-semibold">
-        Demo data for a made-up person. Nothing here is real.
-      </span>
-      <a href={url('settings/#data')} class="link flex-none">
-        Start yours
+    <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-l-2 border-gold py-1 pl-4">
+      <p class="serif text-[1.05rem] italic">This is Alex's ledger, and Alex is made up. Nothing here is real.</p>
+      <a href={url('settings/#data')} class="link text-sm">
+        Start your own
       </a>
     </div>
   );

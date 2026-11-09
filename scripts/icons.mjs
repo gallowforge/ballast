@@ -8,12 +8,12 @@ await sharp(svg, { density: 1200 }).resize(192, 192).png().toFile('public/icons/
 await sharp(svg, { density: 1200 }).resize(512, 512).png().toFile('public/icons/icon-512.png');
 await sharp(svg, { density: 1200 })
   .resize(180, 180)
-  .flatten({ background: '#1b1712' })
+  .flatten({ background: '#1D3A2E' })
   .png()
   .toFile('public/icons/apple-touch-icon.png');
 // Maskable: the mark inside the 80% safe zone on the app background.
 const inner = await sharp(svg, { density: 1200 }).resize(330, 330).png().toBuffer();
-await sharp({ create: { width: 512, height: 512, channels: 4, background: '#1b1712' } })
+await sharp({ create: { width: 512, height: 512, channels: 4, background: '#1D3A2E' } })
   .composite([{ input: inner, gravity: 'center' }])
   .png()
   .toFile('public/icons/maskable-512.png');

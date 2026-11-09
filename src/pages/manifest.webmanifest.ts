@@ -14,8 +14,8 @@ export const GET: APIRoute = () =>
         display: 'standalone',
         display_override: ['window-controls-overlay', 'standalone'],
         orientation: 'any',
-        background_color: '#1b1712',
-        theme_color: '#1b1712',
+        background_color: '#f2ecdf',
+        theme_color: '#1d3a2e',
         lang: 'en',
         categories: ['finance', 'productivity'],
         icons: [

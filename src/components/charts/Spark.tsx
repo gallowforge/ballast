@@ -4,7 +4,7 @@ import { useWidth } from '../ui/hooks';
 export function Spark({
   values,
   height = 44,
-  color = 'var(--gold)',
+  color = 'var(--fg)',
 }: {
   values: number[];
   height?: number;

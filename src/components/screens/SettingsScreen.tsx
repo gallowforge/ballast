@@ -34,6 +34,7 @@ import {
   toInput,
 } from '../ui/Controls';
 import { Icon } from '../ui/Icon';
+import { Swatch } from '../parts/parts';
 import { Money } from '../ui/Money';
 import { Sheet } from '../ui/Sheet';
 import { useLedger, useToday } from '../ui/hooks';
@@ -101,9 +102,9 @@ export default function SettingsScreen() {
   };
 
   return (
-    <div class="grid grid-cols-1 gap-6">
-      <section class="card card-pad animate-rise" aria-labelledby="gen-title" id="general">
-        <h2 id="gen-title" class="text-lg font-bold">
+    <div class="grid grid-cols-1 gap-14">
+      <section class="animate-rise" aria-labelledby="gen-title" id="general">
+        <h2 id="gen-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
           General
         </h2>
         <div class="mt-4 grid gap-5 md:grid-cols-2">
@@ -187,41 +188,28 @@ export default function SettingsScreen() {
       </section>
 
       <section
-        class="card card-pad animate-rise"
+        class="animate-rise"
         aria-labelledby="acc-title"
         id="accounts"
         style={{ animationDelay: '40ms' }}
       >
-        <div class="mb-3 flex items-center justify-between gap-3">
+        <div class="border-fg mb-3 flex items-end justify-between gap-3 border-b-2 pb-2">
           <div>
-            <h2 id="acc-title" class="text-lg font-bold">
+            <h2 id="acc-title" class="serif text-[1.55rem] leading-tight font-[480]">
               Accounts
             </h2>
             <p class="text-muted text-sm">
               Savings feed the runway. The spending account receives your salary.
             </p>
           </div>
-          <button type="button" class="btn btn-soft btn-sm" onClick={() => setAccount('new')}>
-            <Icon name="plus" size={16} /> Add
+          <button type="button" class="link text-sm" onClick={() => setAccount('new')}>
+            Add an account
           </button>
         </div>
         {data.accounts.length ? (
-          <div class="divide">
+          <div>
             {data.accounts.map((a) => (
               <button type="button" key={a.id} class="row-link" onClick={() => setAccount(a)}>
-                <span
-                  class="tile"
-                  style={{
-                    '--tile':
-                      a.role === 'savings'
-                        ? 'var(--good)'
-                        : a.role === 'spending'
-                          ? 'var(--gold)'
-                          : 'var(--subtle)',
-                  }}
-                >
-                  <Icon name={a.role === 'savings' ? 'piggy' : 'wallet'} size={19} />
-                </span>
                 <span class="min-w-0 flex-1">
                   <span class="block truncate font-semibold">
                     {a.name} {a.archived && <span class="pill ml-1">Archived</span>}
@@ -235,7 +223,7 @@ export default function SettingsScreen() {
                     · {currency(a.currency).name}
                   </span>
                 </span>
-                <Money value={bal.get(a.id) ?? 0} code={a.currency} class="font-bold" />
+                <Money value={bal.get(a.id) ?? 0} code={a.currency} class="text-[1.15rem]" />
               </button>
             ))}
           </div>
@@ -245,12 +233,12 @@ export default function SettingsScreen() {
       </section>
 
       <section
-        class="card card-pad animate-rise"
+        class="animate-rise"
         aria-labelledby="rates-title"
         id="rates"
         style={{ animationDelay: '80ms' }}
       >
-        <h2 id="rates-title" class="text-lg font-bold">
+        <h2 id="rates-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
           Exchange rates
         </h2>
         <p class="text-muted text-sm">
@@ -321,44 +309,40 @@ export default function SettingsScreen() {
       </section>
 
       <section
-        class="card card-pad animate-rise"
+        class="animate-rise"
         aria-labelledby="cat-title"
         id="categories"
         style={{ animationDelay: '120ms' }}
       >
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <h2 id="cat-title" class="text-lg font-bold">
+        <div class="border-fg mb-3 flex items-end justify-between gap-3 border-b-2 pb-2">
+          <h2 id="cat-title" class="serif text-[1.55rem] leading-tight font-[480]">
             Categories
           </h2>
-          <button type="button" class="btn btn-soft btn-sm" onClick={() => setCategory('new')}>
-            <Icon name="plus" size={16} /> Add
+          <button type="button" class="link text-sm" onClick={() => setCategory('new')}>
+            Add a category
           </button>
         </div>
-        {(['expense', 'income'] as const).map((k) => (
-          <div key={k} class="mt-2">
-            <h3 class="eyebrow mb-2">{k === 'expense' ? 'Spending' : 'Money in'}</h3>
-            <div class="flex flex-wrap gap-2">
+        <div class="grid gap-x-12 sm:grid-cols-2">
+          {(['expense', 'income'] as const).map((k) => (
+            <div key={k}>
+              <h3 class="caps mt-4 mb-1">{k === 'expense' ? 'Spending' : 'Money in'}</h3>
               {data.categories
                 .filter((c) => c.kind === k)
                 .map((c) => (
-                  <button
-                    type="button"
-                    key={c.id}
-                    class="chip gap-2 pl-1.5"
-                    onClick={() => setCategory(c)}
-                  >
-                    <CategoryTile category={c} size="sm" />
-                    {c.name}
+                  <button type="button" key={c.id} class="row-link py-2" onClick={() => setCategory(c)}>
+                    <Swatch category={c} />
+                    <span class="flex-1 font-bold">{c.name}</span>
+                    <Icon name={c.icon} size={16} class="text-subtle" />
                   </button>
                 ))}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </section>
 
       {data.rules.length > 0 && (
-        <section class="card card-pad animate-rise" aria-labelledby="rules-title" id="rules">
-          <h2 id="rules-title" class="text-lg font-bold">
+        <section class="animate-rise" aria-labelledby="rules-title" id="rules">
+          <h2 id="rules-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
             What Ledger has learned
           </h2>
           <p class="text-muted text-sm">
@@ -386,12 +370,12 @@ export default function SettingsScreen() {
       )}
 
       <section
-        class="card card-pad animate-rise"
+        class="animate-rise"
         aria-labelledby="data-title"
         id="data"
         style={{ animationDelay: '160ms' }}
       >
-        <h2 id="data-title" class="text-lg font-bold">
+        <h2 id="data-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
           Your data
         </h2>
         <p class="text-muted text-sm">
@@ -472,8 +456,8 @@ export default function SettingsScreen() {
         </div>
       </section>
 
-      <section class="card card-pad animate-rise" aria-labelledby="inst-title" id="install">
-        <h2 id="inst-title" class="text-lg font-bold">
+      <section class="animate-rise" aria-labelledby="inst-title" id="install">
+        <h2 id="inst-title" class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]">
           Install Ledger
         </h2>
         <p class="text-muted text-sm">
@@ -482,7 +466,7 @@ export default function SettingsScreen() {
         {install ? (
           <button
             type="button"
-            class="btn btn-gold btn-sm mt-3"
+            class="btn btn-primary btn-sm mt-3"
             onClick={() => void install.prompt().then(() => setInstall(null))}
           >
             <Icon name="download" size={16} /> Install now
@@ -553,7 +537,7 @@ export default function SettingsScreen() {
             )}
             <button
               type="button"
-              class="btn btn-gold"
+              class="btn btn-primary"
               onClick={() => {
                 apply(
                   replaceAll({
@@ -719,7 +703,7 @@ function AccountSheet({
                 <Icon name="trash" size={17} /> Delete
               </button>
             ))}
-          <button type="button" class="btn btn-gold" onClick={save}>
+          <button type="button" class="btn btn-primary" onClick={save}>
             <Icon name="check" size={18} /> Save
           </button>
         </>
@@ -861,7 +845,7 @@ function CategorySheet({ item, onClose }: { item: Category | 'new' | null; onClo
           )}
           <button
             type="button"
-            class="btn btn-gold"
+            class="btn btn-primary"
             disabled={!f.name.trim()}
             onClick={() => {
               if (editing)

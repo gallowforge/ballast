@@ -141,11 +141,11 @@ export function SetupSheet({
             </button>
           )}
           {step < 2 ? (
-            <button type="button" class="btn btn-gold" onClick={() => setStep(step + 1)}>
+            <button type="button" class="btn btn-primary" onClick={() => setStep(step + 1)}>
               Next <Icon name="arrow-right" size={18} />
             </button>
           ) : (
-            <button type="button" class="btn btn-gold" onClick={finish}>
+            <button type="button" class="btn btn-primary" onClick={finish}>
               <Icon name="check" size={18} /> Start
             </button>
           )}

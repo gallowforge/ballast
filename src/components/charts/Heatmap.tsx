@@ -41,20 +41,15 @@ export function Heatmap({
               key={c.date}
               title={`${formatShort(c.date)}: ${formatMoney(c.value, code)}`}
               aria-label={`${DAY_NAMES[weekday(c.date)]} ${formatShort(c.date)}: ${c.value ? formatMoney(c.value, code) : 'nothing spent'}`}
-              class={`relative grid aspect-square place-items-center rounded-lg text-[11px] font-bold ${c.date > today ? 'border-line-strong border border-dashed' : ''} ${c.date === today ? 'ring-gold ring-2' : ''}`}
+              class={`relative grid aspect-square place-items-center rounded-[3px] text-[11px] font-bold ${c.date > today ? 'border-line-strong border border-dashed' : ''} ${c.date === today ? 'ring-gold ring-2' : ''}`}
               style={{
                 background:
                   c.date > today
                     ? 'transparent'
                     : c.value
-                      ? `oklch(from var(--gold) l c h / ${0.12 + 0.78 * Math.sqrt(c.value / max)})`
+                      ? `color-mix(in oklab, var(--fg) ${Math.round(10 + 78 * Math.sqrt(c.value / max))}%, var(--raised))`
                       : 'var(--sunken)',
-                color:
-                  c.value / max > 0.45
-                    ? 'var(--on-gold)'
-                    : c.value / max > 0.2
-                      ? 'var(--fg)'
-                      : 'var(--muted)',
+                color: Math.sqrt(c.value / max) > 0.42 ? 'var(--raised)' : 'var(--fg)',
               }}
             >
               {parts(c.date).d}
@@ -73,7 +68,7 @@ export function Heatmap({
           <span
             key={o}
             class="size-3 rounded"
-            style={{ background: `oklch(from var(--gold) l c h / ${o})` }}
+            style={{ background: `color-mix(in oklab, var(--fg) ${Math.round(o * 88)}%, var(--raised))` }}
           />
         ))}
         More

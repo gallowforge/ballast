@@ -80,7 +80,7 @@ export function Cashflow({
                 y={y(r.income)}
                 width={bw}
                 height={Math.max(0, y(0) - y(r.income))}
-                rx={Math.min(5, bw / 2)}
+                rx={1.5}
                 style={{ fill: 'var(--good)' }}
                 fill-opacity="0.85"
               />
@@ -89,8 +89,8 @@ export function Cashflow({
                 y={y(r.spending)}
                 width={bw}
                 height={Math.max(0, y(0) - y(r.spending))}
-                rx={Math.min(5, bw / 2)}
-                style={{ fill: 'var(--gold)' }}
+                rx={1.5}
+                style={{ fill: 'var(--fg)' }}
               />
               <text
                 x={cx}
@@ -106,7 +106,7 @@ export function Cashflow({
       </svg>
       {active && hover !== null && (
         <div
-          class="border-line bg-raised pointer-events-none absolute top-0 rounded-xl border px-3 py-2 text-sm shadow-lg"
+          class="border-line bg-raised pointer-events-none absolute top-0 rounded-[4px] border border-line-strong px-3 py-2 text-sm shadow-lg"
           style={{
             left: Math.min(Math.max(pad.l + band * hover + band / 2 - 90, 0), width - 180),
             width: 180,
@@ -120,7 +120,7 @@ export function Cashflow({
             <b>{formatMoney(active.income, code)}</b>
           </div>
           <div class="flex justify-between gap-2">
-            <span class="text-gold-ink">Out</span>
+            <span class="text-fg">Out</span>
             <b>{formatMoney(active.spending, code)}</b>
           </div>
           <div class="border-line mt-1 flex justify-between gap-2 border-t pt-1">

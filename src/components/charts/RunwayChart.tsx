@@ -121,8 +121,8 @@ export function RunwayChart({
       >
         <defs>
           <linearGradient id="rw-fill" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" style={{ stopColor: 'var(--gold)', stopOpacity: 0.34 }} />
-            <stop offset="1" style={{ stopColor: 'var(--gold)', stopOpacity: 0.02 }} />
+            <stop offset="0" style={{ stopColor: 'var(--fg)', stopOpacity: 0.15 }} />
+            <stop offset="1" style={{ stopColor: 'var(--fg)', stopOpacity: 0.01 }} />
           </linearGradient>
           <linearGradient id="rw-danger" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0" style={{ stopColor: 'var(--bad)', stopOpacity: 0.1 }} />
@@ -177,7 +177,7 @@ export function RunwayChart({
         <path
           d={line}
           fill="none"
-          style={{ stroke: 'var(--gold)' }}
+          style={{ stroke: 'var(--fg)' }}
           stroke-width={compact ? 2 : 2.5}
           stroke-linejoin="round"
           pathLength={1}
@@ -190,7 +190,7 @@ export function RunwayChart({
               x2={x(target.date)}
               y1={pad.t - (compact ? 0 : 14)}
               y2={y(0)}
-              style={{ stroke: 'var(--fg)' }}
+              style={{ stroke: 'var(--gold-ink)' }}
               stroke-opacity="0.45"
               stroke-dasharray="2 4"
             />
@@ -205,7 +205,7 @@ export function RunwayChart({
                       ? 'start'
                       : 'middle'
                 }
-                style={{ fill: 'var(--fg)', fontWeight: 700 }}
+                style={{ fill: 'var(--gold-ink)', fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '14px' }}
               >
                 {target.label} · {formatShort(target.date)}
               </text>
@@ -258,7 +258,7 @@ export function RunwayChart({
               cx={x(active.date)}
               cy={y(active.balance)}
               r="5.5"
-              style={{ fill: 'var(--raised)', stroke: 'var(--gold)' }}
+              style={{ fill: 'var(--raised)', stroke: 'var(--fg)' }}
               stroke-width="2.5"
             />
           </g>
@@ -266,12 +266,12 @@ export function RunwayChart({
       </svg>
       {active && (
         <div
-          class="border-line bg-raised pointer-events-none absolute top-1 rounded-xl border px-3 py-2 text-sm shadow-lg"
+          class="border-line bg-raised pointer-events-none absolute top-1 rounded-[4px] border border-line-strong px-3 py-2 text-sm shadow-lg"
           style={{ left: Math.min(Math.max(x(active.date) - 80, 0), width - 170), width: 160 }}
           aria-live="polite"
         >
           <div class="text-subtle text-xs font-semibold">{formatShort(active.date)}</div>
-          <div class="font-bold">{formatMoney(active.balance, code)}</div>
+          <div class="money text-[1.05rem]">{formatMoney(active.balance, code)}</div>
         </div>
       )}
     </div>

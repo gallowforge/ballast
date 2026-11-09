@@ -166,7 +166,7 @@ export function CategoryTile({
   return (
     <span
       class={`tile ${size === 'sm' ? 'tile-sm' : size === 'lg' ? 'tile-lg' : ''}`}
-      style={{ '--tile': category ? `oklch(68% 0.13 ${hue})` : 'var(--subtle)' }}
+      style={{ '--tile': category ? `oklch(var(--cat-l) 0.1 ${hue})` : 'var(--subtle)' }}
       aria-hidden="true"
     >
       <Icon name={icon} size={px} />
@@ -216,28 +216,34 @@ export function CategoryPicker({
   );
 }
 
+/** An empty state is a clean page, not an error: a few blank ledger lines and a kind sentence. */
 export function Empty({
-  icon,
   title,
   body,
   children,
   level = 3,
 }: {
-  icon: string;
+  icon?: string;
   title: string;
   body: string;
   children?: ComponentChildren;
-  level?: 2 | 3;
+  level?: 1 | 2 | 3;
 }) {
-  const H = level === 2 ? 'h2' : 'h3';
+  const H = level === 1 ? 'h1' : level === 2 ? 'h2' : 'h3';
   return (
-    <div class="grid justify-items-center gap-3 px-4 py-10 text-center">
-      <span class="tile tile-lg">
-        <Icon name={icon} size={24} />
-      </span>
-      <H class="text-base font-bold">{title}</H>
-      <p class="text-muted max-w-sm text-sm">{body}</p>
-      {children && <div class="mt-1 flex flex-wrap justify-center gap-2">{children}</div>}
+    <div class="grid gap-5 py-8 sm:grid-cols-[7rem_1fr] sm:items-start sm:gap-8">
+      <svg width="112" height="64" viewBox="0 0 112 64" aria-hidden="true" class="hidden sm:block">
+        <line x1="14" y1="0" x2="14" y2="64" style={{ stroke: 'var(--margin)' }} stroke-width="1.5" />
+        {[14, 30, 46, 62].map((y) => (
+          <line key={y} x1="0" x2="112" y1={y} y2={y} style={{ stroke: 'var(--line-strong)' }} />
+        ))}
+        <circle cx="24" cy="10" r="2.5" style={{ fill: 'var(--gold)' }} />
+      </svg>
+      <div>
+        <H class="serif text-[1.55rem] leading-tight font-[460]">{title}</H>
+        <p class="mt-2 max-w-md text-muted">{body}</p>
+        {children && <div class="mt-5 flex flex-wrap gap-2">{children}</div>}
+      </div>
     </div>
   );
 }

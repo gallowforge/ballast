@@ -230,26 +230,21 @@ export default function ImportScreen() {
   );
 
   return (
-    <div class="grid grid-cols-1 gap-6">
+    <div class="grid grid-cols-1 gap-10">
       <ol
-        class="animate-rise flex flex-wrap items-center gap-2 text-sm font-semibold"
+        class="animate-rise flex flex-wrap items-baseline gap-x-6 gap-y-2 border-b border-line pb-3 text-sm font-bold"
         aria-label="Import steps"
       >
         {steps.map((s, i) => (
           <li
             key={s.id}
-            class="flex items-center gap-2"
+            class={`flex items-baseline gap-2 ${i === stepIndex ? 'text-fg' : 'text-subtle'}`}
             aria-current={i === stepIndex ? 'step' : undefined}
           >
-            <span
-              class={`grid size-7 place-items-center rounded-full text-xs font-bold ${i < stepIndex ? 'bg-good text-[var(--bg)]' : i === stepIndex ? 'bg-gold text-[var(--on-gold)]' : 'bg-sunken text-subtle'}`}
-            >
-              {i < stepIndex ? <Icon name="check" size={14} stroke={3} /> : i + 1}
+            <span class={`figure text-[1.35rem] ${i < stepIndex ? 'text-good' : i === stepIndex ? 'text-gold-ink' : ''}`}>
+              {i < stepIndex ? <Icon name="check" size={16} stroke={2.6} /> : i + 1}
             </span>
-            <span class={i === stepIndex ? 'text-fg' : 'text-subtle'}>{s.label}</span>
-            {i < steps.length - 1 && (
-              <span class="bg-line-strong mx-1 h-px w-6" aria-hidden="true" />
-            )}
+            <span>{s.label}</span>
           </li>
         ))}
       </ol>
@@ -261,7 +256,7 @@ export default function ImportScreen() {
               id="pick-title"
               ref={headingRef}
               tabIndex={-1}
-              class="text-lg font-bold outline-none"
+              class="serif text-[1.6rem] leading-tight font-[480] outline-none"
             >
               {step === 'password' ? 'This statement is locked' : 'Bring in a bank statement'}
             </h2>
@@ -289,7 +284,7 @@ export default function ImportScreen() {
                   />
                 </Field>
                 <div class="flex gap-2">
-                  <button type="submit" class="btn btn-gold" disabled={!password || busy}>
+                  <button type="submit" class="btn btn-primary" disabled={!password || busy}>
                     <Icon name="lock" size={17} /> Open
                   </button>
                   <button type="button" class="btn btn-ghost" onClick={reset}>
@@ -358,12 +353,9 @@ export default function ImportScreen() {
               </p>
             )}
           </section>
-          <aside class="card card-pad animate-rise self-start" style={{ animationDelay: '60ms' }}>
-            <span class="tile" style={{ '--tile': 'var(--good)' }}>
-              <Icon name="shield" />
-            </span>
-            <h2 class="mt-4 font-bold">Read here, never uploaded</h2>
-            <ul class="text-muted mt-2 grid gap-2 text-sm">
+          <aside class="animate-rise self-start border-l-2 border-gold pl-5" style={{ animationDelay: '60ms' }}>
+            <p class="caps text-gold-ink">Read here, never uploaded</p>
+            <ul class="text-muted mt-3 grid gap-3 text-[0.95rem]">
               <li>
                 The file is read in this tab. Ledger has no server, and its security policy blocks
                 every connection to one.
@@ -377,8 +369,8 @@ export default function ImportScreen() {
             </ul>
           </aside>
           {data.imports.length > 0 && (
-            <section class="card card-pad lg:col-span-2" aria-labelledby="hist-title">
-              <h2 id="hist-title" class="mb-3 text-[0.95rem] font-bold">
+            <section class="lg:col-span-2" aria-labelledby="hist-title">
+              <h2 id="hist-title" class="serif border-fg mb-1 border-b-2 pb-2 text-[1.45rem] font-[480]">
                 Earlier imports
               </h2>
               <div class="divide">
@@ -386,9 +378,6 @@ export default function ImportScreen() {
                   .sort((a, b) => b.at - a.at)
                   .map((b) => (
                     <div key={b.id} class="flex flex-wrap items-center gap-3 py-3">
-                      <span class="tile tile-sm">
-                        <Icon name="file" size={16} />
-                      </span>
                       <div class="min-w-0 flex-1">
                         <div class="truncate font-semibold">{b.fileName}</div>
                         <div class="text-subtle text-sm">
@@ -426,7 +415,7 @@ export default function ImportScreen() {
                 id="map-title"
                 ref={headingRef}
                 tabIndex={-1}
-                class="text-lg font-bold outline-none"
+                class="serif text-[1.6rem] leading-tight font-[480] outline-none"
               >
                 Check the columns
               </h2>
@@ -614,7 +603,7 @@ export default function ImportScreen() {
             </button>
             <button
               type="button"
-              class="btn btn-gold"
+              class="btn btn-primary"
               disabled={!statement || !statement.rows.length}
               onClick={toReview}
             >
@@ -643,26 +632,21 @@ export default function ImportScreen() {
       )}
 
       {step === 'done' && done && (
-        <section
-          class="card card-pad card-glow animate-rise text-center"
-          aria-labelledby="done-title"
-        >
-          <span class="tile tile-lg mx-auto" style={{ '--tile': 'var(--good)' }}>
-            <Icon name="check" size={26} stroke={2.4} />
-          </span>
+        <section class="animate-rise max-w-2xl" aria-labelledby="done-title">
+          <p class="caps text-good">Done, and checked</p>
           <h2
             id="done-title"
             ref={headingRef}
             tabIndex={-1}
-            class="display mt-4 text-[2.2rem] outline-none"
+            class="display mt-3 text-[2.6rem] outline-none sm:text-[3.4rem]"
           >
             {plural(done.count, 'transaction')} imported
           </h2>
           {done.closing !== undefined && (
             <BalanceCheck accountId={done.accountId} closing={done.closing} date={done.to} />
           )}
-          <div class="mt-6 flex flex-wrap justify-center gap-2">
-            <a href={url('activity/')} class="btn btn-gold">
+          <div class="mt-8 flex flex-wrap gap-2">
+            <a href={url('activity/')} class="btn btn-primary">
               See them in Activity
             </a>
             <button type="button" class="btn btn-soft" onClick={reset}>
@@ -701,13 +685,13 @@ function BalanceCheck({
   const mine = balance(data, accountId, date);
   const code = acct.currency;
   return mine === closing ? (
-    <p class="text-muted mx-auto mt-3 max-w-lg">
+    <p class="text-muted mt-4 max-w-lg">
       <span class="text-good font-bold">Balances match.</span> {acct.name} shows{' '}
       <Money value={mine} code={code} class="text-fg font-bold" /> on {formatLong(date)}, exactly
       what the statement says.
     </p>
   ) : (
-    <p class="text-muted mx-auto mt-3 max-w-lg">
+    <p class="text-muted mt-4 max-w-lg">
       {acct.name} shows <Money value={mine} code={code} class="text-fg font-bold" /> on{' '}
       {formatLong(date)}; the statement says{' '}
       <Money value={closing} code={code} class="text-fg font-bold" />. The difference,{' '}
@@ -766,7 +750,7 @@ function Review({
   return (
     <section class="animate-rise grid gap-5" aria-labelledby="review-title">
       <div class="card card-pad">
-        <h2 id="review-title" ref={headingRef} tabIndex={-1} class="text-lg font-bold outline-none">
+        <h2 id="review-title" ref={headingRef} tabIndex={-1} class="serif text-[1.6rem] leading-tight font-[480] outline-none">
           Review before importing
         </h2>
         <p class="text-muted">
@@ -983,7 +967,7 @@ function Review({
             ? `${plural(sum.uncategorised, 'row')} without a category: fine, sort them later.`
             : ''}
         </span>
-        <button type="button" class="btn btn-gold" disabled={!sum.count} onClick={commit}>
+        <button type="button" class="btn btn-primary" disabled={!sum.count} onClick={commit}>
           <Icon name="check" size={18} /> Import {plural(sum.count, 'transaction')}
         </button>
       </div>

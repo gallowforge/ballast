@@ -72,7 +72,7 @@ export function Sheet({ open, onClose, title, description, wide, children, foote
         <div class="sheet-handle" />
         <div class="flex items-start justify-between gap-4 px-5 pt-4 sm:px-6 sm:pt-6">
           <div>
-            <h2 id={titleId} class="text-lg font-bold tracking-tight">
+            <h2 id={titleId} class="serif text-[1.55rem] leading-tight font-[480]">
               {title}
             </h2>
             {description && (
