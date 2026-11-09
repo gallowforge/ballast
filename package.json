@@ -20,7 +20,7 @@
     "budget": "node scripts/budget.mjs",
     "fixtures": "node scripts/make-fixtures.mjs",
     "icons": "node scripts/icons.mjs",
-    "readme:visuals": "node scripts/readme-visuals.mjs",
+    "readme:visuals": "bash docs/readme/src/build.sh",
     "verify": "npm run check && npm run test && npm run build && npm run budget"
   },
   "engines": {

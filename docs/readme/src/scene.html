@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Glass</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400;500&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: #000;
+      }
+      canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: block;
+      }
+      #type {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        font-family: 'Geist', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: geometricPrecision;
+      }
+      #type .el {
+        position: absolute;
+        white-space: nowrap;
+      }
+      .name {
+        font-weight: 600;
+        letter-spacing: -0.047em;
+        line-height: 1;
+      }
+      .line {
+        font-weight: 400;
+        letter-spacing: -0.011em;
+        line-height: 1.38;
+      }
+      .kick {
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      /* a feature panel's copy: label, heading, two or three lines */
+      .copy {
+        white-space: normal !important;
+      }
+      .copy .k {
+        color: var(--kick);
+        display: block;
+        font-size: 10.5px;
+        font-weight: 500;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+      }
+      .copy h2 {
+        margin: 0;
+        font-size: 33px;
+        font-weight: 600;
+        letter-spacing: -0.038em;
+        line-height: 1.06;
+        text-wrap: balance;
+      }
+      .copy p {
+        color: var(--muted);
+        margin: 16px 0 0;
+        font-size: 15.5px;
+        font-weight: 400;
+        letter-spacing: -0.008em;
+        line-height: 1.48;
+        text-wrap: pretty;
+      }
+      .copy.phone h2 {
+        font-size: 30px;
+      }
+      .copy.phone p {
+        font-size: 15px;
+        margin-top: 12px;
+      }
+      /* the numbers band */
+      .fact b {
+        display: block;
+        font-size: 34px;
+        font-weight: 500;
+        letter-spacing: -0.045em;
+        line-height: 1;
+        margin-bottom: 9px;
+        font-variant-numeric: tabular-nums;
+      }
+      .fact span {
+        color: var(--muted);
+        display: block;
+        font-size: 12.5px;
+        font-weight: 400;
+        letter-spacing: -0.003em;
+        line-height: 1.38;
+      }
+      .fact.phone b {
+        font-size: 30px;
+      }
+      .rule {
+        position: absolute;
+        height: 1px;
+      }
+      .vrule {
+        position: absolute;
+        width: 1px;
+      }
+    </style>
+    <script type="importmap">
+      { "imports": { "three": "/vendor/three.module.js" } }
+    </script>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <div id="type"></div>
+    <script type="module" src="./scene.js"></script>
+  </body>
+</html>

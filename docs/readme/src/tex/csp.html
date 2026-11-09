@@ -1,0 +1,21 @@
+<!doctype html>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="term.css" />
+<body style="width:640px;height:476px">
+  <!-- Real output: the policy the live site serves on every page, one directive per line. -->
+  <div class="l"><span class="p">~ $</span> <span class="c">curl -s https://gallowforge.github.io/ledger/home/ \</span></div>
+  <div class="l"><span class="c">    | grep -oP 'Content-Security-Policy" content="\K[^"]*' \</span></div>
+  <div class="l"><span class="c">    | sed 's/; /\n/g'</span></div>
+  <div class="gap"></div>
+  <div class="l"><span class="k">default-src 'self'</span></div>
+  <div class="l"><span class="d">script-src 'self' 'unsafe-inline'</span></div>
+  <div class="l"><span class="d">style-src 'self' 'unsafe-inline'</span></div>
+  <div class="l"><span class="d">img-src 'self' data: blob:</span></div>
+  <div class="l"><span class="d">font-src 'self'</span></div>
+  <div class="l"><span class="hi">connect-src 'self'</span></div>
+  <div class="l"><span class="d">worker-src 'self' blob:</span></div>
+  <div class="l"><span class="d">manifest-src 'self'</span></div>
+  <div class="l"><span class="d">object-src 'none'</span></div>
+  <div class="l"><span class="d">base-uri 'self'</span></div>
+  <div class="l"><span class="d">form-action 'self'</span></div>
+</body>
