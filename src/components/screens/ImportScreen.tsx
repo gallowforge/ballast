@@ -221,7 +221,7 @@ export default function ImportScreen() {
     setDone(null);
   };
 
-  if (!ready) return <Skeleton class="h-96 rounded-3xl" />;
+  if (!ready) return <Skeleton class="h-96 rounded-md" />;
 
   const steps: { id: Step; label: string }[] = [
     { id: 'pick', label: 'Choose' },
@@ -306,7 +306,7 @@ export default function ImportScreen() {
                   any bank works through column matching.
                 </p>
                 <label
-                  class={`mt-5 grid cursor-pointer place-items-center gap-3 rounded-3xl border-2 border-dashed px-6 py-12 text-center transition ${drag ? 'border-gold bg-gold-soft' : 'border-line-strong hover:border-gold'}`}
+                  class={`mt-5 grid cursor-pointer place-items-center gap-3 rounded-md border-2 border-dashed px-6 py-12 text-center transition ${drag ? 'border-gold bg-gold-soft' : 'border-line-strong hover:border-gold'}`}
                   onDragOver={(e) => (e.preventDefault(), setDrag(true))}
                   onDragLeave={() => setDrag(false)}
                   onDrop={(e) => {
@@ -353,7 +353,7 @@ export default function ImportScreen() {
             )}
             {error && (
               <p
-                class="bg-warn-soft text-warn mt-4 rounded-2xl px-4 py-3 text-sm font-semibold"
+                class="bg-warn-soft text-warn mt-4 rounded-md px-4 py-3 text-sm font-semibold"
                 role="alert"
               >
                 {error}
@@ -491,7 +491,7 @@ export default function ImportScreen() {
             )}
           </div>
           {accountId === NEW && (
-            <div class="border-line bg-sunken mt-4 grid gap-4 rounded-2xl border p-4 md:grid-cols-3">
+            <div class="border-line bg-sunken mt-4 grid gap-4 rounded-md border p-4 md:grid-cols-3">
               <Field id="new-name" label="Account name">
                 <input
                   id="new-name"
@@ -538,7 +538,7 @@ export default function ImportScreen() {
             </div>
           )}
 
-          <div class="scroll-x border-line mt-5 rounded-2xl border">
+          <div class="scroll-x border-line mt-5 rounded-md border">
             <table class="w-full min-w-[40rem] text-sm">
               <thead>
                 <tr class="bg-sunken">
@@ -595,7 +595,7 @@ export default function ImportScreen() {
 
           {mappingProblems(mapping).length > 0 && (
             <p
-              class="bg-warn-soft text-warn mt-4 rounded-2xl px-4 py-3 text-sm font-semibold"
+              class="bg-warn-soft text-warn mt-4 rounded-md px-4 py-3 text-sm font-semibold"
               role="alert"
             >
               {mappingProblems(mapping).join(' ')}
@@ -603,7 +603,7 @@ export default function ImportScreen() {
           )}
           {statement && statement.rows.length === 0 && (
             <p
-              class="bg-warn-soft text-warn mt-4 rounded-2xl px-4 py-3 text-sm font-semibold"
+              class="bg-warn-soft text-warn mt-4 rounded-md px-4 py-3 text-sm font-semibold"
               role="alert"
             >
               No dated rows with amounts were found with these columns. Check the date column and
@@ -778,7 +778,7 @@ function Review({
           Payees are tidied and categories guessed; change anything before you import.
         </p>
         <div
-          class={`mt-4 flex items-start gap-3 rounded-2xl px-4 py-3 text-sm font-semibold ${rec.checked && !rec.mismatched.length ? 'bg-good-soft text-good' : rec.mismatched.length ? 'bg-warn-soft text-warn' : 'bg-sunken text-muted'}`}
+          class={`mt-4 flex items-start gap-3 rounded-md px-4 py-3 text-sm font-semibold ${rec.checked && !rec.mismatched.length ? 'bg-good-soft text-good' : rec.mismatched.length ? 'bg-warn-soft text-warn' : 'bg-sunken text-muted'}`}
           role="status"
         >
           <Icon
@@ -809,7 +809,7 @@ function Review({
             ['Money in', formatMoney(sum.in, code)],
             ['Already here', String(sum.duplicates)],
           ].map(([k, v]) => (
-            <div key={k} class="bg-sunken rounded-2xl px-4 py-3">
+            <div key={k} class="bg-sunken rounded-md px-4 py-3">
               <div class="text-subtle text-xs font-semibold">{k}</div>
               <div class="mt-0.5 font-bold tabular-nums">{v}</div>
             </div>
@@ -870,7 +870,7 @@ function Review({
             return (
               <li
                 key={r.key}
-                class={`grid gap-3 px-4 py-3 sm:grid-cols-[auto_6rem_1fr_13rem_8rem] sm:items-center ${r.include ? '' : 'opacity-55'}`}
+                class={`grid grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 px-4 py-3 sm:grid-cols-[auto_6rem_1fr_13rem_8rem] sm:gap-y-3 ${r.include ? '' : 'opacity-55'}`}
               >
                 <input
                   type="checkbox"
@@ -882,7 +882,7 @@ function Review({
                   aria-label={`Import ${r.payee}`}
                 />
                 <span class="text-subtle text-sm font-semibold">{formatShort(r.date)}</span>
-                <div class="min-w-0">
+                <div class="col-span-3 min-w-0 sm:col-span-1">
                   <div class="flex items-center gap-2">
                     {r.kind !== 'transfer' && <CategoryTile category={cat} size="sm" />}
                     <input
@@ -904,7 +904,7 @@ function Review({
                 </div>
                 {r.kind === 'transfer' ? (
                   <select
-                    class="select min-h-9 py-0 text-sm"
+                    class="select col-span-3 min-h-9 py-0 text-sm sm:col-span-1"
                     aria-label={r.amount < 0 ? 'Moved to' : 'Moved from'}
                     value={r.toAccountId ?? ''}
                     onChange={(e) => {
@@ -927,7 +927,7 @@ function Review({
                   </select>
                 ) : (
                   <select
-                    class="select min-h-9 py-0 text-sm"
+                    class="select col-span-3 min-h-9 py-0 text-sm sm:col-span-1"
                     aria-label="Category"
                     value={r.categoryId ?? ''}
                     onChange={(e) => {
@@ -955,7 +955,7 @@ function Review({
                   </select>
                 )}
                 <span
-                  class={`text-right font-bold tabular-nums ${r.amount > 0 ? 'text-good' : ''}`}
+                  class={`col-start-3 row-start-1 text-right font-bold tabular-nums sm:col-start-auto sm:row-start-auto ${r.amount > 0 ? 'text-good' : ''}`}
                 >
                   {formatMinor(r.amount, exp, { sign: r.amount > 0 ? 'always' : 'auto' })}
                 </span>

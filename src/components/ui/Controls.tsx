@@ -193,7 +193,7 @@ export function CategoryPicker({
         {categories.map((c) => (
           <label
             key={c.id}
-            class={`flex cursor-pointer flex-col items-center gap-1.5 rounded-2xl border px-1 py-2.5 text-center text-xs font-semibold transition ${
+            class={`flex cursor-pointer flex-col items-center gap-1.5 rounded-md border px-1 py-2.5 text-center text-xs font-semibold transition ${
               value === c.id
                 ? 'border-gold bg-gold-soft text-fg'
                 : 'border-line text-muted hover:border-line-strong hover:text-fg'

@@ -500,7 +500,7 @@ export function TxnSheet({ data, today }: Props) {
 
         {tried && problems.length > 0 && (
           <div
-            class="bg-warn-soft text-warn rounded-2xl px-4 py-3 text-sm font-semibold"
+            class="bg-warn-soft text-warn rounded-md px-4 py-3 text-sm font-semibold"
             role="alert"
           >
             {problems.join(' ')}

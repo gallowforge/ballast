@@ -830,7 +830,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  max-height: 92dvh;
+  /* The band above the sheet stays clear for toasts (see .toast-wrap). */
+  max-height: calc(100dvh - 5.5rem - env(safe-area-inset-top));
   overflow-y: auto;
   overscroll-behavior: contain;
   background: var(--raised);
@@ -847,6 +848,7 @@
     bottom: auto;
     top: 50%;
     width: min(36rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 10rem);
     transform: translate(-50%, -50%);
     border: 1px solid var(--line-strong);
     border-radius: 8px;
@@ -884,6 +886,11 @@
   .toast-wrap {
     bottom: 1.5rem;
   }
+}
+/* With a sheet open, a toast moves into the clear band above it, never over the sheet's buttons. */
+body:has(.sheet) .toast-wrap {
+  top: calc(1rem + env(safe-area-inset-top));
+  bottom: auto;
 }
 .toast {
   pointer-events: auto;

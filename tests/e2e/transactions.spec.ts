@@ -41,8 +41,13 @@ test('a transaction can be edited, deleted and brought back', async ({ page }) =
 test('the N key opens the add sheet, and Escape closes it', async ({ page, isMobile }) => {
   test.skip(isMobile, 'No keyboard on a phone');
   await demo(page);
-  await page.keyboard.press('n');
-  await expect(page.getByRole('dialog', { name: 'Add a transaction' })).toBeVisible();
+  // The shortcut is wired a moment after the page hydrates, so a key pressed too early is retried.
+  await expect(async () => {
+    await page.keyboard.press('n');
+    await expect(page.getByRole('dialog', { name: 'Add a transaction' })).toBeVisible({
+      timeout: 500,
+    });
+  }).toPass();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toBeHidden();
 });
@@ -70,8 +75,11 @@ test('search finds transactions across all months', async ({ page }) => {
 test('the quick launcher jumps to a page', async ({ page, isMobile }) => {
   test.skip(isMobile, 'Keyboard shortcut');
   await demo(page);
-  await page.keyboard.press('Control+k');
   const launcher = page.getByRole('dialog', { name: 'Quick launcher' });
+  await expect(async () => {
+    await page.keyboard.press('Control+k');
+    await expect(launcher).toBeVisible({ timeout: 500 });
+  }).toPass();
   await launcher.getByRole('combobox').fill('runway');
   await launcher.getByRole('combobox').press('Enter');
   await expect(page).toHaveURL(/runway\/$/);

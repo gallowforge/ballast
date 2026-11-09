@@ -152,7 +152,7 @@ export function RoadView({
     : `Your savings, ${formatMoney(start, code)} today, do not run out before the horizon.`;
 
   return (
-    <div ref={ref} class="relative">
+    <div ref={ref} class="relative" data-road>
       <svg
         class="block w-full"
         width={W}

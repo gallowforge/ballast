@@ -1,7 +1,7 @@
 <a href="https://gallowforge.github.io/ledger/">
   <picture>
     <source media="(max-width: 700px)" srcset="docs/readme/hero-mobile.webp" />
-    <img src="docs/readme/hero.webp" width="100%" alt="Ledger: pay yourself a salary that lasts. The Home screen on a desktop browser with what is safe to spend today and the savings runway, and the Runway screen on a phone." />
+    <img src="docs/readme/hero.webp" width="100%" alt="Ledger: pay yourself a salary that lasts. Savings drawn as a road across ruled ledger paper: it runs past a brass flag for graduation in July 2028 and stops at the last salary, in November 2028. Beside it, the Home screen on a phone with 5.962 KD safe to spend today." />
   </picture>
 </a>
 
@@ -19,11 +19,11 @@
 
 <p align="center">
   <a href="https://github.com/gallowforge/ledger/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/gallowforge/ledger/actions/workflows/ci.yml/badge.svg" /></a>
-  <img alt="464 tests passing" src="https://img.shields.io/badge/tests-464_passing-e9b35a?labelColor=0f1217" />
-  <img alt="WCAG 2.1 AA checked" src="https://img.shields.io/badge/WCAG_2.1-AA_checked-e9b35a?labelColor=0f1217" />
-  <img alt="Works offline" src="https://img.shields.io/badge/works-offline-e9b35a?labelColor=0f1217" />
-  <img alt="No account, no trackers" src="https://img.shields.io/badge/account_or_trackers-none-e9b35a?labelColor=0f1217" />
-  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-9aa1ad?labelColor=0f1217" />
+  <img alt="479 tests passing" src="https://img.shields.io/badge/tests-479_passing-B8892F?labelColor=1D3A2E" />
+  <img alt="WCAG 2.1 AA checked" src="https://img.shields.io/badge/WCAG_2.1-AA_checked-B8892F?labelColor=1D3A2E" />
+  <img alt="Works offline" src="https://img.shields.io/badge/works-offline-B8892F?labelColor=1D3A2E" />
+  <img alt="No account, no trackers" src="https://img.shields.io/badge/account_or_trackers-none-B8892F?labelColor=1D3A2E" />
+  <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-5C6B62?labelColor=1D3A2E" />
 </p>
 
 <br />
@@ -34,7 +34,7 @@ Living on savings is a guessing game. Banking apps show a balance, budgeting app
 
 <picture>
   <source media="(max-width: 700px)" srcset="docs/readme/numbers-mobile.webp" />
-  <img src="docs/readme/numbers.webp" width="100%" alt="3 decimals: KD exact to the fils. 24 currencies beside the dinar. 100% of rows checked against the balance. 61 files cached, offline from day one. 0 servers: no account, no uploads." />
+  <img src="docs/readme/numbers.webp" width="100%" alt="An honest ledger. Decimals in a dinar, kept exactly: 3. Currencies beside the dinar: 23. Statement lines checked against the running balance: every one. Files kept for working offline: 61. Things that leave your device: 0." />
 </picture>
 
 <br />
@@ -49,20 +49,21 @@ Home opens on one number: what you can spend today and still finish the month. I
 
 <picture>
   <source media="(max-width: 700px)" srcset="docs/readme/month-mobile.webp" />
-  <img src="docs/readme/month.webp" width="100%" alt="The Home screen on a desktop browser with 6.116 KD safe to spend today, the month's burn-down, the runway and budgets; and the budgets on a phone." />
+  <img src="docs/readme/month.webp" width="100%" alt="From the Home screen: 5.962 KD safe to spend today, and the month still ends calmly with about 2.603 KD to spare, over the burn-down line. Beside it, This month: a 220.000 KD salary, 83.590 KD spent so far, 5.240 KD of bills still to come set aside, and 131.170 KD free to spend." />
 </picture>
 
 ## See exactly how long your savings last
 
-Runway projects your savings payday by payday, with every known income and yearly cost, and draws it as the staircase your balance really is.
+Runway projects your savings payday by payday, with every known income and yearly cost, and draws them as a road across ruled ledger paper: it stops where the money does, and your date stands beside it as a brass flag. The exact staircase of figures sits underneath.
 
 - **Salaries left, and the month they stop.** Counted in full paydays that keep you above a floor you choose.
 - **A date to reach.** Graduation, a new job, the month income starts again. Ledger says whether you get there and with how much to spare, or how many paydays short you fall.
-- **The salary that gets you there.** The largest monthly amount that still reaches your date, and a slider to try any other before you commit to it.
+- **The salary that gets you there.** The largest monthly amount that still reaches your date, and one tap to try it.
+- **Drag, and the road follows.** Move the salary and the road grows or shrinks toward the horizon while your flag stays put, and the sentence above rewrites itself. Nothing changes until you choose.
 
 <picture>
   <source media="(max-width: 700px)" srcset="docs/readme/runway-mobile.webp" />
-  <img src="docs/readme/runway.webp" width="100%" alt="The Runway screen on a desktop browser: 24 salaries left, the savings staircase to the target date with the floor marked; and the what-if salary slider on a phone." />
+  <img src="docs/readme/runway.webp" width="100%" alt="An animation of the Runway screen. The salary slider moves from 220.000 KD up to 290.000 KD and down to 160.000 KD; the road shortens until it stops before the graduation flag, then lengthens past it, and the headline rewrites itself from Your savings carry you to November 2028 to earlier and later months." />
 </picture>
 
 ## Bring in a statement, checked to the fils
@@ -76,12 +77,12 @@ Drop in a PDF or CSV from your bank. National Bank of Kuwait statements are reco
 
 <picture>
   <source media="(max-width: 700px)" srcset="docs/readme/import-mobile.webp" />
-  <img src="docs/readme/import.webp" width="100%" alt="The import review on a desktop browser: all 33 rows match the statement's running balance, with tidied payees and guessed categories; and the finished import on a phone, where the balances match." />
+  <img src="docs/readme/import.webp" width="100%" alt="The import review: all 33 rows match the statement's running balance, to the last fils. A bank line reading POS PURCHASE, a masked card number and STARBUCKS AVENUES KUWAIT becomes the payee Starbucks, filed under Coffee, with a note: bank gibberish in, plain names out." />
 </picture>
 
 ## See where it went
 
-Insights put the month, or the last three, six or twelve, on one page: a ring of categories with the change from before, money in and out month by month, a calendar of every day's spending, the places you spend most, and the most expensive day of the week.
+Insights put the month, or the last three, six or twelve, on one page: one strip of categories with the change from before, money in and out month by month, a calendar of every day's spending, the places you spend most, and the most expensive day of the week.
 
 - **Plain observations.** Spending against the same point last month, the category that rose most, a purchase much bigger than usual, how much of last month's income you kept. Each needs enough data to be fair.
 - **Subscriptions it notices.** Payments that repeat at a steady amount and interval are spotted in your history, with price rises called out. One tap tracks them.
@@ -89,7 +90,7 @@ Insights put the month, or the last three, six or twelve, on one page: a ring of
 
 <picture>
   <source media="(max-width: 700px)" srcset="docs/readme/insights-mobile.webp" />
-  <img src="docs/readme/insights.webp" width="100%" alt="The Insights screen on a desktop browser with spending by category and money in and out by month, and Activity on a phone." />
+  <img src="docs/readme/insights.webp" width="100%" alt="Insights: 83.590 KD spent this month so far, 7% less than the period before, as one strip of category colours, then each category with its change: groceries 21.000 KD, health 20.750, phone and internet 8.500, fuel 8.250, food delivery 7.650 and more." />
 </picture>
 
 ## Yours alone, on your device
@@ -100,7 +101,7 @@ Insights put the month, or the last three, six or twelve, on one page: a ring of
 
 <picture>
   <source media="(max-width: 700px)" srcset="docs/readme/privacy-mobile.webp" />
-  <img src="docs/readme/privacy.webp" width="100%" alt="Settings on a desktop browser with backup, CSV export, restore and delete everything, and the same on a phone." />
+  <img src="docs/readme/privacy.webp" width="100%" alt="In every page Ledger serves: connect-src 'self'. One line of the Content Security Policy tells the browser that Ledger may talk only to itself. No account, no server, no analytics." />
 </picture>
 
 ## Why it is different
@@ -174,16 +175,31 @@ Ledger is static HTML and JavaScript with no backend. Your data lives in this si
 </details>
 
 <details>
+<summary><b>The look, and why</b></summary>
+<br />
+
+One idea runs through every screen: a calm runway, with your money laid out as a road that ends on a date. The ground it crosses is ruled like ledger paper, because the other half of the idea is an honest column of figures, exact to the fils.
+
+- **Colour, 60/30/10.** Warm paper, ink green, and brass spent like money: today's marker, the target flag, the sun on the horizon. Leaf green is kept for money coming in and clay for going over a line; spending is ink, never alarm red. A night ledger theme follows the system.
+- **Two typefaces, each with a job.** Newsreader sets every figure and heading, with tabular lining numerals so money lines up on the decimal point and the fils a step lighter than the dinars. Atkinson Hyperlegible Next, designed for readers with low vision, sets the words.
+- **Ledger habits.** Lists sit on hairline rules, totals get the accountant's double rule, and labels are small capitals like a ledger's column heads.
+- **A calm, kind voice.** It says what is true, then what to do, without blame or exclamation marks. An empty list is "A clean page", not an error.
+
+The full identity is in [docs/DESIGN.md](docs/DESIGN.md).
+
+</details>
+
+<details>
 <summary><b>Quality bar</b></summary>
 <br />
 
-| Check                 | What it covers                                                                                                                                                                                                                                                                                                              |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 352 unit tests        | Money and exchange rates, dates and money months, recurring items, safe-to-spend and pace, budgets with rollover, runway and target salary, insights, CSV, PDF layout, statement parsing and reconciliation, duplicates, categories, the store, backups and demo data. Coverage above 90% of lines.                         |
-| 112 end-to-end tests  | 56 scenarios on a desktop browser and a phone: first run, quick add, edit and undo, transfers, search, the launcher, runway what-if, budgets, PDF, CSV and password-protected imports, re-import, undo import, backup and restore, CSV export, offline use, and an axe accessibility sweep of every page in light and dark. |
-| Lighthouse CI         | Ten pages on desktop and four on a simulated phone, asserted at 95 and 90. Measured locally: 100 on desktop across performance, accessibility, best practices and SEO; 96 to 99 for performance on a phone.                                                                                                                 |
-| JavaScript budget     | Every page's scripts followed through their imports and summed gzipped: under 12 KB for the site pages, under 65 KB for the app (the largest is 57 KB). The PDF reader loads only when a PDF is chosen.                                                                                                                     |
-| Type check and format | `astro check` in strict mode and Prettier across the tree.                                                                                                                                                                                                                                                                  |
+| Check                 | What it covers                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 369 unit tests        | Money and exchange rates, dates and money months, recurring items, safe-to-spend and pace, budgets with rollover, runway and target salary, insights, CSV, PDF layout, statement parsing and reconciliation, duplicates, categories, the store, backups and demo data. Coverage above 90% of lines.                                                                             |
+| 110 end-to-end tests  | 56 scenarios on a desktop browser and 54 on a phone (the two keyboard shortcuts are desktop only): first run, quick add, edit and undo, transfers, search, the launcher, runway what-if, budgets, PDF, CSV and password-protected imports, re-import, undo import, backup and restore, CSV export, offline use, and an axe accessibility sweep of every page in light and dark. |
+| Lighthouse CI         | Ten pages on desktop and four on a simulated phone, asserted at 95 and 90. Measured locally: 100 on desktop across performance, accessibility, best practices and SEO; on a phone, 92 to 96 for performance and 100 for the rest.                                                                                                                                               |
+| JavaScript budget     | Every page's scripts followed through their imports and summed gzipped: under 12 KB for the site pages, under 65 KB for the app (the largest is 58 KB). The PDF reader loads only when a PDF is chosen.                                                                                                                                                                         |
+| Type check and format | `astro check` in strict mode and Prettier across the tree.                                                                                                                                                                                                                                                                                                                      |
 
 </details>
 
@@ -191,7 +207,7 @@ Ledger is static HTML and JavaScript with no backend. Your data lives in this si
 <summary><b>Stack and architecture</b></summary>
 <br />
 
-[Astro](https://astro.build) static output with page transitions, [Preact](https://preactjs.com) islands, [Tailwind CSS v4](https://tailwindcss.com), strict TypeScript, [pdf.js](https://mozilla.github.io/pdf.js/) for statements, Vitest, Playwright with axe, and Lighthouse CI. Manrope and Fraunces are self-hosted, Latin only. A post-build step adds `modulepreload` links so each page fetches its scripts in parallel, and writes the service worker with a content-hashed version and the full precache list.
+[Astro](https://astro.build) static output with page transitions, [Preact](https://preactjs.com) islands, [Tailwind CSS v4](https://tailwindcss.com), strict TypeScript, [pdf.js](https://mozilla.github.io/pdf.js/) for statements, Vitest, Playwright with axe, and Lighthouse CI. Newsreader (figures and headings) and Atkinson Hyperlegible Next (words) are self-hosted, Latin only. A post-build step adds `modulepreload` links so each page fetches its scripts in parallel, and writes the service worker with a content-hashed version and the full precache list.
 
 ```
 src/
@@ -202,12 +218,13 @@ src/
                   payee cleanup, categories, duplicates, bank profiles
   lib/store/      pure operations, IndexedDB persistence, undo
   lib/            dates, backups, demo data, quick add, icons
-  components/     Preact screens, charts (runway staircase, burn-down, cash flow,
-                  donut, calendar), the add sheet, launcher and toasts
+  components/     Preact screens, charts (the road, runway staircase, burn-down,
+                  cash flow, calendar), the add sheet, launcher and toasts
   pages/          every route
   sw/             service worker template
 tests/e2e/        Playwright suites; tests/fixtures holds the synthetic statements
 scripts/          post-build step, size budget, fixtures, icons, README visuals
+docs/DESIGN.md    the identity: one idea, voice, type, colour, motifs, what is banned
 ```
 
 </details>
@@ -226,7 +243,7 @@ npm run format     # Prettier
 
 Requires Node 22 or newer. Every push to `main` deploys to GitHub Pages. The build works at the root of a domain or under a sub-path: set `SITE_URL`, and `BASE_PATH` when not at the root.
 
-The images in this README come from `npm run readme:visuals`, which captures the built app with the demo data and composes each scene. The sample statements in `tests/fixtures` (and the "Try a sample" buttons) are made up and come from `npm run fixtures`.
+The images in this README come from `npm run readme:visuals`, which captures the built app with the demo data and composes each scene; the runway animation is the real slider, captured frame by frame. The sample statements in `tests/fixtures` (and the "Try a sample" buttons) are made up and come from `npm run fixtures`.
 
 </details>
 

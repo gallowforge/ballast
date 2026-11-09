@@ -93,8 +93,8 @@ export default function ActivityScreen() {
   if (!ready)
     return (
       <div class="grid gap-3" aria-busy="true">
-        <Skeleton class="h-12 rounded-2xl" />
-        <Skeleton class="h-96 rounded-3xl" />
+        <Skeleton class="h-12 rounded-md" />
+        <Skeleton class="h-96 rounded-md" />
       </div>
     );
 

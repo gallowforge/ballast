@@ -22,16 +22,7 @@ import { toast } from '@/lib/bus';
 import { currency } from '@/lib/money/currency';
 import { url } from '@/lib/site';
 import { BudgetRow, SectionTitle, Swatch, UpcomingRow } from '../parts/parts';
-import {
-  AmountInput,
-  CategoryTile,
-  Empty,
-  Field,
-  Skeleton,
-  Switch,
-  fromInput,
-  toInput,
-} from '../ui/Controls';
+import { AmountInput, Empty, Field, Skeleton, Switch, fromInput, toInput } from '../ui/Controls';
 import { Icon } from '../ui/Icon';
 import { Money } from '../ui/Money';
 import { Sheet } from '../ui/Sheet';
@@ -47,7 +38,7 @@ export default function PlanScreen() {
   const cats = useMemo(() => categoryMap(data), [data]);
   const accounts = useMemo(() => accountMap(data), [data]);
 
-  if (!ready) return <Skeleton class="h-[32rem] rounded-3xl" />;
+  if (!ready) return <Skeleton class="h-[32rem] rounded-md" />;
 
   const states = budgetStates(data, today);
   const totals = budgetTotals(data, today);

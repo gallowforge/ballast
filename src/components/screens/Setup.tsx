@@ -272,7 +272,7 @@ export function SetupSheet({
             </>
           )}
           {preview && (
-            <div class="border-line bg-sunken rounded-2xl border p-4" aria-live="polite">
+            <div class="border-line bg-sunken rounded-md border p-4" aria-live="polite">
               <div class="eyebrow">Your runway</div>
               <p class="mt-1 font-semibold">
                 {preview.lasts

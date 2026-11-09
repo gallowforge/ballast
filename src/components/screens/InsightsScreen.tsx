@@ -17,7 +17,6 @@ import { Cashflow } from '../charts/Cashflow';
 import { Heatmap } from '../charts/Heatmap';
 import { InsightCard, SectionTitle, Swatch, catColor } from '../parts/parts';
 import { Empty, Segmented, Skeleton } from '../ui/Controls';
-import { Icon } from '../ui/Icon';
 import { Money } from '../ui/Money';
 import { useLedger, useToday } from '../ui/hooks';
 

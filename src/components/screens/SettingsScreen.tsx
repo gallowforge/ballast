@@ -87,7 +87,7 @@ export default function SettingsScreen() {
     return () => window.removeEventListener('beforeinstallprompt', on);
   }, []);
 
-  if (!ready) return <Skeleton class="h-[40rem] rounded-3xl" />;
+  if (!ready) return <Skeleton class="h-[40rem] rounded-md" />;
   const base = data.settings.base;
   const bal = balances(data);
   const usedCurrencies = [
@@ -406,7 +406,7 @@ export default function SettingsScreen() {
         <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <button
             type="button"
-            class="btn btn-soft h-auto flex-col items-start gap-1 rounded-2xl p-4 text-left whitespace-normal"
+            class="btn btn-soft h-auto flex-col items-start gap-1 rounded-md p-4 text-left whitespace-normal"
             onClick={() => (
               download(backupFileName(today), backupJSON(data), 'application/json'),
               toast({ message: 'Backup saved', tone: 'good' })
@@ -418,7 +418,7 @@ export default function SettingsScreen() {
           </button>
           <button
             type="button"
-            class="btn btn-soft h-auto flex-col items-start gap-1 rounded-2xl p-4 text-left whitespace-normal"
+            class="btn btn-soft h-auto flex-col items-start gap-1 rounded-md p-4 text-left whitespace-normal"
             onClick={() =>
               download(`ledger-transactions-${today}.csv`, transactionsCSV(data), 'text/csv')
             }
@@ -430,7 +430,7 @@ export default function SettingsScreen() {
               {plural(data.txns.length, 'transaction')}, for spreadsheets
             </span>
           </button>
-          <label class="btn btn-soft h-auto cursor-pointer flex-col items-start gap-1 rounded-2xl p-4 text-left whitespace-normal">
+          <label class="btn btn-soft h-auto cursor-pointer flex-col items-start gap-1 rounded-md p-4 text-left whitespace-normal">
             <Icon name="upload" size={20} class="text-gold-ink" />
             <span class="font-bold">Restore a backup</span>
             <span class="text-subtle text-xs font-medium">From a Ledger JSON file</span>
@@ -443,7 +443,7 @@ export default function SettingsScreen() {
           </label>
           <button
             type="button"
-            class="btn btn-danger h-auto flex-col items-start gap-1 rounded-2xl p-4 text-left whitespace-normal"
+            class="btn btn-danger h-auto flex-col items-start gap-1 rounded-md p-4 text-left whitespace-normal"
             onClick={() => setConfirmWipe(true)}
           >
             <Icon name="trash" size={20} />
@@ -910,7 +910,7 @@ function CategorySheet({ item, onClose }: { item: Category | 'new' | null; onClo
             {CATEGORY_ICONS.map((ic) => (
               <label
                 key={ic}
-                class={`grid aspect-square cursor-pointer place-items-center rounded-xl border ${f.icon === ic ? 'border-gold bg-gold-soft' : 'hover:bg-sunken border-transparent'}`}
+                class={`grid aspect-square cursor-pointer place-items-center rounded-md border ${f.icon === ic ? 'border-gold bg-gold-soft' : 'hover:bg-sunken border-transparent'}`}
               >
                 <input
                   type="radio"

@@ -269,7 +269,10 @@ export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
 
 export function DemoBanner() {
   return (
-    <div class="border-gold flex flex-wrap items-baseline gap-x-4 gap-y-1 border-l-2 py-1 pl-4">
+    <div
+      data-demo-note
+      class="border-gold flex flex-wrap items-baseline gap-x-4 gap-y-1 border-l-2 py-1 pl-4"
+    >
       <p class="serif text-[1.05rem] italic">
         This is Alex's ledger, and Alex is made up. Nothing here is real.
       </p>
