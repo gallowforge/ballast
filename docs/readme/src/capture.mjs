@@ -7,7 +7,10 @@
  *
  * Desktop screens are 1440 x 900 at 2x; phone screens are 390 x 844 at 3x. The runway frames are
  * the real salary slider, moved one step at a time, with the road and the sentence redrawn by the
- * app for each value.
+ * app for each value. The hero frames are the same slider on a phone 420 wide, where the sentence
+ * keeps its two lines for every value, so nothing on the screen jumps while the slider moves.
+ *
+ *   node docs/readme/src/capture.mjs hero               # only the hero's slider frames
  */
 import { chromium } from 'playwright';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -29,6 +32,7 @@ const PHONE = {
   isMobile: true,
   hasTouch: true,
 };
+const HERO_PHONE = { ...PHONE, viewport: { width: 420, height: 910 } };
 
 const settle = async (p) => {
   await p
@@ -134,13 +138,25 @@ const legs = [
   [390_000, 230_000, 22],
   [230_000, 310_000, 12],
 ];
-const VALUES = legs.flatMap(([a, z, n]) =>
-  Array.from({ length: n }, (_, i) => {
-    const t = (i + 1) / n;
-    const e = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
-    return Math.round((a + (z - a) * e) / 5000) * 5000;
-  }),
-);
+const drag = (legs) =>
+  legs.flatMap(([a, z, n]) =>
+    Array.from({ length: n }, (_, i) => {
+      const t = (i + 1) / n;
+      const e = t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+      return Math.round((a + (z - a) * e) / 5000) * 5000;
+    }),
+  );
+const VALUES = drag(legs);
+// The hero plays the same drag at 12 frames a second: the resting value first (the frame the loop
+// holds and starts on), then 61 steps; the 62nd step is the resting frame again, so the loop closes.
+const HERO_VALUES = [
+  310_000,
+  ...drag([
+    [310_000, 390_000, 18],
+    [390_000, 230_000, 28],
+    [230_000, 310_000, 16],
+  ]).slice(0, -1),
+];
 
 const browser = await chromium.launch();
 for (const theme of ['dark', 'light']) {
@@ -186,6 +202,36 @@ for (const theme of ['dark', 'light']) {
       await p.close();
       console.log('runway frames', k, theme, VALUES.length);
     }
+  }
+  if (!ONLY || ONLY === 'hero') {
+    const ctx = await browser.newContext({
+      ...HERO_PHONE,
+      colorScheme: theme,
+      reducedMotion: 'reduce',
+    });
+    let p = await ctx.newPage();
+    await p.goto(`${ORIGIN}/home/?demo=1`);
+    await settle(p);
+    await p.close();
+    p = await ctx.newPage();
+    await p.goto(`${ORIGIN}/runway/`);
+    await settle(p);
+    await p.addStyleTag({ content: '.fab{display:none!important}' });
+    const tops = [];
+    for (const [i, v] of HERO_VALUES.entries()) {
+      await salary(v)(p);
+      await p.waitForTimeout(110);
+      tops.push(await p.evaluate(() => document.querySelector('#whatif').getBoundingClientRect().top));
+      await p.screenshot({ path: `${OUT}/h-rw-${theme}-${String(i).padStart(2, '0')}.png` });
+    }
+    await ctx.close();
+    // The loop is only calm while the text above the slider keeps its line count.
+    const jump = tops.findIndex((y) => Math.abs(y - tops[0]) > 1);
+    if (jump > 0)
+      throw new Error(
+        `The runway screen jumps at hero step ${jump} (${HERO_VALUES[jump]}): try another width for HERO_PHONE.`,
+      );
+    console.log('hero frames', theme, HERO_VALUES.length);
   }
   for (const c of Object.values(ctxs)) await c.close();
 }

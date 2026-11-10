@@ -777,14 +777,17 @@ async function init() {
 }
 
 function renderAt(phase) {
-  // a sequence advances with the phase; a still scene (envStill) keeps its light and camera fixed
+  // a sequence advances with the phase. `hold` keeps the glass, the light, the dust and the camera
+  // still, so a loop moves only what its sequence moves: 1 lets the lifted part float, 2 rests it
+  // too
   for (const w of windows)
     if (w.seq) {
       const n = w.seq.length,
         k = LAYOUT.seqAt ? LAYOUT.seqAt(phase, n) : Math.min(n - 1, Math.floor(phase * n));
       w.mat.uniforms.tContent.value = w.seq[k];
     }
-  if (LAYOUT.envStill) phase = 0;
+  const tha = (LAYOUT.hold === 2 ? 0 : phase) * Math.PI * 2;
+  if (LAYOUT.hold) phase = 0;
   const th = phase * Math.PI * 2;
   const cam = LAYOUT.cam || [12, 5];
   camera.position.set(
@@ -849,7 +852,7 @@ function renderAt(phase) {
     if (!s.parentRef) continue;
     const lift =
       (s.lift ?? 60) +
-      Math.sin(th + (s.breathe ? s.breathe[1] : 0.4) * 6.283) * (s.breathe ? s.breathe[0] : 8);
+      Math.sin(tha + (s.breathe ? s.breathe[1] : 0.4) * 6.283) * (s.breathe ? s.breathe[0] : 8);
     const r = s.rot || [0, 0, 0];
     M.copy(s.parentRef.mesh.matrixWorld).multiply(
       R.makeTranslation(

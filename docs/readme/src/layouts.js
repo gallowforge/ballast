@@ -24,7 +24,8 @@ const box = (shot, theme, key, dpr, pad = 0) => {
 const D = 2,
   P = 3; // capture scale: desktop 1440 x 900 at 2x, phone 390 x 844 at 3x
 const FULL_D = [0, 0, 2880, 1800],
-  FULL_P = [0, 0, 1170, 2532];
+  FULL_P = [0, 0, 1170, 2532],
+  FULL_H = [0, 0, 1260, 2730]; // the hero's phone, 420 x 910 at 3x
 
 const merge = (a, b) => {
   const o = { ...a };
@@ -223,12 +224,23 @@ const PANEL_PHONE = (o) => ({
 });
 
 // ---------- the hero ----------
+// The hero is a loop: 96 frames at 12 a second (build.sh renders that many). The phone in front
+// plays the real salary slider (capture.mjs, HERO_VALUES): it rests on the saved salary for the
+// first 35 frames, then one captured step a frame, and the step after the last is frame 0 again.
+// The glass, the light and the dust hold still, so only the phone is paid for in bytes and the
+// text stays as sharp as in a still; the wide hero keeps the lifted figure floating.
+const HERO_FRAMES = 96,
+  HERO_STEPS = 62;
+const heroSeq = (t) =>
+  Array.from({ length: HERO_STEPS }, (_, i) => `h-rw-${t}-${String(i).padStart(2, '0')}.png`);
 const HERO = (ph) => ({
   css: ph ? [381, 640] : [840, 540],
   ...(ph ? { dpr: 1080 / 381 } : {}),
   fade: ph ? [28, 28, 30, 40] : [80, 80, 40, 70],
   cam: ph ? [7, 3] : [11, 4],
   motion: 0.75,
+  hold: ph ? 2 : 1,
+  seqAt: (phase, n) => Math.max(0, Math.round(phase * HERO_FRAMES) - (HERO_FRAMES - n)),
   pool: ph ? [0.5, 0.4, 0.75, 0.55] : [0.5, 0.42, 0.62, 0.62],
   night: merge(NIGHT, {
     env: {
@@ -323,8 +335,8 @@ const HERO = (ph) => ({
         glow: 0.7,
       },
       {
-        tex: `p-runway-${t}.png`,
-        crop: FULL_P,
+        seq: heroSeq(t),
+        crop: FULL_H,
         key: key(n),
         keyAmt: 0.6,
         breathe: [9, 0.3],
@@ -740,8 +752,8 @@ export const LAYOUTS = {
   'numbers-phone': BAND(true),
   home: PANEL(HOME),
   'home-phone': PANEL_PHONE(HOME),
-  runway: { ...PANEL(RUNWAY), envStill: true, motion: 0, cam: [0, 0] },
-  'runway-phone': { ...PANEL_PHONE(RUNWAY), envStill: true, motion: 0, cam: [0, 0] },
+  runway: { ...PANEL(RUNWAY), hold: 2, motion: 0, cam: [0, 0] },
+  'runway-phone': { ...PANEL_PHONE(RUNWAY), hold: 2, motion: 0, cam: [0, 0] },
   import: PANEL(IMPORT),
   'import-phone': PANEL_PHONE(IMPORT),
   insights: PANEL(INSIGHTS),
