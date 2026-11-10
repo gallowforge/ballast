@@ -106,3 +106,28 @@ test('a budget can be added from its suggestion', async ({ page }) => {
   await sheet.getByRole('button', { name: 'Save' }).click();
   await expect(page.locator('#budgets').getByRole('button', { name: /Transport/ })).toBeVisible();
 });
+
+test('a sheet with a long description keeps a full-size close button', async ({ page }) => {
+  await demo(page, 'runway/');
+  await page.getByRole('button', { name: 'Change' }).click();
+  const sheet = page.getByRole('dialog', { name: 'A date to reach' });
+  const box = await sheet.getByRole('button', { name: 'Close' }).boundingBox();
+  expect(box?.width).toBeGreaterThanOrEqual(44);
+  expect(box?.height).toBeGreaterThanOrEqual(44);
+  await sheet.getByRole('button', { name: 'Close' }).click();
+  await expect(sheet).toBeHidden();
+});
+
+test('the floating + steps aside while scrolling down, and comes back', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'The floating button is for phones');
+  await demo(page);
+  const fab = page.getByRole('button', { name: 'Add a transaction' }).and(page.locator('.fab'));
+  await expect(fab).toBeVisible();
+  await page.mouse.wheel(0, 700);
+  await expect(fab).toBeHidden();
+  await page.mouse.wheel(0, -200);
+  await expect(fab).toBeVisible();
+});

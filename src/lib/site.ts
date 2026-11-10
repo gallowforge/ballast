@@ -4,7 +4,7 @@ export const SITE = {
   description:
     'Ballast is a private money app that works offline. Pay yourself a monthly salary from your savings, see how long they last, set budgets, and import bank statements on your device. No account, no tracking.',
   repo: 'https://github.com/gallowforge/ballast',
-  version: '1.2.0',
+  version: '1.2.1',
 };
 
 const BASE = (import.meta.env?.BASE_URL ?? '/').replace(/\/?$/, '/');

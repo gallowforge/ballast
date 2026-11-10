@@ -362,7 +362,7 @@ const HERO = (ph) => ({
 // ---------- the numbers band ----------
 const FACTS = [
   ['0', 'accounts, servers or trackers'],
-  ['555', 'tests on every change'],
+  ['599', 'tests on every change'],
   ['40', 'currencies, in whole-number maths'],
   ['3', 'decimal places, kept exact'],
 ];

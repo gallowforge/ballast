@@ -71,7 +71,7 @@ export function Sheet({ open, onClose, title, description, wide, children, foote
       >
         <div class="sheet-handle" />
         <div class="flex items-start justify-between gap-4 px-5 pt-4 sm:px-6 sm:pt-6">
-          <div>
+          <div class="min-w-0">
             <h2 id={titleId} class="serif text-[1.55rem] leading-tight font-[480]">
               {title}
             </h2>
@@ -81,9 +81,10 @@ export function Sheet({ open, onClose, title, description, wide, children, foote
               </p>
             )}
           </div>
+          {/* A full 44 px target that never gives up width to a long description. */}
           <button
             type="button"
-            class="btn btn-ghost btn-sm btn-icon -mr-2"
+            class="btn btn-ghost btn-icon -mt-1.5 -mr-3 shrink-0"
             onClick={onClose}
             aria-label="Close"
           >

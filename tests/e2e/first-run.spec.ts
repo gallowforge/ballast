@@ -32,6 +32,54 @@ test('a new person sets up in three steps and sees their month', async ({ page }
   await expect(page.getByText(/15 salaries left/)).toBeVisible();
 });
 
+test('setup needs savings, and plans toward a date only when asked', async ({ page }) => {
+  await open(page, 'home/');
+  // Nothing to add to yet: Welcome's steps are the only calls to action.
+  await expect(page.locator('[data-add]:visible')).toHaveCount(0);
+  await page.getByRole('button', { name: /Set up in a minute/ }).click();
+
+  const money = page.getByRole('dialog', { name: 'Your money' });
+  await money.getByRole('button', { name: 'Next' }).click();
+  await expect(money.getByRole('alert')).toContainText('Enter what you have saved');
+  await expect(money.getByLabel('Savings today')).toBeFocused();
+  await expect(money.getByLabel('Savings today')).toHaveAttribute('aria-invalid', 'true');
+  await money.getByLabel('Savings today').fill('3000');
+  await expect(money.getByRole('alert')).toHaveCount(0);
+  await money.getByRole('button', { name: 'Next' }).click();
+
+  const pay = page.getByRole('dialog', { name: 'Pay yourself' });
+  await pay.getByRole('textbox', { name: 'Monthly salary' }).fill('200');
+  await pay.getByRole('button', { name: 'Next' }).click();
+
+  const target = page.getByRole('dialog', { name: 'A date to reach' });
+  await expect(target.getByRole('switch', { name: 'Plan toward a date' })).toHaveAttribute(
+    'aria-checked',
+    'false',
+  );
+  await target.getByRole('button', { name: 'Start' }).click();
+
+  await expect(page.getByText(/15 salaries left/)).toBeVisible();
+  await expect(page.getByText(/You pass/)).toHaveCount(0);
+  await expect(page.locator('[data-add]:visible')).toHaveCount(1);
+});
+
+test('without a salary or a month of history, the road says what it needs', async ({ page }) => {
+  await open(page, 'home/');
+  await page.getByRole('button', { name: /Set up in a minute/ }).click();
+  await page.getByLabel('Savings today').fill('3000');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('switch', { name: 'Pay myself a monthly salary' }).click();
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByRole('button', { name: 'Start' }).click();
+
+  const road = page.getByRole('region', { name: 'The road ahead' });
+  await expect(road).toContainText('No road to draw yet');
+  await expect(road.getByRole('link', { name: 'Set a salary' })).toBeVisible();
+  await expect(page.getByText(/keep up with you/)).toHaveCount(0);
+  await open(page, 'runway/');
+  await expect(page.getByRole('heading', { level: 1, name: 'No road to draw yet' })).toBeVisible();
+});
+
 test.describe('in another country', () => {
   test.use({ locale: 'de-DE' });
 

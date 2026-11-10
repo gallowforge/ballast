@@ -1,8 +1,12 @@
 /**
  * RFC 4180 CSV: quoted fields, doubled quotes, line breaks inside quotes, CRLF, a UTF-8 byte-order
- * mark, and the delimiter sniffed from the file (comma, semicolon, tab or pipe).
+ * mark, and the delimiter sniffed from the file (comma, semicolon, tab or pipe). Control
+ * characters other than tab and line breaks are dropped.
  */
 const CANDIDATES = [',', ';', '\t', '|'] as const;
+
+/** Control characters that never belong in a statement's cells (tab and line breaks do). */
+export const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g;
 
 function countOutsideQuotes(line: string, ch: string): number {
   let n = 0;
@@ -17,7 +21,7 @@ function countOutsideQuotes(line: string, ch: string): number {
 /** The delimiter that splits the first lines most consistently. */
 export function sniffDelimiter(text: string): string {
   const lines = text
-    .replace(/^﻿/, '')
+    .replace(/^\uFEFF/, '')
     .split(/\r?\n/)
     .filter((l) => l.trim())
     .slice(0, 20);
@@ -41,7 +45,8 @@ export function sniffDelimiter(text: string): string {
 }
 
 export function parseCSV(text: string, delimiter = sniffDelimiter(text)): string[][] {
-  const s = text.replace(/^﻿/, '');
+  // A stray control byte would show as a box in the preview and end up in a payee.
+  const s = text.replace(/^\uFEFF/, '').replace(CONTROL_CHARS, '');
   const rows: string[][] = [];
   let row: string[] = [];
   let field = '';

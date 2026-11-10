@@ -98,9 +98,9 @@ const rec = statement.reconciliation;
       <p class="mt-4 flex flex-wrap items-baseline justify-between gap-2 border-t border-line pt-3 text-sm text-subtle">
         <span>
           <span class="serif text-[1.05rem] text-fg italic">
-            Alex’s savings last until {formatMonth(r.lastFull ?? today)}
+            Alex’s savings last until {formatMonth(r.lastFull ?? today)},
           </span>
-          , {plural(r.periods, 'salary', 'salaries')} of {formatMoney(r.monthly, base)}.
+          {plural(r.periods, 'salary', 'salaries')} of {formatMoney(r.monthly, base)}.
         </span>
         <span>Alex is made up. The road is drawn by the same engine you get.</span>
       </p>

@@ -5,6 +5,7 @@ import { categorize } from './categorize';
 import { parseCSV } from './csv';
 import { findDuplicates, fingerprint, withOccurrence, type Duplicate } from './dedupe';
 import { detectMapping, type Mapping } from './detect';
+import { FILE_MESSAGES, StatementFileError, decodeText } from './file';
 import { groupLines, linesToTable, pageText, type TextItem } from './pdf-layout';
 import { detectCurrency, detectProfile, type Profile } from './profiles';
 import { parseStatement, type ParsedStatement } from './statement';
@@ -32,6 +33,18 @@ export function sourceFromCSV(text: string, fileName: string): Source {
     profile,
     currency: detectCurrency(head, profile.currency),
   };
+}
+
+/**
+ * A CSV (or any text export) from its bytes. Throws a StatementFileError in plain words when the
+ * file is binary, empty, or holds no rows of transactions.
+ */
+export function sourceFromText(bytes: Uint8Array, fileName: string): Source {
+  const src = sourceFromCSV(decodeText(bytes), fileName);
+  // At least a heading and one line, each with two or more cells: a sentence is not a table.
+  if (src.table.filter((r) => r.filter((c) => c).length >= 2).length < 2)
+    throw new StatementFileError(FILE_MESSAGES.noRows);
+  return src;
 }
 
 export function sourceFromPdf(items: readonly TextItem[], fileName: string): Source | null {

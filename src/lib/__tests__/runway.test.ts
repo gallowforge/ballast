@@ -26,6 +26,7 @@ describe('runway with a salary from savings', () => {
     expect(r.lastFull).toBe('2027-04-01');
     expect(r.runOut).toBe('2027-05-01');
     expect(r.lasts).toBe(false);
+    expect(r.needs).toBe(null);
   });
 
   it('draws this month first when it has not been paid yet', () => {
@@ -195,7 +196,12 @@ describe('runway without a salary', () => {
       accounts: [{ ...spending, opening: 100_000 }],
       txns: [txn({ date: '2026-10-10', amount: 50_000, kind: 'income' })],
     });
-    expect(runway(d, '2026-11-10')).toMatchObject({ mode: 'average', lasts: true, runOut: null });
+    expect(runway(d, '2026-11-10')).toMatchObject({
+      mode: 'average',
+      lasts: true,
+      needs: null,
+      runOut: null,
+    });
   });
 
   it('answers how much more than you earn you can spend to reach a target', () => {
@@ -204,6 +210,31 @@ describe('runway without a salary', () => {
     expect(t.periods).toBe(6);
     expect(t.sustainable).toBe(Math.floor(160_000 / 6));
     expect(t.status).toBe('short');
+  });
+
+  it('claims nothing when there is no money and nothing going out', () => {
+    const d = data({
+      accounts: [{ ...savings, opening: 0 }, spending],
+      target: { date: '2028-07-01', floor: 0, label: 'Back to work' },
+    });
+    const r = runway(d, '2026-11-10');
+    expect(r).toMatchObject({ mode: 'average', needs: 'savings', lasts: false, target: null });
+    expect(r.points).toEqual([]);
+  });
+
+  it('waits for a salary or a full month before taking a pace', () => {
+    const d = data({
+      accounts: [{ ...savings, opening: 500_000 }],
+      txns: [txn({ date: '2026-11-05', amount: 20_000, accountId: 'sav' })],
+    });
+    expect(runway(d, '2026-11-10')).toMatchObject({
+      mode: 'average',
+      needs: 'pace',
+      lasts: false,
+      runOut: null,
+    });
+    // One full month of history is enough.
+    expect(runway(d, '2026-12-10')).toMatchObject({ needs: null, monthly: 20_000 });
   });
 
   it('has nothing to say without accounts', () => {

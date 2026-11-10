@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import {
   addMonths,
   cycleOf,
@@ -32,12 +32,11 @@ export function SetupSheet({
   onClose: () => void;
   today: ISODate;
 }) {
-  // A new user's main currency starts as the one their browser's language settings suggest.
-  const [base, setBase] = useState(() => getState().settings.base);
+  // A new user's main currency starts as the one their browser's language settings suggest (the
+  // store's, which has loaded before Home shows this sheet) until the person picks another.
+  const [picked, setBase] = useState<string | null>(null);
+  const base = picked ?? getState().settings.base;
   const fixed = getState().txns.length > 0;
-  useEffect(() => {
-    if (open) setBase(getState().settings.base);
-  }, [open]);
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [savings, setSavings] = useState('');
@@ -45,13 +44,35 @@ export function SetupSheet({
   const [wantSalary, setWantSalary] = useState(true);
   const [salary, setSalaryText] = useState('');
   const [payday, setPayday] = useState(1);
-  const [wantTarget, setWantTarget] = useState(true);
+  // A date to reach is a choice: nothing is planned toward one unless the person switches it on.
+  const [wantTarget, setWantTarget] = useState(false);
   const [date, setDate] = useState(addMonths(cycleOf(today, 1).start, 18));
-  const [label, setLabel] = useState('Back to work');
+  const [label, setLabel] = useState('');
   const [floor, setFloor] = useState('');
+  const [tried, setTried] = useState(false);
+  const savingsRef = useRef<HTMLDivElement>(null);
+  const dateRef = useRef<HTMLDivElement>(null);
 
   const sav = fromInput(savings, base) ?? 0;
   const sal = fromInput(salary, base);
+  // Ballast is about money that has to last, so it needs something to lay out.
+  const savingsProblem =
+    sav > 0
+      ? ''
+      : 'Enter what you have saved, even a rough figure. The salary and the road are worked out from it.';
+  const dateProblem =
+    wantTarget && !(date > today) ? 'Choose a date after today, or switch this off.' : '';
+  const problem = step === 0 ? savingsProblem : step === 2 ? dateProblem : '';
+
+  /** Moves on only when this step makes sense; otherwise says why, right where the problem is. */
+  const next = (go: () => void) => {
+    if (!problem) {
+      setTried(false);
+      return go();
+    }
+    setTried(true);
+    (step === 0 ? savingsRef : dateRef).current?.querySelector('input')?.focus();
+  };
 
   // A live preview, computed exactly as the app will.
   const preview = (() => {
@@ -79,7 +100,10 @@ export function SetupSheet({
         startedOn: today,
         lastPostedOn: cycleOf(today, payday).start,
       },
-      target: wantTarget ? { date, floor: fromInput(floor, base) ?? 0, label } : null,
+      target:
+        wantTarget && date > today
+          ? { date, floor: fromInput(floor, base) ?? 0, label: label.trim() || 'Your date' }
+          : null,
     };
     return runway(d, today);
   })();
@@ -120,9 +144,9 @@ export function SetupSheet({
           lastPostedOn: cycleOf(today, payday).start,
         }),
       );
-    if (wantTarget)
+    if (wantTarget && date > today)
       apply(
-        setTarget({ date, floor: fromInput(floor, base) ?? 0, label: label.trim() || 'Target' }),
+        setTarget({ date, floor: fromInput(floor, base) ?? 0, label: label.trim() || 'Your date' }),
       );
     void protect();
     onClose();
@@ -142,16 +166,24 @@ export function SetupSheet({
       footer={
         <>
           {step > 0 && (
-            <button type="button" class="btn btn-ghost mr-auto" onClick={() => setStep(step - 1)}>
+            <button
+              type="button"
+              class="btn btn-ghost mr-auto"
+              onClick={() => (setTried(false), setStep(step - 1))}
+            >
               <Icon name="chevron-left" size={18} /> Back
             </button>
           )}
           {step < 2 ? (
-            <button type="button" class="btn btn-primary" onClick={() => setStep(step + 1)}>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onClick={() => next(() => setStep(step + 1))}
+            >
               Next <Icon name="arrow-right" size={18} />
             </button>
           ) : (
-            <button type="button" class="btn btn-primary" onClick={finish}>
+            <button type="button" class="btn btn-primary" onClick={() => next(finish)}>
               <Icon name="check" size={18} /> Start
             </button>
           )}
@@ -195,13 +227,23 @@ export function SetupSheet({
               ))}
             </select>
           </Field>
-          <Field
-            id="setup-savings"
-            label="Savings today"
-            hint="What you are living on: the money a monthly salary will come from."
-          >
-            <AmountInput id="setup-savings" value={savings} onInput={setSavings} code={base} big />
-          </Field>
+          <div ref={savingsRef} class="grid gap-2">
+            <Field
+              id="setup-savings"
+              label="Savings today"
+              hint="What you are living on: the money a monthly salary will come from."
+            >
+              <AmountInput
+                id="setup-savings"
+                value={savings}
+                onInput={setSavings}
+                code={base}
+                big
+                invalid={tried && !!savingsProblem}
+              />
+            </Field>
+            {tried && savingsProblem && <Problem text={savingsProblem} />}
+          </div>
           <Field
             id="setup-spending"
             label="Spending account today"
@@ -272,25 +314,30 @@ export function SetupSheet({
           {wantTarget && (
             <>
               <div class="grid gap-4 sm:grid-cols-2">
-                <Field id="setup-label" label="Call it">
+                <Field id="setup-label" label="Call it (optional)">
                   <input
                     id="setup-label"
                     class="input"
                     value={label}
+                    placeholder="For example, back to work"
                     onInput={(e) => setLabel((e.target as HTMLInputElement).value)}
                   />
                 </Field>
-                <Field id="setup-date" label="Date">
-                  <input
-                    id="setup-date"
-                    type="date"
-                    class="input"
-                    value={date}
-                    min={today}
-                    onInput={(e) => setDate((e.target as HTMLInputElement).value)}
-                  />
-                </Field>
+                <div ref={dateRef}>
+                  <Field id="setup-date" label="Date">
+                    <input
+                      id="setup-date"
+                      type="date"
+                      class="input"
+                      value={date}
+                      min={today}
+                      aria-invalid={(tried && !!dateProblem) || undefined}
+                      onInput={(e) => setDate((e.target as HTMLInputElement).value)}
+                    />
+                  </Field>
+                </div>
               </div>
+              {tried && dateProblem && <Problem text={dateProblem} />}
               <Field
                 id="setup-floor"
                 label="Keep at least (optional)"
@@ -320,5 +367,14 @@ export function SetupSheet({
         </div>
       )}
     </Sheet>
+  );
+}
+
+/** Says what is missing, kindly, in the same voice and box as the add sheet. */
+function Problem({ text }: { text: string }) {
+  return (
+    <p class="bg-warn-soft text-warn rounded-md px-4 py-3 text-sm font-semibold" role="alert">
+      {text}
+    </p>
   );
 }

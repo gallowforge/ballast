@@ -70,6 +70,57 @@ test('an import can be undone from the history', async ({ page }) => {
   await expect(page.getByText('A clean page.')).toBeVisible();
 });
 
+const PNG = Buffer.from(
+  '89504e470d0a1a0a0000000d4948445200000028000000280103000000b6302a2e0000000c504c5445ff000019e2093700',
+  'hex',
+);
+
+for (const [what, file, message] of [
+  [
+    'an image',
+    { name: 'pic.png', mimeType: 'image/png', buffer: PNG },
+    'does not look like a statement',
+  ],
+  [
+    'an image named as a PDF',
+    { name: 'fake.pdf', mimeType: 'application/pdf', buffer: PNG },
+    'does not look like a statement',
+  ],
+  [
+    'an empty file',
+    { name: 'empty.csv', mimeType: 'text/csv', buffer: Buffer.from('') },
+    'This file is empty',
+  ],
+  [
+    'a note with no table',
+    {
+      name: 'notes.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('hello world, plain text that is not a statement\n'),
+    },
+    'found no rows of transactions',
+  ],
+  [
+    'a damaged PDF',
+    {
+      name: 'broken.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('%PDF-1.7\n1 0 obj << /Type /Catalog >>\ntrailer garbage'),
+    },
+    'This PDF could not be opened',
+  ],
+] as const)
+  test(`${what} is refused in plain words, where it can be seen`, async ({ page }) => {
+    await open(page, 'import/');
+    await page.locator('input[type=file]').setInputFiles(file);
+    const alert = page.getByRole('alert');
+    await expect(alert).toContainText(message);
+    // Said at the top of the card, with focus on it, so a phone never hides it below the fold.
+    await expect(alert).toBeFocused();
+    await expect(alert).toBeInViewport({ ratio: 1 });
+    await expect(page.getByRole('heading', { name: 'Check the columns' })).toHaveCount(0);
+  });
+
 test('the sample statement shows the columns it found', async ({ page }) => {
   await demo(page, 'import/');
   await page.getByRole('button', { name: 'Try a sample PDF' }).click();

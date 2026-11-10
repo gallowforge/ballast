@@ -4,6 +4,7 @@ import {
   addMonths,
   cycleAt,
   cycleOf,
+  dayHeading,
   daysInMonth,
   diffDays,
   eachDay,
@@ -106,6 +107,16 @@ describe('English display', () => {
     ['2026-11-04', 'Wednesday'],
     ['2026-10-30', '30 Oct'],
   ])('%s relative to 8 Nov → %s', (d, out) => expect(formatRelative(d, '2026-11-08')).toBe(out));
+  it.each([
+    ['2026-11-08', 'Today', '8 Nov'],
+    ['2026-11-07', 'Yesterday', '7 Nov'],
+    ['2026-11-09', 'Tomorrow', '9 Nov'],
+    ['2026-11-04', 'Wednesday', '4 Nov'],
+    ['2026-10-30', 'Friday', '30 Oct'],
+    ['2025-12-31', 'Wednesday', '31 Dec 2025'],
+  ])('a list heading for %s reads %s %s', (d, name, date) =>
+    expect(dayHeading(d, '2026-11-08')).toEqual({ name, date }),
+  );
   it.each([
     ['2026-11-08', 'today'],
     ['2026-11-09', 'tomorrow'],

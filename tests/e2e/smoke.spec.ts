@@ -49,6 +49,11 @@ test('moving between pages leaves no screen half-built', async ({ page }) => {
   }
 });
 
+test('the landing page reads as one sentence under the road', async ({ page }) => {
+  await page.goto('');
+  await expect(page.getByText(/savings last until \w+ \d{4},\s+\d+ salaries of/)).toBeVisible();
+});
+
 test('unknown pages get the 404 page', async ({ page }) => {
   const res = await page.goto('nope/');
   expect(res?.status()).toBe(404);

@@ -56,6 +56,35 @@ export default function RunwayScreen() {
       </Empty>
     );
 
+  if (plan.needs)
+    return (
+      <Empty
+        level={1}
+        icon="runway"
+        title="No road to draw yet"
+        body={
+          plan.needs === 'savings'
+            ? 'Add what you have saved, and Ballast lays out how far it carries you, payday by payday.'
+            : 'Pay yourself a salary from your savings, or keep a full month of spending here, and Ballast lays out how far your money carries you.'
+        }
+      >
+        {plan.needs === 'savings' ? (
+          <a class="btn btn-primary btn-sm" href={url('settings/#accounts')}>
+            Add your savings
+          </a>
+        ) : (
+          <>
+            <a class="btn btn-primary btn-sm" href={url('plan/#salary')}>
+              Set a salary
+            </a>
+            <a class="btn btn-soft btn-sm" href={url('import/')}>
+              Import a statement
+            </a>
+          </>
+        )}
+      </Empty>
+    );
+
   const view = tried ?? plan;
   const t = view.target;
   const salaryMode = plan.mode === 'salary';

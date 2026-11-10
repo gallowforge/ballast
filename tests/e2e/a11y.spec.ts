@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { demo, hydrated, openAdd } from './helpers';
+import { demo, hydrated } from './helpers';
 
 async function audit(page: Page) {
   const results = await new AxeBuilder({ page })
@@ -38,7 +38,13 @@ for (const scheme of ['light', 'dark'] as const) {
       await page.goto('home/');
       await hydrated(page);
       await audit(page);
-      await openAdd(page);
+      // Before setup there is no add button on screen; the shortcut still opens the sheet.
+      await expect(async () => {
+        await page.keyboard.press('n');
+        await expect(page.getByRole('dialog', { name: 'Add a transaction' })).toBeVisible({
+          timeout: 500,
+        });
+      }).toPass();
       await audit(page);
     });
   });

@@ -53,6 +53,11 @@ export interface Runway {
   periods: number;
   /** True when savings never run out within ten years. */
   lasts: boolean;
+  /**
+   * Why there is no road to draw yet, so nothing is claimed about it: no money to lay out
+   * ('savings'), or no salary and no full month of history to take a pace from ('pace').
+   */
+  needs: 'savings' | 'pace' | null;
   target: TargetResult | null;
   horizon: ISODate;
 }
@@ -103,6 +108,7 @@ export function runway(data: LedgerData, today: ISODate, opts: RunwayOptions = {
     runOut: null,
     periods: 0,
     lasts: false,
+    needs: null,
     target: null,
     horizon: today,
   };
@@ -194,6 +200,7 @@ function salaryRunway(
     runOut,
     periods,
     lasts: runOut === null,
+    needs: null,
     target: null,
     horizon,
   };
@@ -240,8 +247,28 @@ function averageRunway(
   target: LedgerData['target'],
 ): Runway {
   const { total: start, missing } = totalOf(data, activeAccounts(data), today);
-  const { burn } = averageBurn(data, today);
+  const { burn, months } = averageBurn(data, today);
   const day = data.settings.cycleDay;
+  // Nothing saved and nothing going out says nothing about how far money goes; neither does a
+  // pace taken from no full month at all. Say what is missing instead of "it lasts".
+  const needs = start <= 0 && burn <= 0 ? 'savings' : months === 0 ? 'pace' : null;
+  if (needs)
+    return {
+      mode: 'average',
+      start,
+      missing,
+      monthly: 0,
+      floor,
+      events: [],
+      points: [],
+      lastFull: null,
+      runOut: null,
+      periods: 0,
+      lasts: false,
+      needs,
+      target: null,
+      horizon: chooseHorizon(today, null, target?.date),
+    };
   const limit = addMonths(today, TEN_YEARS);
   const events: RunwayEvent[] = [];
   const points: RunwayPoint[] = [{ date: today, balance: start }];
@@ -300,6 +327,7 @@ function averageRunway(
     runOut,
     periods,
     lasts: runOut === null,
+    needs: null,
     target: t,
     horizon,
   };

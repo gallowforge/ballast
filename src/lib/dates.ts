@@ -184,6 +184,17 @@ export function formatRelative(date: ISODate, ref: ISODate = today()): string {
   return formatShort(date, ref);
 }
 
+/**
+ * A day's heading in a list, one pattern for every day: its name ("Today", "Yesterday", or the
+ * weekday in full) and its date ("7 Nov", with the year when it is not this year).
+ */
+export function dayHeading(date: ISODate, ref: ISODate = today()): { name: string; date: string } {
+  const n = diffDays(ref, date);
+  const name =
+    n === 0 ? 'Today' : n === -1 ? 'Yesterday' : n === 1 ? 'Tomorrow' : formatWeekday(date);
+  return { name, date: formatShort(date, ref) };
+}
+
 /** "in 3 days", "tomorrow", "today", "3 days ago". */
 export function formatIn(date: ISODate, ref: ISODate = today()): string {
   const n = diffDays(ref, date);

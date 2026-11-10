@@ -89,7 +89,7 @@ export default function PlanScreen() {
         {s?.active && (
           <div class="mt-8">
             <div
-              class="bg-sunken relative flex h-10 w-full overflow-hidden rounded-[3px]"
+              class="bg-sunken ring-track-edge relative flex h-10 w-full overflow-hidden rounded-[3px] ring-1 ring-inset"
               role="meter"
               aria-label={`Of your ${formatMoney(s.amount, base)} salary, fixed costs take ${formatMoney(fixed, base)} and budgets ${formatMoney(committed - fixed, base)}`}
               aria-valuemin={0}
@@ -130,7 +130,7 @@ export default function PlanScreen() {
               </div>
               <div class="border-line flex items-baseline justify-between gap-3 border-b py-2">
                 <dt class="flex items-center gap-2">
-                  <i class="border-line-strong size-2.5 border" />{' '}
+                  <i class="border-rest size-2.5 border" />{' '}
                   {committed <= s.amount ? 'Left unplanned' : 'Over the salary'}
                 </dt>
                 <dd>

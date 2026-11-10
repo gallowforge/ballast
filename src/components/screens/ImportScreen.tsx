@@ -9,13 +9,21 @@ import {
   hasHistoryBefore,
   mappingFor,
   readStatement,
-  sourceFromCSV,
   sourceFromPdf,
+  sourceFromText,
   summarize,
   type ReviewRow,
   type Source,
 } from '@/lib/import/importer';
-import { PdfNoTextError, PdfPasswordError } from '@/lib/import/pdf-text';
+import {
+  FILE_MESSAGES,
+  MAX_BYTES,
+  StatementFileError,
+  fileKind,
+  readFailure,
+  type FileKind,
+} from '@/lib/import/file';
+import { PdfPasswordError } from '@/lib/import/pdf-text';
 import type { AccountRole } from '@/lib/model';
 import { uid } from '@/lib/ids';
 import { addAccount, applyImport, undoImport } from '@/lib/store/ops';
@@ -38,7 +46,9 @@ export default function ImportScreen() {
   const [step, setStep] = useState<Step>('pick');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [file, setFile] = useState<{ name: string; bytes: Uint8Array } | null>(null);
+  // Counts every error shown, so the same message twice still moves focus to it.
+  const [errorSeq, setErrorSeq] = useState(0);
+  const [file, setFile] = useState<{ name: string; type: string; bytes: Uint8Array } | null>(null);
   const [password, setPassword] = useState('');
   const [source, setSource] = useState<Source | null>(null);
   const [mapping, setMapping] = useState<Mapping | null>(null);
@@ -62,8 +72,24 @@ export default function ImportScreen() {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  const passRef = useRef<HTMLInputElement>(null);
+  const errorFocus = useRef<'error' | 'password'>('error');
 
   useEffect(() => headingRef.current?.focus({ preventScroll: true }), [step]);
+  // A problem is said at the top of the card and focus goes to it, so on a phone it is never
+  // hidden below the fold. A wrong password keeps focus in the password box, ready to retype.
+  useEffect(() => {
+    if (!errorSeq) return;
+    if (errorFocus.current === 'password' && passRef.current) passRef.current.select();
+    else errorRef.current?.focus();
+  }, [errorSeq]);
+
+  const fail = (message: string, focus: 'error' | 'password' = 'error') => {
+    errorFocus.current = focus;
+    setError(message);
+    setErrorSeq((n) => n + 1);
+  };
 
   const acctCurrency =
     accountId === NEW
@@ -96,37 +122,25 @@ export default function ImportScreen() {
     setStep('map');
   };
 
-  const openFile = async (name: string, bytes: Uint8Array, pass?: string) => {
+  const openFile = async (name: string, type: string, bytes: Uint8Array, pass?: string) => {
     setBusy(true);
     setError('');
+    let kind: FileKind = /\.pdf$/i.test(name) ? 'pdf' : 'text';
     try {
-      if (/\.pdf$/i.test(name) || (bytes[0] === 0x25 && bytes[1] === 0x50)) {
+      kind = fileKind(name, type, bytes);
+      if (kind === 'pdf') {
         const { readPdf } = await import('@/lib/import/pdf-browser');
         const { items } = await readPdf(bytes, pass);
         const src = sourceFromPdf(items, name);
-        if (!src)
-          throw new Error(
-            'Ballast read this PDF but could not find a table of transactions in it. If your bank offers a CSV export, that will work.',
-          );
+        if (!src) throw new StatementFileError(FILE_MESSAGES.noPdfTable);
         setPassword('');
         begin(src);
-      } else {
-        const text = new TextDecoder('utf-8').decode(bytes);
-        const src = sourceFromCSV(text, name);
-        if (src.table.length < 2)
-          throw new Error('This file is empty: there are no rows in it to bring in.');
-        begin(src);
-      }
+      } else begin(sourceFromText(bytes, name));
     } catch (e) {
       if (e instanceof PdfPasswordError) {
         setStep('password');
-        if (e.reason === 'wrong') setError('That password did not open it. Try again.');
-      } else if (e instanceof PdfNoTextError) setError(e.message);
-      else
-        setError(
-          (e as Error).message ||
-            'Ballast could not read this file. Is it a statement in PDF or CSV form?',
-        );
+        if (e.reason === 'wrong') fail('That password did not open it. Try again.', 'password');
+      } else fail(readFailure(e, kind));
     } finally {
       setBusy(false);
     }
@@ -134,21 +148,20 @@ export default function ImportScreen() {
 
   const choose = async (f: File | undefined | null) => {
     if (!f) return;
-    if (f.size > 25 * 1024 * 1024)
-      return setError(
-        'That file is over 25 MB, which is far bigger than a statement. Is it the right file?',
-      );
+    // Checked before reading, so a huge file is never loaded into memory.
+    if (f.size > MAX_BYTES) return fail(FILE_MESSAGES.tooBig);
     const bytes = new Uint8Array(await f.arrayBuffer());
-    setFile({ name: f.name, bytes });
-    await openFile(f.name, bytes);
+    setFile({ name: f.name, type: f.type, bytes });
+    await openFile(f.name, f.type, bytes);
   };
 
   const sample = async (kind: 'pdf' | 'csv') => {
     const res = await fetch(url(`samples/sample-statement.${kind}`));
     const bytes = new Uint8Array(await res.arrayBuffer());
     const name = `sample-statement.${kind}`;
-    setFile({ name, bytes });
-    await openFile(name, bytes);
+    const type = kind === 'pdf' ? 'application/pdf' : 'text/csv';
+    setFile({ name, type, bytes });
+    await openFile(name, type, bytes);
   };
 
   const toReview = () => {
@@ -238,17 +251,17 @@ export default function ImportScreen() {
   return (
     <div class="grid grid-cols-1 gap-10">
       <ol
-        class="animate-rise border-line flex flex-wrap items-baseline gap-x-6 gap-y-2 border-b pb-3 text-sm font-bold"
+        class="animate-rise border-line flex flex-wrap items-baseline gap-x-3 gap-y-2 border-b pb-3 text-[0.8125rem] font-bold sm:gap-x-6 sm:text-sm"
         aria-label="Import steps"
       >
         {steps.map((s, i) => (
           <li
             key={s.id}
-            class={`flex items-baseline gap-2 ${i === stepIndex ? 'text-fg' : 'text-subtle'}`}
+            class={`flex items-baseline gap-1.5 sm:gap-2 ${i === stepIndex ? 'text-fg' : 'text-subtle'}`}
             aria-current={i === stepIndex ? 'step' : undefined}
           >
             <span
-              class={`figure text-[1.35rem] ${i < stepIndex ? 'text-good' : i === stepIndex ? 'text-gold-ink' : ''}`}
+              class={`figure text-[1.2rem] sm:text-[1.35rem] ${i < stepIndex ? 'text-good' : i === stepIndex ? 'text-gold-ink' : ''}`}
             >
               {i < stepIndex ? <Icon name="check" size={16} stroke={2.6} /> : i + 1}
             </span>
@@ -268,12 +281,22 @@ export default function ImportScreen() {
             >
               {step === 'password' ? 'This statement is locked' : 'Bring in a bank statement'}
             </h2>
+            {error && (
+              <p
+                ref={errorRef}
+                tabIndex={-1}
+                class="bg-warn-soft text-warn mt-3 rounded-md px-4 py-3 text-sm font-semibold outline-none"
+                role="alert"
+              >
+                {error}
+              </p>
+            )}
             {step === 'password' ? (
               <form
                 class="mt-4 grid gap-4"
                 onSubmit={(e) => {
                   e.preventDefault();
-                  if (file) void openFile(file.name, file.bytes, password);
+                  if (file) void openFile(file.name, file.type, file.bytes, password);
                 }}
               >
                 <p class="text-muted">
@@ -282,6 +305,7 @@ export default function ImportScreen() {
                 </p>
                 <Field id="pdf-pass" label="Statement password">
                   <input
+                    ref={passRef}
                     id="pdf-pass"
                     type="password"
                     class="input"
@@ -302,7 +326,7 @@ export default function ImportScreen() {
               </form>
             ) : (
               <>
-                <p class="text-muted mt-1">
+                <p class={`text-muted ${error ? 'mt-3' : 'mt-1'}`}>
                   A PDF or CSV from your bank. Common column layouts are recognised on their own,
                   and any other works by matching its columns.
                 </p>
@@ -351,14 +375,6 @@ export default function ImportScreen() {
                   </button>
                 </div>
               </>
-            )}
-            {error && (
-              <p
-                class="bg-warn-soft text-warn mt-4 rounded-md px-4 py-3 text-sm font-semibold"
-                role="alert"
-              >
-                {error}
-              </p>
             )}
           </section>
           <aside

@@ -25,6 +25,13 @@ describe('CSV', () => {
       ['2026-11-01', '5'],
     ]);
   });
+  it('drops control characters but keeps tabs and line breaks', () => {
+    expect(parseCSV('a\u0000b,c\u0001\n"x\u001fy",z\u007f\n1\t2,3')).toEqual([
+      ['ab', 'c'],
+      ['xy', 'z'],
+      ['1\t2', '3'],
+    ]);
+  });
   it('keeps empty fields in the middle and at the end', () => {
     expect(parseCSV('a,,c,\n')).toEqual([['a', '', 'c', '']]);
   });

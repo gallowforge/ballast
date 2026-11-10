@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import { cycleAt, formatDay, formatMonth, formatRelative, plural } from '@/lib/dates';
+import { cycleAt, dayHeading, formatMonth, plural } from '@/lib/dates';
 import { formatMoney } from '@/lib/money/money';
 import { accountMap, categoryMap, sortedTxns } from '@/lib/ledger';
 import type { Txn } from '@/lib/model';
@@ -11,7 +11,7 @@ import { TxnRow } from '../parts/parts';
 import { Empty, Skeleton } from '../ui/Controls';
 import { Icon } from '../ui/Icon';
 import { Money } from '../ui/Money';
-import { useKey, useLedger, useToday } from '../ui/hooks';
+import { useKey, useLedger, useScrollEdges, useToday } from '../ui/hooks';
 
 type Filter = 'all' | 'spending' | 'income' | 'transfers' | 'uncategorised';
 const FILTERS: { id: Filter; label: string }[] = [
@@ -32,6 +32,7 @@ export default function ActivityScreen() {
   const [account, setAccount] = useState('all');
   const [selecting, setSelecting] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [filtersRef, filtersMore] = useScrollEdges();
 
   useEffect(() => {
     const p = new URLSearchParams(location.search);
@@ -189,7 +190,13 @@ export default function ActivityScreen() {
             </div>
           )}
         </div>
-        <div class="scroll-x -mx-1 flex gap-2 px-1" role="group" aria-label="Show">
+        <div
+          ref={filtersRef}
+          class="scroll-x -mx-1 flex gap-2 px-1"
+          role="group"
+          aria-label="Show"
+          data-more={filtersMore}
+        >
           {FILTERS.map((f) => (
             <button
               type="button"
@@ -257,7 +264,12 @@ export default function ActivityScreen() {
               level={2}
               icon="activity"
               title="A clean page."
-              body="Nothing written here yet. Add what you spend with the + button (or press N), or bring in a bank statement and the past months fill in at once."
+              body={
+                // The + button waits for the first account, so only point at it once it is there.
+                data.accounts.length
+                  ? 'Nothing written here yet. Add what you spend with the + button (or press N), or bring in a bank statement and the past months fill in at once.'
+                  : 'Nothing written here yet. Add what you spend, or bring in a bank statement and the past months fill in at once.'
+              }
             >
               <button type="button" class="btn btn-primary btn-sm" onClick={() => openTxn()}>
                 <Icon name="plus" size={16} /> Add a transaction
@@ -281,57 +293,54 @@ export default function ActivityScreen() {
         </div>
       ) : (
         <div class="grid gap-9">
-          {groups.map((g, gi) => (
-            <section
-              key={g.date}
-              class="animate-row"
-              style={{ animationDelay: `${Math.min(gi, 8) * 35}ms` }}
-              aria-label={formatDay(g.date)}
-            >
-              <div class="border-fg flex items-baseline justify-between border-b-2 pb-1.5">
-                <h2 class="serif text-[1.3rem] font-[480]">
-                  {/^[A-Z][a-z]+$/.test(formatRelative(g.date, today)) ? (
-                    <>
-                      {formatRelative(g.date, today)}
-                      <span class="caps ml-3 align-middle">{formatDay(g.date)}</span>
-                    </>
-                  ) : (
-                    formatDay(g.date)
+          {groups.map((g, gi) => {
+            const day = dayHeading(g.date, today);
+            return (
+              <section
+                key={g.date}
+                class="animate-row"
+                style={{ animationDelay: `${Math.min(gi, 8) * 35}ms` }}
+                aria-label={`${day.name} ${day.date}`}
+              >
+                <div class="border-fg flex items-baseline justify-between border-b-2 pb-1.5">
+                  <h2 class="serif text-[1.3rem] font-[480]">
+                    {day.name}
+                    <span class="caps ml-3 align-middle">{day.date}</span>
+                  </h2>
+                  {g.spent > 0 && (
+                    <span class="text-subtle text-sm">{formatMoney(g.spent, base)}</span>
                   )}
-                </h2>
-                {g.spent > 0 && (
-                  <span class="text-subtle text-sm">{formatMoney(g.spent, base)}</span>
-                )}
-              </div>
-              <div class="grid">
-                {g.items.map((t) =>
-                  selecting ? (
-                    <label key={t.id} class="flex cursor-pointer items-center gap-3">
-                      <input
-                        type="checkbox"
-                        class="size-5 flex-none accent-[var(--gold)]"
-                        checked={picked.has(t.id)}
-                        onChange={() => toggle(t.id)}
-                        aria-label={`Select ${t.payee}`}
+                </div>
+                <div class="grid">
+                  {g.items.map((t) =>
+                    selecting ? (
+                      <label key={t.id} class="flex cursor-pointer items-center gap-3">
+                        <input
+                          type="checkbox"
+                          class="size-5 flex-none accent-[var(--gold)]"
+                          checked={picked.has(t.id)}
+                          onChange={() => toggle(t.id)}
+                          aria-label={`Select ${t.payee}`}
+                        />
+                        <div class="pointer-events-none min-w-0 flex-1">
+                          <TxnRow t={t} data={data} cats={cats} accounts={accounts} today={today} />
+                        </div>
+                      </label>
+                    ) : (
+                      <TxnRow
+                        key={t.id}
+                        t={t}
+                        data={data}
+                        cats={cats}
+                        accounts={accounts}
+                        today={today}
                       />
-                      <div class="pointer-events-none min-w-0 flex-1">
-                        <TxnRow t={t} data={data} cats={cats} accounts={accounts} today={today} />
-                      </div>
-                    </label>
-                  ) : (
-                    <TxnRow
-                      key={t.id}
-                      t={t}
-                      data={data}
-                      cats={cats}
-                      accounts={accounts}
-                      today={today}
-                    />
-                  ),
-                )}
-              </div>
-            </section>
-          ))}
+                    ),
+                  )}
+                </div>
+              </section>
+            );
+          })}
           {list.length > LIMIT && (
             <p class="text-muted text-center text-sm">
               Showing the newest {LIMIT} of {list.length}. Narrow the search to see the rest.

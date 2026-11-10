@@ -188,7 +188,37 @@ export default function HomeScreen() {
             </section>
           )}
 
-          {r.mode !== 'none' && (
+          {r.mode !== 'none' && r.needs && (
+            <section
+              aria-labelledby="road-title"
+              class="animate-rise"
+              style={{ animationDelay: '140ms' }}
+            >
+              <SectionTitle id="road-title" title="The road ahead" />
+              <p class="text-muted mt-4 max-w-md">
+                {r.needs === 'savings' ? (
+                  <>
+                    No road to draw yet. Add what you have saved to see how far it goes.{' '}
+                    <a class="link" href={url('settings/#accounts')}>
+                      Add your savings
+                    </a>
+                    .
+                  </>
+                ) : (
+                  <>
+                    No road to draw yet. Pay yourself a salary from your savings, or keep a month of
+                    spending here, to see how far your money goes.{' '}
+                    <a class="link" href={url('plan/#salary')}>
+                      Set a salary
+                    </a>
+                    .
+                  </>
+                )}
+              </p>
+            </section>
+          )}
+
+          {r.mode !== 'none' && !r.needs && (
             <section
               aria-labelledby="road-title"
               class="animate-rise"

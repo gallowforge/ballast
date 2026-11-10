@@ -10,8 +10,18 @@ import { TxnSheet } from './TxnSheet';
 
 /** Lives across page changes: the shared sheets, toasts, shortcuts and the update prompt. */
 export default function Shell() {
-  const { data } = useLedger();
+  const { data, ready } = useLedger();
   const today = useToday();
+
+  // The add buttons appear once there is an account to add to. Before setup, Welcome's own steps
+  // are the only calls to action. Page changes replace <html>'s attributes, so it is set again.
+  const books = ready && data.accounts.length > 0;
+  useEffect(() => {
+    const mark = () => document.documentElement.toggleAttribute('data-books', books);
+    mark();
+    document.addEventListener('astro:after-swap', mark);
+    return () => document.removeEventListener('astro:after-swap', mark);
+  }, [books]);
 
   // A new day while the app stays open: post whatever fell due.
   useEffect(() => {

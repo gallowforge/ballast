@@ -51,7 +51,7 @@ export function SectionTitle({
       </h2>
       {children}
       {href && (
-        <a href={url(href)} class="link text-sm">
+        <a href={url(href)} class="link shrink-0 text-sm whitespace-nowrap">
           {link ?? 'See all'}
         </a>
       )}
@@ -257,7 +257,7 @@ export function InsightCard({ i, compact }: { i: Insight; compact?: boolean }) {
         )}
         <button
           type="button"
-          class="text-subtle hover:text-fg font-bold"
+          class="tap text-subtle hover:text-fg font-bold"
           onClick={() => apply(dismiss(i.id), 'Dismiss')}
         >
           Not now

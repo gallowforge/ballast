@@ -102,7 +102,7 @@ const { title, description, section, fab = true } = Astro.props;
           <ThemeToggle />
           <button type="button" class="btn btn-primary btn-sm hidden lg:inline-flex" data-add>
             <Icon name="plus" size={16} stroke={2.4} /> Add
-            <span class="kbd ml-0.5 border-[oklch(0%_0_0/0.15)] bg-[oklch(0%_0_0/0.08)] text-[var(--on-gold)]">
+            <span class="kbd ml-0.5 border-current/30 bg-current/10 text-[var(--on-primary)]">
               N
             </span>
           </button>
@@ -151,5 +151,35 @@ const { title, description, section, fab = true } = Astro.props;
     };
     wire();
     document.addEventListener('astro:page-load', wire);
+
+    // The floating + steps aside as you scroll down, so whatever was under it can be read, and
+    // comes back as soon as you scroll up or reach the top.
+    let anchor = 0;
+    let away = false;
+    let queued = false;
+    const settle = () => {
+      queued = false;
+      const y = Math.max(0, window.scrollY);
+      if (away ? y > anchor : y < anchor) anchor = y;
+      else if (Math.abs(y - anchor) > 24) {
+        away = y > anchor;
+        anchor = y;
+      }
+      if (y < 48) away = false;
+      document.querySelector('.fab')?.toggleAttribute('data-away', away);
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(settle);
+      },
+      { passive: true },
+    );
+    document.addEventListener('astro:after-swap', () => {
+      away = false;
+      anchor = Math.max(0, window.scrollY);
+    });
   </script>
 </Base>

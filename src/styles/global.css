@@ -17,6 +17,8 @@
   --color-subtle: var(--subtle);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-rest: var(--rest);
+  --color-track-edge: var(--track-edge);
   --color-gold: var(--gold);
   --color-gold-ink: var(--gold-ink);
   --color-gold-soft: var(--gold-soft);
@@ -95,6 +97,9 @@
   --subtle: #57665d;
   --line: rgb(29 58 46 / 0.13);
   --line-strong: rgb(29 58 46 / 0.26);
+  /* The unnamed remainder of a bar ("everything else"), and the edge of an empty bar's track. */
+  --rest: rgb(29 58 46 / 0.26);
+  --track-edge: transparent;
   --gold: #b8892f;
   --gold-ink: #805a15;
   /* The keyboard focus ring: brass deep enough to show on paper (3:1 or more). */
@@ -125,6 +130,9 @@
   --subtle: #a3a69b;
   --line: rgb(237 230 214 / 0.11);
   --line-strong: rgb(237 230 214 / 0.22);
+  /* On the night ledger a hairline grey melts into the page, so these stay at 3:1 or more. */
+  --rest: rgb(237 230 214 / 0.42);
+  --track-edge: rgb(237 230 214 / 0.42);
   --gold: #d2a955;
   --gold-ink: #dcb866;
   --focus: #d2a955;
@@ -336,6 +344,7 @@
 
   /* Filters read as a ledger's column switches: words with a rule under the chosen one. */
   .chip {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -354,6 +363,12 @@
   }
   .chip:hover {
     color: var(--fg);
+  }
+  /* A short word like "All" still gets a finger-wide target; the spacing between chips stays. */
+  .chip::after {
+    content: '';
+    position: absolute;
+    inset: 0 -0.4rem;
   }
   .chip[aria-pressed='true'],
   .chip[aria-selected='true'] {
@@ -623,6 +638,18 @@
   .link:hover {
     text-decoration-color: var(--fg);
   }
+  /* Text actions keep their look but get a target of about 30 px (WCAG 2.5.8): the padding grows
+     the tap area and the negative margin keeps the layout where it was. */
+  .link,
+  .tap {
+    padding-block: 0.3rem;
+    margin-block: -0.3rem;
+  }
+  /* A link button is an action on its own, never part of a sentence: it keeps its words together. */
+  button.link {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
   .sr-only {
     position: absolute;
     width: 1px;
@@ -646,6 +673,22 @@
   }
   .scroll-x::-webkit-scrollbar {
     display: none;
+  }
+  /* An edge that hides more fades out, so a cut-off word reads as "scroll for the rest". */
+  .scroll-x[data-more='end'] {
+    mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+  }
+  .scroll-x[data-more='start'] {
+    mask-image: linear-gradient(to left, #000 calc(100% - 2.5rem), transparent);
+  }
+  .scroll-x[data-more='both'] {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 2.5rem,
+      #000 calc(100% - 2.5rem),
+      transparent
+    );
   }
   .rule-double {
     border-bottom: 3px double var(--fg);
@@ -820,6 +863,24 @@
   display: grid;
   place-items: center;
   box-shadow: 0 14px 28px -12px rgb(29 58 46 / 0.6);
+  transition:
+    transform 0.3s var(--ease-out-quint),
+    opacity 0.2s,
+    visibility 0s;
+}
+/* It steps aside while you scroll down to read what is under it, and is back on the way up. */
+.fab[data-away] {
+  transform: translateY(0.75rem) scale(0.9);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    transform 0.3s var(--ease-out-quint),
+    opacity 0.2s,
+    visibility 0s 0.3s;
+}
+/* Nothing to add to before setup: the add buttons wait for the first account. */
+html:not([data-books]) [data-add] {
+  display: none;
 }
 @media (min-width: 1024px) {
   .fab {

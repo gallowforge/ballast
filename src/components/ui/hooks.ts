@@ -57,6 +57,35 @@ export function useWidth<T extends HTMLElement>(fallback = 640): [preact.RefObje
   return [ref, width];
 }
 
+/**
+ * Which ends of a horizontal scroller still hide something, for an edge fade that says there is
+ * more. Pass the first item as the element's ref; the second goes on it as `data-more`.
+ */
+export function useScrollEdges(): [
+  (el: HTMLElement | null) => void,
+  'start' | 'end' | 'both' | undefined,
+] {
+  const [el, setEl] = useState<HTMLElement | null>(null);
+  const [more, setMore] = useState<'start' | 'end' | 'both' | undefined>(undefined);
+  useEffect(() => {
+    if (!el) return;
+    const check = () => {
+      const start = el.scrollLeft > 1;
+      const end = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+      setMore(start && end ? 'both' : start ? 'start' : end ? 'end' : undefined);
+    };
+    check();
+    el.addEventListener('scroll', check, { passive: true });
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', check);
+      ro.disconnect();
+    };
+  }, [el]);
+  return [setEl, more];
+}
+
 export function useMedia(query: string): boolean {
   const [match, setMatch] = useState(false);
   useEffect(() => {

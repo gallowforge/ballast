@@ -354,7 +354,7 @@ export function TxnSheet({ data, today }: Props) {
 
         {form.kind !== 'transfer' && (
           <div class="grid gap-3">
-            <label class="text-muted flex items-center gap-2 text-sm font-semibold">
+            <label class="text-muted -my-2 flex items-center gap-2 py-2 text-sm font-semibold">
               <input
                 type="checkbox"
                 class="size-4 accent-[var(--gold)]"

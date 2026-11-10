@@ -166,7 +166,7 @@ export default function InsightsScreen() {
           ))}
           {rest > 0 && (
             <span
-              class="bg-line-strong h-full"
+              class="bg-rest h-full"
               style={{ width: `${(rest / Math.max(1, view.out)) * 100}%` }}
             />
           )}
