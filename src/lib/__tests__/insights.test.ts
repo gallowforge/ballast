@@ -21,7 +21,7 @@ describe('stats', () => {
     txns: [
       txn({ date: '2026-11-01', amount: 3_000, categoryId: 'coffee', payee: 'Starbucks' }),
       txn({ date: '2026-11-01', amount: 2_000, categoryId: 'coffee', payee: 'starbucks' }),
-      txn({ date: '2026-11-03', amount: 10_000, categoryId: 'fuel', payee: 'KNPC' }),
+      txn({ date: '2026-11-03', amount: 10_000, categoryId: 'fuel', payee: 'Shell' }),
       txn({ date: '2026-11-03', amount: 1_000, payee: '' }),
       txn({ date: '2026-11-04', amount: 50_000, kind: 'income', categoryId: 'freelance' }),
       txn({ date: '2026-11-04', amount: 99_000, kind: 'transfer', toAccountId: 'cur' }),
@@ -57,7 +57,7 @@ describe('stats', () => {
   });
   it('ranks payees, merging spellings', () => {
     expect(topPayees(d, '2026-11-01', '2026-11-30', 2)).toEqual([
-      { payee: 'KNPC', total: 10_000, count: 1, categoryId: 'fuel' },
+      { payee: 'Shell', total: 10_000, count: 1, categoryId: 'fuel' },
       { payee: 'Starbucks', total: 5_000, count: 2, categoryId: 'coffee' },
     ]);
   });
@@ -136,7 +136,7 @@ describe('insights', () => {
     const pace = insights(d, '2026-11-05').find((i) => i.id.startsWith('pace:'))!;
     expect(pace.tone).toBe('good');
     expect(pace.title).toBe('Spending is 60% lower than this point last month');
-    expect(pace.body).toBe('20.000 KD so far, against 50.000 KD by day 5 last month.');
+    expect(pace.body).toBe('200.00 USD so far, against 500.00 USD by day 5 last month.');
   });
   it('names the category that rose most', () => {
     const d = data({
@@ -148,7 +148,7 @@ describe('insights', () => {
       ],
     });
     const riser = insights(d, '2026-11-05').find((i) => i.id.startsWith('riser:'))!;
-    expect(riser.title).toBe('Food delivery is up 9.000 KD on last month');
+    expect(riser.title).toBe('Food delivery is up 90.00 USD on last month');
   });
   it('warns about a budget that is over', () => {
     const d = data({
@@ -158,14 +158,14 @@ describe('insights', () => {
     });
     expect(insights(d, '2026-11-05')[0]).toMatchObject({
       tone: 'warn',
-      title: 'Coffee is over budget by 1.250 KD',
+      title: 'Coffee is over budget by 12.50 USD',
     });
   });
   it('offers to track a repeating payment', () => {
     const d = data({
       accounts: [cur],
       txns: [1, 2, 3].map((i) =>
-        txn({ date: `2026-${String(7 + i).padStart(2, '0')}-09`, amount: 1_990, payee: 'Spotify' }),
+        txn({ date: `2026-${String(7 + i).padStart(2, '0')}-09`, amount: 1_199, payee: 'Spotify' }),
       ),
     });
     const sub = insights(d, '2026-11-05').find((i) => i.id === 'sub:spotify')!;
@@ -188,9 +188,9 @@ describe('insights', () => {
       ],
     });
     const fixed = insights(d, '2026-11-05').find((i) => i.id.startsWith('fixed:'))!;
-    expect(fixed.title).toBe('Your 2 recurring costs add up to 240.000 KD a year');
+    expect(fixed.title).toBe('Your 2 recurring costs add up to 2,400.00 USD a year');
     expect(fixed.body).toBe(
-      'That is 20.000 KD a month; the ones paid from your spending account take 10% of your salary.',
+      'That is 200.00 USD a month; the ones paid from your spending account take 10% of your salary.',
     );
   });
   it('says how much of last month was kept', () => {
@@ -213,11 +213,11 @@ describe('insights', () => {
       accounts: [cur],
       txns: [
         ...usual,
-        txn({ date: '2026-11-04', amount: 40_000, categoryId: 'shopping', payee: 'Xcite' }),
+        txn({ date: '2026-11-04', amount: 40_000, categoryId: 'shopping', payee: 'Best Buy' }),
       ],
     });
     expect(insights(d, '2026-11-05').find((i) => i.id.startsWith('big:'))!.title).toBe(
-      'Bigger than usual: 40.000 KD at Xcite',
+      'Bigger than usual: 400.00 USD at Best Buy',
     );
   });
   it('finds the most expensive weekday over eight weeks', () => {

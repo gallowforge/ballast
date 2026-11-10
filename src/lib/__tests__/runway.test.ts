@@ -97,7 +97,7 @@ describe('runway with a salary from savings', () => {
 
   it('works out the largest salary that reaches the target', () => {
     const r = runway(
-      plan({ target: { date: '2027-11-01', floor: 100_000, label: 'Graduation' } }),
+      plan({ target: { date: '2027-11-01', floor: 100_000, label: 'Back to work' } }),
       '2026-11-10',
     );
     const t = r.target!;
@@ -148,20 +148,20 @@ describe('runway with a salary from savings', () => {
   });
 
   it('leaves out savings in a currency without a rate, and says so', () => {
-    const usdSavings = { ...savings, id: 'usdsav', currency: 'USD', opening: 100_000 };
+    const eurSavings = { ...savings, id: 'eursav', currency: 'EUR', opening: 100_000 };
     const r = runway(
-      plan({ accounts: [{ ...savings, opening: 1_000_000 }, spending, usdSavings] }),
+      plan({ accounts: [{ ...savings, opening: 1_000_000 }, spending, eurSavings] }),
       '2026-11-10',
     );
-    expect(r.missing.map((a) => a.id)).toEqual(['usdsav']);
+    expect(r.missing.map((a) => a.id)).toEqual(['eursav']);
     const withRate = runway(
       plan({
-        accounts: [{ ...savings, opening: 1_000_000 }, spending, usdSavings],
-        rates: { USD: { rate: '0.3', on: '2026-11-01' } },
+        accounts: [{ ...savings, opening: 1_000_000 }, spending, eurSavings],
+        rates: { EUR: { rate: '1.1', on: '2026-11-01' } },
       }),
       '2026-11-10',
     );
-    expect(withRate.start).toBe(1_000_000 + 300_000);
+    expect(withRate.start).toBe(1_000_000 + 110_000);
   });
 });
 

@@ -43,7 +43,7 @@ describe('PDF layout', () => {
       item('POS PURCHASE', 120, 40),
       item('4.250', 305, 40),
       item('995.750', 430, 40),
-      item('TALABAT KUWAIT', 120, 50),
+      item('UBER *EATS', 120, 50),
       item('03/11/2026', 40, 64),
       item('REFUND', 120, 64),
       item('1.000', 365, 64),
@@ -53,7 +53,7 @@ describe('PDF layout', () => {
     const table = linesToTable(groupLines(items))!;
     expect(table).toEqual([
       ['Date', 'Description', 'Debit', 'Credit', 'Balance'],
-      ['02/11/2026', 'POS PURCHASE TALABAT KUWAIT', '4.250', '', '995.750'],
+      ['02/11/2026', 'POS PURCHASE UBER *EATS', '4.250', '', '995.750'],
       ['03/11/2026', 'REFUND', '', '1.000', '996.750'],
     ]);
   });
@@ -89,7 +89,7 @@ describe('the sample statement PDF, end to end', () => {
     expect(pages).toBe(2);
     expect(pageText(items)).toContain('EXAMPLE BANK');
     const source = sourceFromPdf(items, 'sample-statement.pdf')!;
-    expect(source.currency).toBe('KWD');
+    expect(source.currency).toBe('USD');
     const mapping = detectMapping(source.table);
     expect(mapping.columns).toEqual([
       'date',
@@ -99,7 +99,7 @@ describe('the sample statement PDF, end to end', () => {
       'credit',
       'balance',
     ]);
-    const s = parseStatement(source.table, mapping, { exp: 3 });
+    const s = parseStatement(source.table, mapping, { exp: 2 });
     expect(s.rows).toHaveLength(expected.rows);
     expect(s.reconciliation.mismatched).toEqual([]);
     expect(s.reconciliation.matched).toBe(expected.rows);
@@ -108,9 +108,9 @@ describe('the sample statement PDF, end to end', () => {
     expect(-s.rows.filter((r) => r.amount < 0).reduce((a, r) => a + r.amount, 0)).toBe(
       expected.debit,
     );
-    expect(s.rows[1]!.description).toBe(
-      'POS PURCHASE 4111XXXXXXXX2290 STARBUCKS AVENUES KUWAIT KW',
-    );
+    expect(s.rows[1]!.description).toBe('POS PURCHASE 4111XXXXXXXX2290 STARBUCKS CANAL STREET');
+    // A description that wrapped onto a second line in the PDF reads as one.
+    expect(s.rows[2]!.description).toBe('STANDING ORDER MAPLE COURT RENT');
     expect(s.from).toBe('2026-10-01');
     expect(s.to).toBe('2026-10-31');
   });

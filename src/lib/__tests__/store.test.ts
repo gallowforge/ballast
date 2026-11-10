@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   backupJSON,
   backupFileName,
@@ -15,6 +15,7 @@ import * as store from '../store/store';
 import { data, savings, spending, txn, wallet } from './fixtures';
 
 beforeEach(() => store.__reset());
+afterEach(() => vi.unstubAllGlobals());
 
 describe('the store', () => {
   it('starts empty, then loads what was saved', async () => {
@@ -62,6 +63,21 @@ describe('the store', () => {
     off();
   });
 
+  it('starts a first visit in the currency the browser languages suggest', async () => {
+    vi.stubGlobal('navigator', { languages: ['de-AT', 'en'], language: 'de-AT' });
+    await store.start(memoryPersistence(), () => '2026-11-08');
+    expect(store.getState().settings.base).toBe('EUR');
+    await store.wipe();
+    expect(store.getState().settings.base).toBe('EUR');
+  });
+
+  it('keeps the saved currency over the browser languages', async () => {
+    vi.stubGlobal('navigator', { languages: ['ja-JP'], language: 'ja-JP' });
+    const saved = data({ accounts: [spending], settings: { ...emptyData('GBP').settings } });
+    await store.start(memoryPersistence(saved), () => '2026-11-08');
+    expect(store.getState().settings.base).toBe('GBP');
+  });
+
   it('ignores changes that change nothing', async () => {
     await store.start(memoryPersistence(), () => '2026-11-08');
     const before = store.getState();
@@ -101,15 +117,15 @@ describe('backups', () => {
       kind: 'expense',
       accountId: 'cur',
       amount: 4_250,
-      payee: 'Talabat',
+      payee: 'Uber Eats',
       categoryId: 'delivery',
       source: 'manual',
       note: 'lunch, "big"',
     })(
       data({
         accounts: [savings, spending, wallet],
-        rates: { USD: { rate: '0.3', on: '2026-11-01' } },
-        target: { date: '2028-06-01', floor: 500_000, label: 'Graduation' },
+        rates: { EUR: { rate: '1.1', on: '2026-11-01' } },
+        target: { date: '2028-06-01', floor: 500_000, label: 'Back to work' },
       }),
     );
 
@@ -174,9 +190,18 @@ describe('backups', () => {
 
   it('repairs missing pieces with sensible defaults', () => {
     const s = sanitize({ settings: { base: 'NOPE', cycleDay: 40 }, txns: 'x' });
-    expect(s.data.settings).toMatchObject({ base: 'KWD', cycleDay: 1, onboarded: false });
+    expect(s.data.settings).toMatchObject({ base: 'USD', cycleDay: 1, onboarded: false });
     expect(s.data.categories.length).toBeGreaterThan(10);
     expect(sanitize(null).data).toEqual(emptyData());
+  });
+
+  it('takes a missing main currency from the accounts', () => {
+    const s = sanitize({
+      settings: {},
+      accounts: [{ id: 'a', name: 'Savings', role: 'savings', currency: 'CHF', opening: 1 }],
+    });
+    expect(s.data.settings.base).toBe('CHF');
+    expect(s.data.accounts[0]!.currency).toBe('CHF');
   });
 
   it('merges a backup into existing data without duplicating', () => {
@@ -218,7 +243,7 @@ describe('backups', () => {
       'Category',
       'Amount',
       'Currency',
-      'Amount (KWD)',
+      'Amount (USD)',
       'Note',
     ]);
     expect(rows[1]).toEqual([
@@ -226,11 +251,11 @@ describe('backups', () => {
       'expense',
       'Current',
       '',
-      'Talabat',
+      'Uber Eats',
       'Food delivery',
-      '-4.250',
-      'KWD',
-      '-4.250',
+      '-42.50',
+      'USD',
+      '-42.50',
       'lunch, "big"',
     ]);
   });

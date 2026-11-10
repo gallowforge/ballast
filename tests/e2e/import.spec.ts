@@ -27,7 +27,7 @@ async function importIntoNewAccount(page: Page, file: string) {
   await expect(page.getByText('Balances match.')).toBeVisible();
 }
 
-test('a PDF statement imports, reconciles to the fils and matches the bank', async ({ page }) => {
+test('a PDF statement imports, reconciles to the cent and matches the bank', async ({ page }) => {
   await open(page, 'import/');
   await importIntoNewAccount(page, 'sample-statement.pdf');
 });
@@ -39,7 +39,9 @@ test('a CSV statement imports, and importing it again adds nothing', async ({ pa
   await choose(page, 'sample-statement.csv');
   await expect(page.getByLabel('Import into')).not.toHaveValue('__new__');
   await page.getByRole('button', { name: /^Review/ }).click();
-  await expect(page.getByRole('button', { name: /Already here 33/ })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: new RegExp(`Already here ${expected.rows}`) }),
+  ).toBeVisible();
   await expect(page.getByRole('button', { name: 'Import 0 transactions' })).toBeDisabled();
 });
 
@@ -60,9 +62,11 @@ test('an import can be undone from the history', async ({ page }) => {
   await importIntoNewAccount(page, 'sample-statement.csv');
   await page.getByRole('button', { name: 'Import another' }).click();
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect(page.getByRole('status')).toContainText('Removed 33 imported transactions');
+  await expect(page.getByRole('status')).toContainText(
+    `Removed ${expected.rows} imported transactions`,
+  );
   await open(page, 'activity/');
-  await page.getByLabel('Search transactions').fill('talabat');
+  await page.getByLabel('Search transactions').fill('uber eats');
   await expect(page.getByText('A clean page.')).toBeVisible();
 });
 

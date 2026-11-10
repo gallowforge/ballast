@@ -9,6 +9,7 @@ import { formatMonth, formatShort, plural, today as todayISO } from '@/lib/dates
 import { cycleSummary } from '@/lib/calc/cycle';
 import { runway } from '@/lib/calc/runway';
 import { formatMinor, formatMoney } from '@/lib/money/money';
+import { currency } from '@/lib/money/currency';
 import { mappingFor, readStatement, sourceFromCSV } from '@/lib/import/importer';
 import { cleanPayee } from '@/lib/import/clean';
 import sample from '../../public/samples/sample-statement.csv?raw';
@@ -21,8 +22,11 @@ const demo = buildDemo(today);
 const s = cycleSummary(demo, today);
 const r = runway(demo, today);
 const horizon = roadHorizon(today, r.runOut, r.target?.date);
+const base = demo.settings.base;
 const source = sourceFromCSV(sample, 'sample-statement.csv');
-const statement = readStatement(source, mappingFor(source), 'KWD');
+const sampleCurrency = source.currency ?? base;
+const exp = currency(sampleCurrency).exp;
+const statement = readStatement(source, mappingFor(source), sampleCurrency);
 const lines = statement.rows.slice(1, 8);
 const rec = statement.reconciliation;
 ---
@@ -70,7 +74,7 @@ const rec = statement.reconciliation;
             lastFull={r.lastFull}
             target={r.target}
             start={r.start}
-            code="KWD"
+            code={base}
             height={430}
             fallbackWidth={1104}
             spread={0.36}
@@ -84,7 +88,7 @@ const rec = statement.reconciliation;
             lastFull={r.lastFull}
             target={r.target}
             start={r.start}
-            code="KWD"
+            code={base}
             height={230}
             compact
             fallbackWidth={350}
@@ -96,7 +100,7 @@ const rec = statement.reconciliation;
           <span class="serif text-[1.05rem] text-fg italic">
             Alex’s savings last until {formatMonth(r.lastFull ?? today)}
           </span>
-          , {plural(r.periods, 'salary', 'salaries')} of {formatMoney(r.monthly, 'KWD')}.
+          , {plural(r.periods, 'salary', 'salaries')} of {formatMoney(r.monthly, base)}.
         </span>
         <span>Alex is made up. The road is drawn by the same engine you get.</span>
       </p>
@@ -122,7 +126,7 @@ const rec = statement.reconciliation;
           spend today and still finish the month calmly.
         </p>
         <p class="figure mt-10 text-[5rem] sm:text-[6.5rem]">
-          <Money value={s.perDay} code="KWD" />
+          <Money value={s.perDay} code={base} />
         </p>
         <p class="serif mt-3 max-w-[30ch] text-[1.2rem] text-muted italic">
           is Alex’s to spend today, and the month still ends calmly.
@@ -136,7 +140,7 @@ const rec = statement.reconciliation;
           <div class="flex items-baseline justify-between border-b border-line py-3">
             <dt>Salary, from savings</dt>
             <dd class="text-[1.15rem]">
-              <Money value={s.allowance} code="KWD" sign="always" tone="income" />
+              <Money value={s.allowance} code={base} sign="always" tone="income" />
             </dd>
           </div>
           <div class="flex items-baseline justify-between border-b border-line py-3">
@@ -144,7 +148,7 @@ const rec = statement.reconciliation;
               Spent so far <span class="ml-1 text-sm text-subtle">{plural(s.daysGone, 'day')}</span>
             </dt>
             <dd class="text-[1.15rem]">
-              <Money value={-s.spent} code="KWD" />
+              <Money value={-s.spent} code={base} />
             </dd>
           </div>
           <div class="flex items-baseline justify-between border-b border-line py-3">
@@ -152,7 +156,7 @@ const rec = statement.reconciliation;
               Bills still to come <span class="ml-1 text-sm text-subtle">kept aside</span>
             </dt>
             <dd class="text-[1.15rem]">
-              <Money value={-s.billsAhead} code="KWD" />
+              <Money value={-s.billsAhead} code={base} />
             </dd>
           </div>
           <div class="rule-double flex items-baseline justify-between py-3">
@@ -163,7 +167,7 @@ const rec = statement.reconciliation;
               </span>
             </dt>
             <dd class="text-[1.4rem] font-[540]">
-              <Money value={s.safe} code="KWD" />
+              <Money value={s.safe} code={base} />
             </dd>
           </div>
         </dl>
@@ -187,13 +191,13 @@ const rec = statement.reconciliation;
             Every line, checked against the bank.
           </h2>
           <p class="mt-5 max-w-[42ch] text-[1.05rem] text-muted">
-            Drop in a PDF or CSV. National Bank of Kuwait statements are recognised and
-            password-protected PDFs open right here; any other bank works by matching columns. Then
-            each line’s balance has to follow from the one before. When they all do, nothing was
-            misread, and Ballast says so.
+            Drop in a PDF or CSV. Common layouts are recognised on their own, password-protected
+            PDFs open right here, and any other bank works by matching columns. Then each line’s
+            balance has to follow from the one before. When they all do, nothing was misread, and
+            Ballast says so.
           </p>
           <p class="serif mt-6 text-[1.25rem] text-good italic">
-            All {rec.checked} lines of the sample statement agree, to the last fils.
+            All {rec.checked} lines of the sample statement agree, to the last cent.
           </p>
           <p class="mt-2 text-sm text-subtle">
             Import the same statement twice and nothing doubles. Every import undoes in one tap.
@@ -240,10 +244,10 @@ const rec = statement.reconciliation;
                   role="cell"
                   class={`money text-right text-[1.05rem] ${l.amount > 0 ? 'text-good' : ''}`}
                 >
-                  {formatMinor(l.amount, 3, { sign: l.amount > 0 ? 'always' : 'auto' })}
+                  {formatMinor(l.amount, exp, { sign: l.amount > 0 ? 'always' : 'auto' })}
                 </span>
                 <span role="cell" class="money text-right text-[1.05rem] text-muted">
-                  {l.balance !== undefined ? formatMinor(l.balance, 3) : ''}
+                  {l.balance !== undefined ? formatMinor(l.balance, exp) : ''}
                   <span class="sr-only">, checked</span>
                 </span>
               </div>
@@ -342,7 +346,11 @@ const rec = statement.reconciliation;
                 'A bank login handed to a third party',
               ],
               ['Living on savings', 'A salary, a runway and a date', 'Not modelled'],
-              ['Kuwaiti dinar', 'Exact to the fils', 'Often rounded to two decimals'],
+              [
+                'Money maths',
+                'Exact to the smallest unit, even three decimals',
+                'Often floats, often two decimals',
+              ],
               ['With no connection', 'Everything works', 'Read-only, or nothing'],
               ['Price', 'Free and open source', 'A subscription'],
             ].map(([k, a, b]) => (

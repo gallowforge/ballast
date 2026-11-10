@@ -1,7 +1,8 @@
 /**
- * A believable, entirely made-up money life for trying Ballast: "Alex", a student living on a
- * monthly salary drawn from savings, with some freelance income in dollars. Everything is relative
- * to today and generated from a fixed seed, so it is the same on every device and never stale.
+ * A believable, entirely made-up money life for trying Ballast: "Alex", taking time out between
+ * jobs to build something of their own, living on a monthly salary paid from savings, with some
+ * freelance work paid in euros. Everything is relative to today and generated from a fixed seed,
+ * so it is the same on every device and never stale.
  */
 import { addDays, addMonths, cycleOf, dayInMonth, parts, type ISODate } from './dates';
 import { emptyData } from './defaults';
@@ -11,42 +12,44 @@ import type { LedgerData, Recurring, Txn } from './model';
 import { occurrences } from './calc/recurring';
 import { paydays } from './calc/cycle';
 
-const USD_RATE = '0.3071';
+/** US dollars for one euro, as Alex's bank charged it. */
+const EUR_RATE = '1.1612';
+const SALARY = 3_100_00;
 
 export function buildDemo(today: ISODate): LedgerData {
   const rnd = seeded(7311);
   const pick = <T>(xs: readonly T[]): T => xs[Math.floor(rnd() * xs.length)]!;
-  /** A random price between lo and hi (major units), rounded to `step` fils. */
-  const price = (lo: number, hi: number, step = 50) =>
-    Math.round(((lo + rnd() * (hi - lo)) * 1000) / step) * step;
+  /** A random price between lo and hi (dollars), rounded to `step` cents. */
+  const price = (lo: number, hi: number, step = 1) =>
+    Math.round(((lo + rnd() * (hi - lo)) * 100) / step) * step;
 
-  const d = emptyData();
+  const d = emptyData('USD');
   const current = cycleOf(today, 1);
   const start = addMonths(current.start, -5);
-  d.settings = { base: 'KWD', cycleDay: 1, name: 'Alex', onboarded: true, demo: true };
-  d.rates = { USD: { rate: USD_RATE, on: today } };
+  d.settings = { base: 'USD', cycleDay: 1, name: 'Alex', onboarded: true, demo: true };
+  d.rates = { EUR: { rate: EUR_RATE, on: today } };
   d.accounts = [
     {
       id: 'a_savings',
       name: 'Savings',
       role: 'savings',
-      currency: 'KWD',
-      opening: 5_420_000,
+      currency: 'USD',
+      opening: 75_600_00,
       openedOn: start,
     },
     {
       id: 'a_current',
       name: 'Current account',
       role: 'spending',
-      currency: 'KWD',
-      opening: 38_250,
+      currency: 'USD',
+      opening: 1_148_20,
       openedOn: start,
     },
     {
       id: 'a_wallet',
-      name: 'Freelance wallet',
+      name: 'Euro wallet',
       role: 'other',
-      currency: 'USD',
+      currency: 'EUR',
       opening: 0,
       openedOn: start,
     },
@@ -67,7 +70,7 @@ export function buildDemo(today: ISODate): LedgerData {
   // Pay yourself: a salary from savings on the 1st of every month.
   d.salary = {
     active: true,
-    amount: 220_000,
+    amount: SALARY,
     fromAccountId: 'a_savings',
     toAccountId: 'a_current',
     autoPost: true,
@@ -80,8 +83,8 @@ export function buildDemo(today: ISODate): LedgerData {
       kind: 'transfer',
       accountId: 'a_savings',
       toAccountId: 'a_current',
-      amount: 220_000,
-      toAmount: 220_000,
+      amount: SALARY,
+      toAmount: SALARY,
       payee: 'Salary',
       note: 'Paid to yourself from savings',
       source: 'salary',
@@ -90,85 +93,40 @@ export function buildDemo(today: ISODate): LedgerData {
 
   const { y, m } = parts(start);
   const on = (day: number) => dayInMonth(y, m, day);
+  const monthly = (
+    id: string,
+    name: string,
+    amount: number,
+    categoryId: string,
+    day: number,
+  ): Recurring => ({
+    id,
+    name,
+    kind: 'expense',
+    amount,
+    accountId: 'a_current',
+    categoryId,
+    every: 1,
+    unit: 'month',
+    startOn: on(day),
+    autoPost: true,
+  });
   const recurring: Recurring[] = [
-    {
-      id: 'r_gym',
-      name: 'Gym membership',
-      kind: 'expense',
-      amount: 18_000,
-      accountId: 'a_current',
-      categoryId: 'health',
-      every: 1,
-      unit: 'month',
-      startOn: on(3),
-      autoPost: true,
-    },
-    {
-      id: 'r_phone',
-      name: 'stc',
-      kind: 'expense',
-      amount: 8_500,
-      accountId: 'a_current',
-      categoryId: 'bills',
-      every: 1,
-      unit: 'month',
-      startOn: on(6),
-      autoPost: true,
-    },
-    {
-      id: 'r_spotify',
-      name: 'Spotify',
-      kind: 'expense',
-      amount: 1_990,
-      accountId: 'a_current',
-      categoryId: 'subscriptions',
-      every: 1,
-      unit: 'month',
-      startOn: on(9),
-      autoPost: true,
-    },
-    {
-      id: 'r_netflix',
-      name: 'Netflix',
-      kind: 'expense',
-      amount: 3_500,
-      accountId: 'a_current',
-      categoryId: 'subscriptions',
-      every: 1,
-      unit: 'month',
-      startOn: on(15),
-      autoPost: true,
-    },
+    monthly('r_rent', 'Rent', 1_350_00, 'home', 1),
+    monthly('r_gym', 'Gym membership', 45_00, 'health', 3),
+    monthly('r_phone', 'Phone plan', 30_00, 'bills', 6),
+    monthly('r_internet', 'Home internet', 55_00, 'bills', 8),
+    monthly('r_spotify', 'Spotify', 11_99, 'subscriptions', 9),
     // A careful reader's reward: Alex keeps one houseplant alive, on a budget.
-    {
-      id: 'r_fern',
-      name: "Fern's plant food",
-      kind: 'expense',
-      amount: 750,
-      accountId: 'a_current',
-      categoryId: 'other',
-      every: 1,
-      unit: 'month',
-      startOn: on(12),
-      autoPost: true,
-    },
-    {
-      id: 'r_cloud',
-      name: 'Cloud storage',
-      kind: 'expense',
-      amount: 990,
-      accountId: 'a_current',
-      categoryId: 'subscriptions',
-      every: 1,
-      unit: 'month',
-      startOn: on(21),
-      autoPost: true,
-    },
+    monthly('r_fern', "Fern's plant food", 6_50, 'other', 12),
+    monthly('r_netflix', 'Netflix', 15_49, 'subscriptions', 15),
+    monthly('r_power', 'Electricity', 64_00, 'home', 18),
+    monthly('r_cloud', 'Cloud storage', 2_99, 'subscriptions', 21),
     {
       id: 'r_insurance',
       name: 'Car insurance',
       kind: 'expense',
-      amount: 96_000,
+      amount: 960_00,
       accountId: 'a_savings',
       categoryId: 'travel',
       every: 1,
@@ -177,12 +135,12 @@ export function buildDemo(today: ISODate): LedgerData {
       autoPost: true,
     },
     {
-      id: 'r_job',
-      name: 'Part-time job',
+      id: 'r_contract',
+      name: 'Contract work',
       kind: 'income',
-      amount: 120_000,
+      amount: 1_400_00,
       accountId: 'a_savings',
-      categoryId: 'salary',
+      categoryId: 'freelance',
       every: 1,
       unit: 'month',
       startOn: addDays(addMonths(current.start, 10), 24),
@@ -207,61 +165,79 @@ export function buildDemo(today: ISODate): LedgerData {
   d.recurring = recurring;
 
   // Everyday spending from the current account.
-  const usd = (cents: number) => convert(cents, 'USD', 'KWD', USD_RATE)!;
+  const eur = (cents: number) => convert(cents, 'EUR', 'USD', EUR_RATE)!;
   let lastFuel = start;
   for (let date = start; date <= today; date = addDays(date, 1)) {
     const wd = new Date(`${date}T00:00:00Z`).getUTCDay();
     const spend = (payee: string, categoryId: string | undefined, amount: number) =>
       add({ date, kind: 'expense', accountId: 'a_current', amount, categoryId, payee });
-    if (rnd() < 0.33)
+    if (rnd() < 0.4)
       spend(
-        pick(['Starbucks', 'Caribou Coffee', '% Arabica', 'Starbucks']),
+        pick(['Starbucks', 'Pret A Manger', 'Blue Bottle Coffee', 'Starbucks']),
         'coffee',
-        price(1.25, 2.5, 250),
+        price(3.75, 6.5, 5),
       );
-    if (rnd() < 0.15) spend('Talabat', 'delivery', price(2.75, 7.9));
+    if (rnd() < 0.15) spend('Uber Eats', 'delivery', price(16, 34));
     if (wd === 5 && rnd() < 0.9)
-      spend(
-        pick(['Lulu Hypermarket', 'Carrefour', 'The Sultan Center']),
-        'groceries',
-        price(7, 17),
-      );
-    else if (rnd() < 0.06) spend('Co-op', 'groceries', price(1.5, 5));
+      spend(pick(['Aldi', 'Whole Foods Market', 'Lidl']), 'groceries', price(62, 122));
+    else if (rnd() < 0.1) spend('Corner shop', 'groceries', price(6, 22));
     if (addDays(lastFuel, 6 + Math.floor(rnd() * 3)) <= date) {
-      spend(pick(['KNPC', 'Oula', 'Alsoor']), 'fuel', price(4, 6.25, 250));
+      spend(pick(['Shell', 'BP', 'Shell']), 'fuel', price(38, 58));
       lastFuel = date;
     }
-    if (rnd() < 0.06)
+    if (rnd() < 0.08)
       spend(
-        pick(['Shake Shack', 'Mais Alghanim', 'P.F. Chang’s', 'Burger Boutique', 'Slider Station']),
+        pick(['Shake Shack', 'Five Guys', 'Nando’s', 'Wagamama', 'Chipotle']),
         'eating-out',
-        price(4.5, 13.5),
+        price(18, 52),
       );
-    if (rnd() < 0.05) spend('Careem', 'transport', price(1.8, 4.2));
-    if (rnd() < 0.035) {
-      const cents = Math.round((12 + rnd() * 30) * 100);
-      add({
-        date,
-        kind: 'expense',
-        accountId: 'a_current',
-        amount: usd(cents),
-        categoryId: 'shopping',
-        payee: 'Amazon',
-        original: { amount: cents, currency: 'USD' },
-      });
-    }
-    if (rnd() < 0.015) spend(pick(['Xcite', 'Zara', 'IKEA']), 'shopping', price(6, 34));
-    if (rnd() < 0.04)
-      spend(pick(['Cinescape', 'Cinescape', 'Bowling City']), 'fun', price(3.5, 6.5, 500));
-    if (rnd() < 0.015) spend('Pharmacy', 'health', price(1.75, 5.5));
-    if (rnd() < 0.015) spend(pick(['Flower shop', 'Gift for Sam']), 'gifts', price(5, 14));
+    if (rnd() < 0.07) spend('Uber', 'transport', price(9, 26));
+    if (rnd() < 0.04) spend('Amazon', 'shopping', price(18, 72));
+    if (rnd() < 0.015) spend(pick(['IKEA', 'Uniqlo', 'Zara']), 'shopping', price(25, 120));
+    if (rnd() < 0.04) spend(pick(['Cinema', 'Cinema', 'Bowling']), 'fun', price(12, 26, 50));
+    if (rnd() < 0.015) spend('Pharmacy', 'health', price(8, 24));
+    if (rnd() < 0.015) spend(pick(['Flower shop', 'Gift for Sam']), 'gifts', price(20, 55));
   }
 
-  // Freelance work, paid in dollars into a dollar wallet, partly moved to savings.
+  // An audiobook plan Alex never set up as recurring, which Insights notices (and its price rise).
+  const audible: ISODate[] = [];
+  for (let i = 0; i <= 6; i++) {
+    const { y: ay, m: am } = parts(addMonths(start, i));
+    const date = dayInMonth(ay, am, 19);
+    if (date <= today) audible.push(date);
+  }
+  audible.forEach((date, i) =>
+    add({
+      date,
+      kind: 'expense',
+      accountId: 'a_current',
+      amount: i === audible.length - 1 ? 15_95 : 14_95,
+      categoryId: 'subscriptions',
+      payee: 'Audible',
+    }),
+  );
+
+  // A long weekend in Lisbon, paid by card in euros.
+  for (const [offset, payee, categoryId, cents] of [
+    [52, 'Booking.com', 'travel', 312_00],
+    [53, 'Time Out Market', 'eating-out', 41_80],
+    [54, 'Pastéis de Belém', 'coffee', 9_60],
+  ] as const)
+    add({
+      date: addDays(start, offset),
+      kind: 'expense',
+      accountId: 'a_current',
+      amount: eur(cents),
+      categoryId,
+      payee,
+      original: { amount: cents, currency: 'EUR' },
+    });
+
+  // Freelance design work, paid in euros into a euro wallet, partly moved to savings.
   const gigs = [
-    [24, 42_000],
-    [71, 65_000],
-    [118, 38_000],
+    [24, 1_200_00],
+    [71, 1_850_00],
+    [118, 950_00],
   ] as const;
   for (const [offset, cents] of gigs) {
     const date = addDays(start, offset);
@@ -271,9 +247,9 @@ export function buildDemo(today: ISODate): LedgerData {
       kind: 'income',
       accountId: 'a_wallet',
       amount: cents,
-      base: usd(cents),
+      base: eur(cents),
       categoryId: 'freelance',
-      payee: 'Upwork',
+      payee: 'Kestrel Studio',
     });
   }
   const move = addDays(start, 75);
@@ -283,27 +259,25 @@ export function buildDemo(today: ISODate): LedgerData {
       kind: 'transfer',
       accountId: 'a_wallet',
       toAccountId: 'a_savings',
-      amount: 70_000,
-      toAmount: usd(70_000),
-      base: usd(70_000),
+      amount: 2_000_00,
+      toAmount: eur(2_000_00),
+      base: eur(2_000_00),
       payee: 'Move to savings',
     });
-  const course = addDays(start, 40);
   add({
-    date: course,
+    date: addDays(start, 40),
     kind: 'expense',
     accountId: 'a_current',
-    amount: usd(1299),
+    amount: 14_99,
     categoryId: 'education',
     payee: 'Udemy',
-    original: { amount: 1299, currency: 'USD' },
   });
 
   // A few recent ones still waiting for a category.
   for (const [ago, payee, amount] of [
-    [1, 'Kiosk 24', 750],
-    [3, 'Bookshop', 4_250],
-    [5, 'Kiosk 24', 1_000],
+    [1, 'Corner kiosk', 3_50],
+    [3, 'Bookshop', 18_40],
+    [5, 'Corner kiosk', 4_25],
   ] as const) {
     const date = addDays(today, -ago);
     if (date >= start) add({ date, kind: 'expense', accountId: 'a_current', amount, payee });
@@ -311,22 +285,28 @@ export function buildDemo(today: ISODate): LedgerData {
 
   d.txns = txns.filter((t) => t.date <= today);
   d.budgets = [
-    ['groceries', 50_000],
-    ['eating-out', 25_000],
-    ['delivery', 25_000],
-    ['coffee', 20_000],
-    ['fuel', 25_000],
-    ['shopping', 20_000],
-    ['fun', 10_000],
+    ['groceries', 420_00],
+    ['eating-out', 160_00],
+    ['delivery', 160_00],
+    ['coffee', 120_00],
+    ['fuel', 190_00],
+    ['shopping', 150_00],
+    ['fun', 60_00],
   ].map(([categoryId, amount]) => ({
     categoryId: categoryId as string,
     amount: amount as number,
     rollover: false,
     since: start,
   }));
-  d.target = { date: addMonths(current.start, 20), floor: 500_000, label: 'Until graduation' };
+  d.target = { date: addMonths(current.start, 20), floor: 5_000_00, label: 'Back to work' };
   d.rules = [
-    { id: 'rule_demo', match: 'TALABAT', categoryId: 'delivery', payee: 'Talabat', createdAt: 0 },
+    {
+      id: 'rule_demo',
+      match: 'UBER EATS',
+      categoryId: 'delivery',
+      payee: 'Uber Eats',
+      createdAt: 0,
+    },
   ];
   return d;
 }

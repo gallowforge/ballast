@@ -11,15 +11,16 @@ import { SITE, url } from '@/lib/site';
 >
   <h2>Money, exactly</h2>
   <p>
-    Amounts are stored as whole numbers of the smallest unit: fils for the Kuwaiti dinar (1 KD is
-    1,000 fils), cents for the dollar. Nothing is ever a floating-point number, so 0.100 plus 0.200
-    is always exactly 0.300 KD. Exchange rates are kept as written ("0.30705") and applied with
-    whole-number arithmetic, rounding only once at the end, half away from zero.
+    Amounts are stored as whole numbers of the smallest unit: cents for the dollar or the euro,
+    thousandths for the three-decimal dinars and rials, whole yen for the yen. Nothing is ever a
+    floating-point number, so 0.10 plus 0.20 is always exactly 0.30. Exchange rates are kept as
+    written ("0.9215") and applied with whole-number arithmetic, rounding only once at the end, half
+    away from zero.
   </p>
   <p>
     Every transaction keeps its amount in its account's currency and, beside it, the value in your
-    main currency at the time. Reports add up the second one, so a dollar purchase from last spring
-    is not revalued by today's rate.
+    main currency at the time. Reports add up the second one, so a purchase in euros from last
+    spring is not revalued by today's rate.
   </p>
 
   <h2>Your money month</h2>
@@ -52,9 +53,9 @@ import { SITE, url } from '@/lib/site';
   <h2>Runway</h2>
   <p>
     The runway is a projection of your savings accounts. Starting from today's balance, it takes
-    your salary on every payday, adds recurring income paid into savings (a job that starts later,
-    an allowance) and subtracts recurring costs paid from savings (a yearly insurance). The chart
-    draws it as a staircase, because that is what your balance really does.
+    your salary on every payday, adds recurring income paid into savings (contract work that starts
+    later, a pension) and subtracts recurring costs paid from savings (a yearly insurance). The
+    chart draws it as a staircase, because that is what your balance really does.
   </p>
   <ul>
     <li>
@@ -112,8 +113,8 @@ import { SITE, url } from '@/lib/site';
     </li>
     <li>
       <strong>Columns.</strong> Headings like Posting Date, Value Date, Description, Debit, Credit
-      and Balance are recognised, National Bank of Kuwait's layout first. Without headings, columns
-      are inferred from their contents. You can change any of them before importing.
+      and Balance are recognised, with or without a currency in them. Without headings, columns are
+      inferred from their contents. You can change any of them before importing.
     </li>
     <li>
       <strong>The running balance check.</strong> Each row's balance must equal the previous balance

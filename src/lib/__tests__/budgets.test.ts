@@ -70,7 +70,8 @@ describe('budgets', () => {
       ['2026-09-10', 14_000],
       ['2026-10-10', 15_500],
     ]);
-    expect(suggestBudget(d, 'coffee', '2026-11-10')).toBe(14_000);
+    // An average of 131.67 USD, rounded up to the next whole dollar.
+    expect(suggestBudget(d, 'coffee', '2026-11-10')).toBe(13_200);
     expect(suggestBudget(data(), 'coffee', '2026-11-10')).toBe(0);
   });
 });

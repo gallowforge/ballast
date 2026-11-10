@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { currency, exponent, isCurrency } from '../money/currency';
+import { CURRENCIES, currency, exponent, isCurrency } from '../money/currency';
 import { convert, impliedRate, isRate, parseRate } from '../money/fx';
 import {
   floorTo,
@@ -15,14 +15,23 @@ import {
 } from '../money/money';
 
 describe('currencies', () => {
-  it('knows the dinar has three decimals and the label KD', () => {
-    expect(currency('KWD')).toMatchObject({ exp: 3, label: 'KD' });
+  it('labels every currency with its ISO code, the most used first', () => {
+    expect(CURRENCIES.slice(0, 3).map((c) => c.code)).toEqual(['USD', 'EUR', 'GBP']);
+    expect(CURRENCIES).toHaveLength(40);
+    expect(new Set(CURRENCIES.map((c) => c.code)).size).toBe(CURRENCIES.length);
+    for (const c of CURRENCIES) {
+      expect(c.code).toMatch(/^[A-Z]{3}$/);
+      expect(c.label).toBe(c.code);
+      expect([0, 2, 3]).toContain(c.exp);
+    }
   });
   it.each([
     ['USD', 2],
+    ['EUR', 2],
+    ['KWD', 3],
     ['BHD', 3],
     ['JPY', 0],
-    ['EUR', 2],
+    ['VND', 0],
   ])('%s has %i decimals', (code, exp) => expect(exponent(code)).toBe(exp));
   it('falls back to two decimals for an unknown code', () => {
     expect(currency('XYZ')).toMatchObject({ code: 'XYZ', exp: 2 });
@@ -52,8 +61,10 @@ describe('parseMinor', () => {
 });
 
 describe('parseAmountInput', () => {
-  it('accepts a positive amount in the currency', () =>
-    expect(parseAmountInput('4.750', 'KWD')).toBe(4750));
+  it('accepts a positive amount in the currency', () => {
+    expect(parseAmountInput('4.50', 'USD')).toBe(450);
+    expect(parseAmountInput('4.750', 'KWD')).toBe(4750);
+  });
   it.each(['0', '-1', '0.000', 'x', '1.234', ''])('rejects %j for USD', (s) =>
     expect(parseAmountInput(s, 'USD')).toBeNull(),
   );
@@ -67,34 +78,45 @@ describe('formatting', () => {
     [0, 3, '0.000'],
     [123456789, 2, '1,234,567.89'],
     [42, 0, '42'],
-  ])('%i fils at %i decimals → %s', (minor, exp, out) => expect(formatMinor(minor, exp)).toBe(out));
+  ])('%i minor units at %i decimals → %s', (minor, exp, out) =>
+    expect(formatMinor(minor, exp)).toBe(out),
+  );
   it('can show a plus sign, drop signs, or skip grouping', () => {
     expect(formatMinor(1500, 3, { sign: 'always' })).toBe('+1.500');
     expect(formatMinor(0, 3, { sign: 'always' })).toBe('0.000');
     expect(formatMinor(-1500, 3, { sign: 'never' })).toBe('1.500');
     expect(formatMinor(1234500, 3, { group: false })).toBe('1234.500');
   });
-  it('labels dinars as KD', () => expect(formatMoney(12500, 'KWD')).toBe('12.500 KD'));
+  it('labels amounts with the currency code', () => {
+    expect(formatMoney(1250, 'USD')).toBe('12.50 USD');
+    expect(formatMoney(12500, 'KWD')).toBe('12.500 KWD');
+  });
   it('splits an amount for typography', () => {
-    expect(moneyParts(-1234567, 'KWD')).toEqual({
+    expect(moneyParts(-123456, 'EUR')).toEqual({
       sign: '−',
       whole: '1,234',
-      fraction: '567',
-      unit: 'KD',
+      fraction: '56',
+      unit: 'EUR',
     });
+    expect(moneyParts(1234567, 'OMR')).toMatchObject({ whole: '1,234', fraction: '567' });
     expect(moneyParts(500, 'JPY')).toEqual({ sign: '', whole: '500', fraction: '', unit: 'JPY' });
   });
   it.each([
-    [950_000, '950'],
-    [1_200_000, '1.2k'],
-    [14_000_000, '14k'],
-    [250_000_000, '250k'],
-    [1_500_000_000, '1.5M'],
-    [-2_500_000, '−2.5k'],
-  ])('compacts %i fils to %s', (minor, out) => expect(formatCompact(minor, 'KWD')).toBe(out));
+    [95_000, '950'],
+    [120_000, '1.2k'],
+    [1_400_000, '14k'],
+    [25_000_000, '250k'],
+    [150_000_000, '1.5M'],
+    [-250_000, '−2.5k'],
+  ])('compacts %i cents to %s', (minor, out) => expect(formatCompact(minor, 'USD')).toBe(out));
+  it('compacts by the currency’s own decimals', () => {
+    expect(formatCompact(1_200_000, 'KWD')).toBe('1.2k');
+    expect(formatCompact(1_200, 'JPY')).toBe('1.2k');
+  });
   it('rounds headlines to whole units', () => {
-    expect(formatRounded(1234500, 'KWD')).toBe('1,235 KD');
-    expect(formatRounded(-1500, 'KWD')).toBe('−2 KD');
+    expect(formatRounded(123450, 'USD')).toBe('1,235 USD');
+    expect(formatRounded(-150, 'USD')).toBe('−2 USD');
+    expect(formatRounded(1234500, 'KWD')).toBe('1,235 KWD');
   });
 });
 
@@ -119,22 +141,25 @@ describe('exchange rates', () => {
     expect(isRate('-1')).toBe(false);
     expect(isRate('abc')).toBe(false);
   });
-  it('converts dollars to dinars with half-up rounding', () => {
-    // 12.99 USD × 0.30705 = 3.9885795 KD → 3.989 KD
-    expect(convert(1299, 'USD', 'KWD', '0.30705')).toBe(3989);
+  it('converts euros to dollars with half-up rounding', () => {
+    // 12.99 EUR × 1.0855 = 14.100645 USD → 14.10 USD
+    expect(convert(1299, 'EUR', 'USD', '1.0855')).toBe(1410);
   });
-  it('converts dinars to yen across exponents', () => {
+  it('converts across exponents, to three decimals and to none', () => {
+    // 12.99 USD × 0.30705 = 3.9885795 KWD → 3.989 KWD
+    expect(convert(1299, 'USD', 'KWD', '0.30705')).toBe(3989);
     expect(convert(1000, 'KWD', 'JPY', '490.5')).toBe(491);
   });
   it('keeps negative amounts symmetric', () =>
-    expect(convert(-1299, 'USD', 'KWD', '0.30705')).toBe(-3989));
+    expect(convert(-1299, 'EUR', 'USD', '1.0855')).toBe(-1410));
   it('is the identity for the same currency', () =>
-    expect(convert(123, 'KWD', 'KWD', 'x')).toBe(123));
-  it('returns null for a bad rate', () => expect(convert(100, 'USD', 'KWD', '')).toBeNull());
+    expect(convert(123, 'USD', 'USD', 'x')).toBe(123));
+  it('returns null for a bad rate', () => expect(convert(100, 'EUR', 'USD', '')).toBeNull());
   it('works out the rate a statement implies', () => {
+    expect(impliedRate(1299, 'EUR', 1410, 'USD')).toBe('1.08545');
+    expect(impliedRate(10000, 'EUR', 10855, 'USD')).toBe('1.0855');
     expect(impliedRate(1299, 'USD', 3989, 'KWD')).toBe('0.307082');
-    expect(impliedRate(10000, 'USD', 30705, 'KWD')).toBe('0.30705');
-    expect(impliedRate(0, 'USD', 10, 'KWD')).toBe('0');
+    expect(impliedRate(0, 'EUR', 10, 'USD')).toBe('0');
   });
 });
 

@@ -15,7 +15,7 @@ export const savings: Account = {
   id: 'sav',
   name: 'Savings',
   role: 'savings',
-  currency: 'KWD',
+  currency: 'USD',
   opening: 3_000_000,
   openedOn: '2026-01-01',
 };
@@ -23,15 +23,15 @@ export const spending: Account = {
   id: 'cur',
   name: 'Current',
   role: 'spending',
-  currency: 'KWD',
+  currency: 'USD',
   opening: 0,
   openedOn: '2026-01-01',
 };
 export const wallet: Account = {
-  id: 'usd',
+  id: 'eur',
   name: 'Wallet',
   role: 'other',
-  currency: 'USD',
+  currency: 'EUR',
   opening: 0,
   openedOn: '2026-01-01',
 };

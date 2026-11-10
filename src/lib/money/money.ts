@@ -1,6 +1,6 @@
 import { currency } from './currency';
 
-/** An integer number of minor units (fils, cents). Always a safe integer. */
+/** An integer number of minor units (cents, or thousandths for three-decimal currencies). */
 export type Minor = number;
 
 const GROUP = /\B(?=(\d{3})+(?!\d))/g;
@@ -37,7 +37,7 @@ export function normalizeNumber(input: string): string {
 /**
  * Parses a decimal string into minor units without ever touching floating point.
  * Accepts "1234.5", "1,234.500", "-0.250", ".5", "1,5". Returns null for anything else, or when the
- * string has more decimals than the currency allows ("1.2345" for KWD).
+ * string has more decimals than the currency allows ("1.234" for USD).
  */
 export function parseMinor(input: string, exp: number): Minor | null {
   const s = normalizeNumber(input);
@@ -66,7 +66,7 @@ export interface FormatOptions {
   group?: boolean;
 }
 
-/** "1,234.500" for 1234500 fils. Exact: built from the integer, not from a float. */
+/** "1,234.50" for 123450 at two decimals. Exact: built from the integer, not from a float. */
 export function formatMinor(minor: Minor, exp: number, opts: FormatOptions = {}): string {
   const { sign = 'auto', group = true } = opts;
   const neg = minor < 0;
@@ -82,7 +82,7 @@ export function formatMinor(minor: Minor, exp: number, opts: FormatOptions = {})
   return body;
 }
 
-/** "1,234.500 KD". */
+/** "1,234.50 USD". */
 export function formatMoney(minor: Minor, code: string, opts: FormatOptions = {}): string {
   const c = currency(code);
   return `${formatMinor(minor, c.exp, opts)} ${c.label}`;
@@ -95,7 +95,7 @@ export interface MoneyParts {
   unit: string;
 }
 
-/** Splits an amount for typography: the fils are drawn lighter than the dinars. */
+/** Splits an amount for typography: the decimals are drawn lighter than the whole units. */
 export function moneyParts(minor: Minor, code: string, opts: FormatOptions = {}): MoneyParts {
   const c = currency(code);
   const text = formatMinor(minor, c.exp, opts);
@@ -119,7 +119,7 @@ function trim(n: number): string {
   return n >= 100 ? String(Math.round(n)) : String(Math.round(n * 10) / 10);
 }
 
-/** Whole major units, rounded: 1234500 fils → "1,235 KD" for headlines that need no fils. */
+/** Whole major units, rounded: 123450 cents → "1,235 USD", for headlines that need no decimals. */
 export function formatRounded(minor: Minor, code: string): string {
   const c = currency(code);
   const major = Math.sign(minor) * Math.round(Math.abs(minor) / 10 ** c.exp);
@@ -139,7 +139,7 @@ export function share(minor: Minor, parts: number): Minor {
   return Math.floor(minor / parts);
 }
 
-/** Rounds to the nearest `step` minor units (e.g. 500 fils), toward zero. */
+/** Rounds to the nearest `step` minor units (e.g. 500 cents), toward zero. */
 export function floorTo(minor: Minor, step: number): Minor {
   if (step <= 1) return Math.trunc(minor);
   return Math.trunc(minor / step) * step;

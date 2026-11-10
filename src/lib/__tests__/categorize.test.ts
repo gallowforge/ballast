@@ -5,36 +5,57 @@ import type { Rule } from '../model';
 
 describe('payee cleanup', () => {
   it.each([
-    ['POS PURCHASE 4111XXXXXXXX2290 STARBUCKS AVENUES KUWAIT KW', 'Starbucks Avenues'],
-    ['POS PURCHASE 4111XXXXXXXX2290 TALABAT GENERAL TRADING KW', 'Talabat General Trading'],
-    ['KNET PURCHASE GYM OXYGEN FITNESS', 'Gym Oxygen Fitness'],
-    ['POS PURCHASE LULU HYPERMARKET AL RAI KUWAIT', 'Lulu Hypermarket Al Rai'],
+    ['POS PURCHASE 4111XXXXXXXX2290 STARBUCKS CANAL STREET', 'Starbucks Canal Street'],
+    [
+      'POS PURCHASE 4111XXXXXXXX1234 WHOLE FOODS MARKET AUSTIN TX 08/11 14:32',
+      'Whole Foods Market Austin',
+    ],
+    ['DIRECT DEBIT PULSE FITNESS', 'Pulse Fitness'],
+    ['STANDING ORDER MAPLE COURT RENT', 'Maple Court Rent'],
     ['SPOTIFY P2D4F9 STOCKHOLM SE', 'Spotify P2d4f9 Stockholm'],
-    ['ATM WITHDRAWAL 000117 HAWALLY', 'ATM Withdrawal Hawally'],
+    ['ATM WITHDRAWAL 000117 HIGH STREET', 'ATM Withdrawal High Street'],
+    ['ECOM PURCHASE ZALANDO EUR 39.95 BERLIN DE', 'Zalando Berlin'],
     ['ECOM PURCHASE AMAZON.COM USD 23.49 AMZN MKTP US', 'Amazon.com Amzn Mktp'],
-    ['APPLE PAY CARIBOU COFFEE 08/11 14:32', 'Caribou Coffee'],
-    ['ZAIN KUWAIT K.S.C.P.', 'Zain'],
+    ['APPLE PAY BLUE BOTTLE COFFEE 08/11 14:32', 'Blue Bottle Coffee'],
+    ['CONTACTLESS PRET A MANGER LONDON GB', 'Pret A Manger London'],
+    ['ACME TRADING GMBH', 'Acme Trading'],
+    ['POS PURCHASE LULU HYPERMARKET AL RAI KUWAIT', 'Lulu Hypermarket Al Rai'],
     ['12345678', '12345678'],
     ['', 'Unknown'],
   ])('%j → %j', (raw, out) => expect(cleanPayee(raw)).toBe(out));
   it('keeps acronyms upper case', () =>
-    expect(titleCase('knpc station and the atm')).toBe('KNPC Station and the ATM'));
+    expect(titleCase('bp station and the atm')).toBe('BP Station and the ATM'));
   it('builds a letters-only key', () =>
-    expect(merchantKey('POS PURCHASE TALABAT 123 KW')).toBe('TALABAT'));
+    expect(merchantKey('POS PURCHASE UBER *EATS 123 NL')).toBe('UBER EATS'));
 });
 
 describe('categories from statement text', () => {
   it.each([
-    ['POS PURCHASE TALABAT GENERAL TRADING KW', 'out', 'delivery', 'Talabat'],
-    ['POS PURCHASE LULU HYPERMARKET', 'out', 'groceries', 'Lulu Hypermarket'],
-    ['POS PURCHASE KNPC STATION 112', 'out', 'fuel', 'KNPC'],
-    ['STC KUWAIT POSTPAID BILL', 'out', 'bills', 'stc'],
+    ['POS PURCHASE 4111XXXXXXXX2290 UBER *EATS', 'out', 'delivery', 'Uber Eats'],
+    ['UBER *TRIP HELP.UBER.COM', 'out', 'transport', 'Uber'],
+    ['DELIVEROO LONDON GB', 'out', 'delivery', 'Deliveroo'],
+    ['POS PURCHASE TESCO STORES 2041', 'out', 'groceries', 'Tesco'],
+    ['POS PURCHASE ALDI RIVERSIDE', 'out', 'groceries', 'Aldi'],
+    ['POS PURCHASE SHELL HARBOUR ROAD', 'out', 'fuel', 'Shell'],
+    ['T-MOBILE POSTPAID BILL', 'out', 'bills', 'T-Mobile'],
     ['NETFLIX.COM 866-579-7172', 'out', 'subscriptions', 'Netflix'],
+    ['AMAZON PRIME*2K4LM9', 'out', 'subscriptions', 'Amazon Prime'],
+    ['AMZN MKTP US*2K4LM9', 'out', 'shopping', 'Amazon'],
     ['APPLE.COM/BILL ITUNES.COM IE', 'out', 'subscriptions', 'Apple'],
+    ['STANDING ORDER MAPLE COURT RENT', 'out', 'home', 'Maple Court Rent'],
+    ['HERTZ RENT A CAR LISBON', 'out', 'travel', 'Hertz Rent A Car Lisbon'],
+    ['UBER ELECTRIC BIKE RIDE', 'out', 'transport', 'Uber'],
+    ['DIRECT DEBIT CITY POWER ELECTRICITY', 'out', 'home', 'City Power Electricity'],
+    ['STEAMGAMES.COM 4259522985', 'out', 'fun', 'Steamgames.com'],
+    ['CVS/PHARMACY #0412', 'out', 'health', 'CVS/Pharmacy'],
+    ['MSFT *XBOX GAME PASS', 'out', 'subscriptions', 'Microsoft'],
+    ['POS PURCHASE KNPC STATION 112', 'out', 'fuel', 'KNPC'],
+    ['POS PURCHASE TALABAT GENERAL TRADING KW', 'out', 'delivery', 'Talabat'],
     ['ATM WITHDRAWAL 000117', 'out', 'cash', 'Cash withdrawal'],
     ['SERVICE CHARGE ACCOUNT MAINTENANCE', 'out', 'fees', 'Service Charge Account Maintenance'],
     ['MONTHLY SALARY ACME', 'in', 'salary', 'Salary'],
-    ['REFUND XCITE ONLINE ORDER', 'in', 'refunds', 'Refund Xcite Online Order'],
+    ['UNEMPLOYMENT BENEFIT PAYMENT', 'in', 'allowance', 'Unemployment Benefit Payment'],
+    ['REFUND IKEA ONLINE ORDER', 'in', 'refunds', 'Refund IKEA Online Order'],
     ['UPWORK ESCROW INC', 'in', 'freelance', 'Upwork Escrow'],
   ] as const)('%j (%s) → %s', (raw, dir, cat, payee) => {
     const g = categorize(raw, dir, []);
@@ -43,18 +64,12 @@ describe('categories from statement text', () => {
   });
   it('lets your own rule win, longest match first', () => {
     const rules: Rule[] = [
-      { id: 'a', match: 'TALABAT', categoryId: 'eating-out', createdAt: 1 },
-      {
-        id: 'b',
-        match: 'TALABAT GENERAL',
-        categoryId: 'groceries',
-        payee: 'Talabat Mart',
-        createdAt: 2,
-      },
+      { id: 'a', match: 'UBER', categoryId: 'transport', createdAt: 1 },
+      { id: 'b', match: 'UBER EATS', categoryId: 'eating-out', payee: 'Takeaway', createdAt: 2 },
     ];
-    expect(categorize('POS TALABAT GENERAL TRADING', 'out', rules)).toMatchObject({
-      categoryId: 'groceries',
-      payee: 'Talabat Mart',
+    expect(categorize('POS UBER *EATS PENDING', 'out', rules)).toMatchObject({
+      categoryId: 'eating-out',
+      payee: 'Takeaway',
       ruleId: 'b',
     });
   });
@@ -62,13 +77,15 @@ describe('categories from statement text', () => {
     expect(categorize('TRANSFER FROM SAVINGS OWN ACCOUNT 0021', 'in', []).transfer).toBe(true);
     expect(categorize('POS COFFEE', 'out', []).transfer).toBe(false);
   });
-  it('does not call money in a cash withdrawal', () =>
-    expect(categorize('ATM DEPOSIT', 'in', []).categoryId).toBeUndefined());
+  it('does not call money in a cash withdrawal, or rent paid to you a cost', () => {
+    expect(categorize('ATM DEPOSIT', 'in', []).categoryId).toBeUndefined();
+    expect(categorize('RENT FROM TENANT', 'in', []).categoryId).toBeUndefined();
+  });
   it('leaves the unknown uncategorised with a tidy name', () =>
     expect(categorize('POS PURCHASE BLUE DOOR', 'out', [])).toEqual({
       payee: 'Blue Door',
       transfer: false,
     }));
   it('makes rule keys from the first two words', () =>
-    expect(ruleKey('POS PURCHASE TALABAT GENERAL TRADING KW')).toBe('TALABAT GENERAL'));
+    expect(ruleKey('POS PURCHASE UBER *EATS AMSTERDAM NL')).toBe('UBER EATS'));
 });

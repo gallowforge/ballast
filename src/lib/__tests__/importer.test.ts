@@ -18,14 +18,27 @@ const csv = readFileSync('tests/fixtures/sample-statement.csv', 'utf8');
 const expected = JSON.parse(readFileSync('tests/fixtures/sample-statement.json', 'utf8'));
 
 describe('bank profiles', () => {
-  it('recognises NBK from the statement text', () => {
-    expect(detectProfile('National Bank of Kuwait\nStatement of Account').id).toBe('nbk');
+  it('recognises a known bank layout from the statement text', () => {
+    expect(detectProfile('National Bank of Kuwait\nStatement of Account')).toMatchObject({
+      id: 'nbk',
+      currency: 'KWD',
+    });
     expect(detectProfile('www.nbk.com').id).toBe('nbk');
     expect(detectProfile('Example Bank').id).toBe('generic');
+    expect(detectProfile('Example Bank').currency).toBeUndefined();
   });
-  it('reads the statement currency', () => {
-    expect(detectCurrency('Account currency: USD', 'KWD')).toBe('USD');
+  it('reads the statement currency, and leaves it unknown when the text does not say', () => {
+    expect(detectCurrency('Account currency: EUR', 'USD')).toBe('EUR');
+    expect(detectCurrency('Currency: GBP')).toBe('GBP');
     expect(detectCurrency('nothing here', 'KWD')).toBe('KWD');
+    expect(detectCurrency('nothing here')).toBeUndefined();
+    // Three letters that are not a currency Ballast knows are not taken for one.
+    expect(detectCurrency('Currency: ALL accounts')).toBeUndefined();
+  });
+  it('takes the currency from the file, or leaves it to the account', () => {
+    expect(sourceFromCSV(csv, 'sample-statement.csv').currency).toBeUndefined();
+    const named = sourceFromCSV(`Currency: EUR\n${csv}`, 'x.csv');
+    expect(named.currency).toBe('EUR');
   });
 });
 
@@ -34,8 +47,8 @@ describe('duplicates', () => {
     expect(withOccurrence(['a', 'b', 'a'])).toEqual(['a#1', 'b#1', 'a#2']);
   });
   it('builds a stable fingerprint', () => {
-    expect(fingerprint('cur', '2026-11-02', -4250, 'Pos Talabat, KW')).toBe(
-      'cur|2026-11-02|-4250|POSTALABATKW',
+    expect(fingerprint('cur', '2026-11-02', -4250, 'Pos Uber *Eats, NL')).toBe(
+      'cur|2026-11-02|-4250|POSUBEREATSNL',
     );
   });
   it('finds exact repeats and entries added by hand, claiming each once', () => {
@@ -74,7 +87,7 @@ describe('duplicates', () => {
 describe('importing the sample CSV', () => {
   const source = sourceFromCSV(csv, 'sample-statement.csv');
   const mapping = mappingFor(source);
-  const statement = readStatement(source, mapping, 'KWD');
+  const statement = readStatement(source, mapping, 'USD');
 
   it('reads and reconciles it', () => {
     expect(statement.rows).toHaveLength(expected.rows);
@@ -90,7 +103,7 @@ describe('importing the sample CSV', () => {
       accounts: [savings, spending],
       salary: {
         active: true,
-        amount: 220_000,
+        amount: 310_000,
         fromAccountId: 'sav',
         toAccountId: 'cur',
         autoPost: true,
@@ -100,7 +113,7 @@ describe('importing the sample CSV', () => {
         txn({
           id: 'pay',
           date: '2026-10-01',
-          amount: 220_000,
+          amount: 310_000,
           kind: 'transfer',
           accountId: 'sav',
           toAccountId: 'cur',
@@ -112,12 +125,16 @@ describe('importing the sample CSV', () => {
     const first = rows[0]!;
     expect(first).toMatchObject({ kind: 'transfer', include: false, transferHint: true });
     expect(first.duplicate.match?.id).toBe('pay');
-    const talabat = rows.find((r) => r.raw.includes('TALABAT'))!;
-    expect(talabat).toMatchObject({
-      payee: 'Talabat',
+    const delivery = rows.find((r) => r.raw.includes('UBER *EATS'))!;
+    expect(delivery).toMatchObject({
+      payee: 'Uber Eats',
       categoryId: 'delivery',
       kind: 'expense',
       include: true,
+    });
+    expect(rows.find((r) => r.raw.includes('RENT'))).toMatchObject({
+      categoryId: 'home',
+      amount: -135_000,
     });
     const s = summarize(rows);
     expect(s.count).toBe(expected.rows - 1);
@@ -125,7 +142,16 @@ describe('importing the sample CSV', () => {
     expect(s.out).toBe(expected.debit);
   });
 
-  it('commits, matches the bank to the fils, and undoes cleanly', () => {
+  it('leaves out guesses for categories this money life does not have', () => {
+    const d = data({
+      accounts: [savings, spending],
+      categories: data().categories.filter((c) => c.id !== 'home'),
+    });
+    const rent = buildReview(d, 'cur', statement).find((r) => r.raw.includes('RENT'))!;
+    expect(rent.categoryId).toBeUndefined();
+  });
+
+  it('commits, matches the bank to the cent, and undoes cleanly', () => {
     const d = data({ accounts: [savings, { ...spending, opening: 0 }] });
     const rows = buildReview(d, 'cur', statement);
     const { op, id } = applyImport(rows, {
@@ -170,7 +196,7 @@ describe('importing the sample CSV', () => {
       kind: 'transfer',
       accountId: 'sav',
       toAccountId: 'cur',
-      amount: 220_000,
+      amount: 310_000,
     });
   });
 
@@ -184,7 +210,7 @@ describe('importing the sample CSV', () => {
 describe('undo and transfers', () => {
   it('undoing an import gives the account back its old starting balance', () => {
     const source = sourceFromCSV(csv, 'sample-statement.csv');
-    const statement = readStatement(source, mappingFor(source), 'KWD');
+    const statement = readStatement(source, mappingFor(source), 'USD');
     const d = data({
       accounts: [savings, { ...spending, opening: 12_345, openedOn: '2026-01-01' }],
     });
@@ -209,26 +235,26 @@ describe('undo and transfers', () => {
 
   it('money in from an account in another currency is converted on the sending side', () => {
     const wallet = {
-      id: 'usd',
+      id: 'eur',
       name: 'Wallet',
       role: 'other' as const,
-      currency: 'USD',
+      currency: 'EUR',
       opening: 0,
       openedOn: '2026-01-01',
     };
     const d = data({
       accounts: [savings, spending, wallet],
-      rates: { USD: { rate: '0.3', on: '2026-11-01' } },
+      rates: { EUR: { rate: '1.1', on: '2026-11-01' } },
     });
     const row = {
       key: 'k',
       line: 2,
       date: '2026-11-02',
       raw: 'TRANSFER FROM WALLET',
-      amount: 30_000,
+      amount: 11_000,
       payee: 'Transfer',
       kind: 'transfer' as const,
-      toAccountId: 'usd',
+      toAccountId: 'eur',
       include: true,
       duplicate: { exact: false },
       fingerprint: 'f',
@@ -244,11 +270,11 @@ describe('undo and transfers', () => {
     }).op(d).txns[0]!;
     expect(t).toMatchObject({
       kind: 'transfer',
-      accountId: 'usd',
+      accountId: 'eur',
       toAccountId: 'cur',
       amount: 10_000,
-      toAmount: 30_000,
-      base: 30_000,
+      toAmount: 11_000,
+      base: 11_000,
     });
   });
 });

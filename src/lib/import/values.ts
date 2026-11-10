@@ -75,7 +75,7 @@ export function looksLikeDate(raw: string): boolean {
 /**
  * Decides day-first or month-first from a column of dates. Any first number above 12 proves
  * day-first; any second number above 12 proves month-first; otherwise day-first (the convention
- * in Kuwait and most of the world).
+ * in most of the world).
  */
 export function detectDateOrder(values: readonly string[]): DateOrder {
   let dmy = 0;
@@ -109,9 +109,13 @@ export function detectDecimal(values: readonly string[]): '.' | ',' {
   return comma > dot ? ',' : '.';
 }
 
+/** Currency symbols a statement may print beside its amounts. */
+const SYMBOLS = /[$€£¥₹₩₺₱฿₫₦]/g;
+
 /**
  * Reads a statement amount into signed minor units: 1,234.567 · 1.234,56 · (12.500) · -12.5 ·
- * 12.500- · 12.500 DR · 12.500 CR · KWD 12.500 · 12.500 KD. Extra decimals round half up.
+ * 12.50- · 12.50 DR · 12.50 CR · USD 12.50 · 12.500 KWD · -$12.50 · €1.234,56. Extra decimals
+ * round half up.
  */
 export function parseAmount(
   raw: string,
@@ -128,7 +132,10 @@ export function parseAmount(
     signed = true;
     s = s.slice(0, marker.index);
   }
-  s = s.replace(/[A-Za-z]{2,4}\.?/g, '').trim();
+  s = s
+    .replace(/[A-Za-z]{2,4}\.?/g, '')
+    .replace(SYMBOLS, '')
+    .trim();
   if (/^\(.*\)$/.test(s)) {
     neg = true;
     signed = true;
@@ -165,7 +172,7 @@ export function parseAmount(
 }
 
 export function looksLikeAmount(raw: string): boolean {
-  const s = raw.trim();
+  const s = raw.trim().replace(SYMBOLS, '');
   if (!/\d/.test(s) || s.length > 24) return false;
   if (looksLikeDate(s)) return false;
   return /^[(\-−+]?\s*(?:[A-Za-z]{2,4}\.?\s*)?[\d.,\s]*\d(?:[.,]\d+)?\s*(?:[A-Za-z]{2,4}\.?)?\s*[)\-]?\s*(?:DR|CR)?\.?$/i.test(

@@ -14,8 +14,8 @@ export interface Source {
   fileName: string;
   table: string[][];
   profile: Profile;
-  /** Statement currency as the file states it (falls back to the profile's). */
-  currency: string;
+  /** Statement currency as the file states it (or as its bank implies); unknown otherwise. */
+  currency?: string;
 }
 
 export function sourceFromCSV(text: string, fileName: string): Source {
@@ -93,9 +93,12 @@ export function buildReview(
     accountId,
     statement.rows.map((r, i) => ({ date: r.date, amount: r.amount, fingerprint: keys[i]! })),
   );
+  const categories = new Set(data.categories.map((c) => c.id));
   return statement.rows.map((r, i) => {
     const dir = r.amount < 0 ? 'out' : 'in';
     const guess = categorize(r.description, dir, data.rules);
+    // A guess only counts when the category exists here (older data may not have every default).
+    if (guess.categoryId && !categories.has(guess.categoryId)) guess.categoryId = undefined;
     const dup = dups[i]!;
     const matchedTransfer = dup.match?.kind === 'transfer';
     return {

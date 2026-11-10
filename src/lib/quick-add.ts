@@ -17,10 +17,40 @@ export interface QuickAdd {
 
 const DAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
+/** Codes whose money is written with a plain "$". */
+const DOLLARS = new Set(['USD', 'CAD', 'AUD', 'NZD', 'SGD', 'HKD', 'TWD', 'MXN', 'COP']);
+
+/** The currency a symbol or everyday word means, for someone whose main currency is `base`. */
+function currencyWord(word: string, base: string): string | undefined {
+  switch (word) {
+    case '$':
+    case 'dollar':
+    case 'dollars':
+      return DOLLARS.has(base) ? base : 'USD';
+    case '€':
+    case 'euro':
+    case 'euros':
+      return 'EUR';
+    case '£':
+      return 'GBP';
+    case '¥':
+    case 'yen':
+      return base === 'CNY' ? 'CNY' : 'JPY';
+    case '₹':
+      return 'INR';
+    case '₩':
+      return 'KRW';
+    case 'kd':
+      return 'KWD';
+  }
+  const code = word.toUpperCase();
+  return /^[A-Z]{3}$/.test(code) && isCurrency(code) ? code : undefined;
+}
+
 /**
- * Reads a one-line entry: "3.750 talabat", "coffee 1.5 yesterday", "+250 freelance",
- * "12.99 usd amazon fri". A leading + means money in. The words become the payee and pick
- * the category through your rules and known merchants.
+ * Reads a one-line entry: "4.50 coffee", "lunch 12.5 yesterday", "+250 freelance",
+ * "€12.99 amazon fri", "30 eur museum". A leading + means money in. The words become the payee
+ * and pick the category through your rules and known merchants.
  */
 export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): QuickAdd | null {
   const tokens = text.trim().split(/\s+/).filter(Boolean);
@@ -30,26 +60,34 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
   let code: string | undefined;
   let date = today;
   const words: string[] = [];
+  const base = data.settings.base;
   for (const raw of tokens) {
     const t = raw.toLowerCase();
-    const num = /^([+-])?(\d[\d,]*(?:\.\d+)?|\.\d+)([a-z]{3})?$/.exec(t);
+    // A currency symbol on its own before the amount ("$ 12 lunch", "kd 3.5 snacks").
+    if (amountText === null && !code && /^([$€£¥₹₩]|kd)$/.test(t)) {
+      code = currencyWord(t, base);
+      continue;
+    }
+    // An amount, with a currency symbol before or after it, or a code stuck to it ("12.99usd").
+    const num = /^([+-])?([$€£¥₹₩])?(\d[\d,]*(?:\.\d+)?|\.\d+)([$€£¥₹₩]|[a-z]{2,3})?$/.exec(t);
     if (num && amountText === null) {
-      income = num[1] === '+';
-      amountText = num[2]!;
-      if (num[3] && isCurrency(num[3].toUpperCase())) code = num[3].toUpperCase();
-      continue;
+      const named = num[2] ?? num[4];
+      const namedCode = named ? currencyWord(named, base) : undefined;
+      if (!named || namedCode) {
+        income = num[1] === '+';
+        amountText = num[3]!;
+        code = namedCode ?? code;
+        continue;
+      }
     }
-    if (
-      amountText !== null &&
-      !code &&
-      /^[a-z]{3}$/.test(t) &&
-      isCurrency(t.toUpperCase()) &&
-      t !== 'the'
-    ) {
-      code = t.toUpperCase();
-      continue;
+    // A currency named after the amount ("12.99 usd", "30 euros").
+    if (amountText !== null && !code && t !== 'the') {
+      const named = currencyWord(t, base);
+      if (named) {
+        code = named;
+        continue;
+      }
     }
-    if (t === 'kd') continue;
     if (t === 'today') continue;
     if (t === 'yesterday') {
       date = addDays(today, -1);
@@ -72,7 +110,7 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
     words.push(raw);
   }
   if (amountText === null) return null;
-  const exp = currency(code ?? data.settings.base).exp;
+  const exp = currency(code ?? base).exp;
   const amount =
     parseMinor(amountText, exp) ??
     parseMinor(Number(amountText.replace(/,/g, '')).toFixed(exp), exp);
@@ -88,13 +126,13 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
     if (byName) categoryId = byName.id;
     else {
       const guess = categorize(phrase, income ? 'in' : 'out', data.rules);
-      categoryId = guess.categoryId;
+      if (data.categories.some((c) => c.id === guess.categoryId)) categoryId = guess.categoryId;
       payee = guess.payee;
     }
   }
   return {
     amount,
-    currency: code && code !== data.settings.base ? code : undefined,
+    currency: code && code !== base ? code : undefined,
     kind,
     payee,
     categoryId,

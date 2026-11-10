@@ -270,8 +270,8 @@ export default function RunwayScreen() {
             </dl>
           ) : (
             <p class="text-muted mt-4 max-w-md">
-              Graduation, a new job, the month income starts again. Pick the day your savings have
-              to reach, and Ballast tells you what salary gets you there.
+              A new job, a launch, the month income starts again. Pick the day your savings have to
+              reach, and Ballast tells you what salary gets you there.
             </p>
           )}
         </section>
@@ -388,7 +388,7 @@ function TargetSheet({
   const { data } = useLedger();
   const base = data.settings.base;
   const t = data.target;
-  const [label, setLabel] = useState(t?.label ?? 'Until graduation');
+  const [label, setLabel] = useState(t?.label ?? 'Back to work');
   const [date, setDate] = useState(t?.date ?? today);
   const [floor, setFloor] = useState(toInput(t?.floor, base));
   return (

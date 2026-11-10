@@ -1,5 +1,6 @@
 import { today as todayISO } from '../dates';
 import { emptyData } from '../defaults';
+import { localCurrency } from '../money/locale';
 import type { LedgerData } from '../model';
 import { sanitize } from '../backup';
 import { catchUp, type Op } from './ops';
@@ -64,7 +65,8 @@ export function start(p: Persistence, now: () => string = () => todayISO()): Pro
   persistence = p;
   starting = (async () => {
     const raw = await p.load();
-    state = raw ? sanitize(raw).data : emptyData();
+    // A first visit starts in the currency this browser's language settings suggest.
+    state = raw ? sanitize(raw).data : emptyData(localCurrency());
     const caught = catchUp(state, now());
     if (caught.posted) {
       state = caught.data;
@@ -80,7 +82,7 @@ export function start(p: Persistence, now: () => string = () => todayISO()): Pro
         if (inFlight > 0) return;
         const fresh = await p.load();
         if (inFlight > 0) return;
-        state = fresh ? sanitize(fresh).data : emptyData();
+        state = fresh ? sanitize(fresh).data : emptyData(localCurrency());
         history.length = 0;
         notify();
       };
@@ -124,7 +126,7 @@ export function flush(): Promise<void> {
 /** Deletes everything on this device. */
 export async function wipe(): Promise<void> {
   history.length = 0;
-  state = emptyData();
+  state = emptyData(localCurrency());
   await saving;
   await persistence?.clear();
   channel?.postMessage({ type: 'saved' });

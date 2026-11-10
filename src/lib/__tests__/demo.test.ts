@@ -27,6 +27,24 @@ describe('demo data', () => {
       expect(insights(d, today).length).toBeGreaterThan(2);
     });
   }
+  it('is someone living on savings, in dollars, with a euro wallet', () => {
+    const d = buildDemo('2026-11-08');
+    expect(d.settings).toMatchObject({ base: 'USD', name: 'Alex' });
+    expect(d.accounts.map((a) => a.currency)).toEqual(['USD', 'USD', 'EUR']);
+    expect(d.rates.EUR).toBeDefined();
+    expect(d.target?.label).toBe('Back to work');
+    // Rent is the biggest bill, as for most people living on savings.
+    const rent = d.recurring.find((r) => r.categoryId === 'home')!;
+    expect(rent.amount).toBe(
+      Math.max(...d.recurring.filter((r) => r.kind === 'expense').map((r) => r.amount)),
+    );
+    // Purchases abroad keep what they cost in euros next to what the bank charged.
+    expect(d.txns.some((t) => t.original?.currency === 'EUR')).toBe(true);
+    // Every category it uses exists, and it keeps the fern alive.
+    const ids = new Set(d.categories.map((c) => c.id));
+    expect(d.txns.every((t) => !t.categoryId || ids.has(t.categoryId))).toBe(true);
+    expect(d.recurring.some((r) => r.name === "Fern's plant food")).toBe(true);
+  });
   it('is the same every time for a given day', () => {
     expect(buildDemo('2026-11-08')).toEqual(buildDemo('2026-11-08'));
   });

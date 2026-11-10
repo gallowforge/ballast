@@ -1,42 +1,62 @@
 /**
  * ISO 4217 currencies Ballast knows, with their minor-unit exponent. Amounts are always stored as
- * integers of the minor unit (fils for the Kuwaiti dinar: 1 KD = 1,000 fils), never as floats.
+ * integers of the minor unit (cents for the dollar, thousandths for the three-decimal dinars and
+ * rials, whole units for the yen), never as floats.
  */
 export interface Currency {
   code: string;
-  /** Digits after the decimal point: 3 for KWD, 2 for USD, 0 for JPY. */
+  /** Digits after the decimal point: 2 for USD, 3 for KWD, 0 for JPY. */
   exp: number;
   name: string;
-  /** Short label shown after amounts. KD is the local convention for KWD. */
+  /** Short label shown after amounts: the ISO code. */
   label: string;
 }
 
-const LIST: Currency[] = [
-  { code: 'KWD', exp: 3, name: 'Kuwaiti dinar', label: 'KD' },
-  { code: 'USD', exp: 2, name: 'US dollar', label: 'USD' },
-  { code: 'EUR', exp: 2, name: 'Euro', label: 'EUR' },
-  { code: 'GBP', exp: 2, name: 'British pound', label: 'GBP' },
-  { code: 'SAR', exp: 2, name: 'Saudi riyal', label: 'SAR' },
-  { code: 'AED', exp: 2, name: 'UAE dirham', label: 'AED' },
-  { code: 'QAR', exp: 2, name: 'Qatari riyal', label: 'QAR' },
-  { code: 'BHD', exp: 3, name: 'Bahraini dinar', label: 'BHD' },
-  { code: 'OMR', exp: 3, name: 'Omani rial', label: 'OMR' },
-  { code: 'JOD', exp: 3, name: 'Jordanian dinar', label: 'JOD' },
-  { code: 'EGP', exp: 2, name: 'Egyptian pound', label: 'EGP' },
-  { code: 'TRY', exp: 2, name: 'Turkish lira', label: 'TRY' },
-  { code: 'INR', exp: 2, name: 'Indian rupee', label: 'INR' },
-  { code: 'PKR', exp: 2, name: 'Pakistani rupee', label: 'PKR' },
-  { code: 'PHP', exp: 2, name: 'Philippine peso', label: 'PHP' },
-  { code: 'CHF', exp: 2, name: 'Swiss franc', label: 'CHF' },
-  { code: 'CAD', exp: 2, name: 'Canadian dollar', label: 'CAD' },
-  { code: 'AUD', exp: 2, name: 'Australian dollar', label: 'AUD' },
-  { code: 'CNY', exp: 2, name: 'Chinese yuan', label: 'CNY' },
-  { code: 'SGD', exp: 2, name: 'Singapore dollar', label: 'SGD' },
-  { code: 'MYR', exp: 2, name: 'Malaysian ringgit', label: 'MYR' },
-  { code: 'THB', exp: 2, name: 'Thai baht', label: 'THB' },
-  { code: 'JPY', exp: 0, name: 'Japanese yen', label: 'JPY' },
-  { code: 'KRW', exp: 0, name: 'South Korean won', label: 'KRW' },
-];
+// The three most used first, then by code, so typing a letter in a picker finds the rest.
+const LIST: Currency[] = (
+  [
+    ['USD', 2, 'US dollar'],
+    ['EUR', 2, 'Euro'],
+    ['GBP', 2, 'British pound'],
+    ['AED', 2, 'UAE dirham'],
+    ['AUD', 2, 'Australian dollar'],
+    ['BHD', 3, 'Bahraini dinar'],
+    ['BRL', 2, 'Brazilian real'],
+    ['CAD', 2, 'Canadian dollar'],
+    ['CHF', 2, 'Swiss franc'],
+    ['CNY', 2, 'Chinese yuan'],
+    ['COP', 2, 'Colombian peso'],
+    ['CZK', 2, 'Czech koruna'],
+    ['DKK', 2, 'Danish krone'],
+    ['EGP', 2, 'Egyptian pound'],
+    ['HKD', 2, 'Hong Kong dollar'],
+    ['HUF', 2, 'Hungarian forint'],
+    ['IDR', 2, 'Indonesian rupiah'],
+    ['INR', 2, 'Indian rupee'],
+    ['JOD', 3, 'Jordanian dinar'],
+    ['JPY', 0, 'Japanese yen'],
+    ['KRW', 0, 'South Korean won'],
+    ['KWD', 3, 'Kuwaiti dinar'],
+    ['MXN', 2, 'Mexican peso'],
+    ['MYR', 2, 'Malaysian ringgit'],
+    ['NGN', 2, 'Nigerian naira'],
+    ['NOK', 2, 'Norwegian krone'],
+    ['NZD', 2, 'New Zealand dollar'],
+    ['OMR', 3, 'Omani rial'],
+    ['PHP', 2, 'Philippine peso'],
+    ['PKR', 2, 'Pakistani rupee'],
+    ['PLN', 2, 'Polish zloty'],
+    ['QAR', 2, 'Qatari riyal'],
+    ['SAR', 2, 'Saudi riyal'],
+    ['SEK', 2, 'Swedish krona'],
+    ['SGD', 2, 'Singapore dollar'],
+    ['THB', 2, 'Thai baht'],
+    ['TRY', 2, 'Turkish lira'],
+    ['TWD', 2, 'New Taiwan dollar'],
+    ['VND', 0, 'Vietnamese dong'],
+    ['ZAR', 2, 'South African rand'],
+  ] as const
+).map(([code, exp, name]) => ({ code, exp, name, label: code }));
 
 export const CURRENCIES: readonly Currency[] = LIST;
 const BY_CODE = new Map(LIST.map((c) => [c.code, c]));

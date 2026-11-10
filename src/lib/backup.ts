@@ -63,8 +63,12 @@ export function sanitize(raw: unknown): Sanitized {
   };
 
   const s = isObj(raw.settings) ? raw.settings : {};
+  // Without a usable main currency, the accounts' own currency is the best guess.
+  const accountCurrency = Array.isArray(raw.accounts)
+    ? raw.accounts.map((a) => (isObj(a) ? str(a.currency) : '')).find(isCurrency)
+    : undefined;
   const settings = {
-    base: isCurrency(str(s.base)) ? str(s.base) : 'KWD',
+    base: isCurrency(str(s.base)) ? str(s.base) : (accountCurrency ?? base.settings.base),
     cycleDay: int(s.cycleDay) && s.cycleDay >= 1 && s.cycleDay <= 28 ? s.cycleDay : 1,
     name: str(s.name).slice(0, 40),
     onboarded: s.onboarded === true,

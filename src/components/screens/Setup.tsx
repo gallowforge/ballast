@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import {
   addMonths,
   cycleOf,
@@ -9,6 +9,7 @@ import {
   type ISODate,
 } from '@/lib/dates';
 import { formatMoney } from '@/lib/money/money';
+import { CURRENCIES } from '@/lib/money/currency';
 import { runway } from '@/lib/calc/runway';
 import { uid } from '@/lib/ids';
 import { emptyData } from '@/lib/defaults';
@@ -31,7 +32,12 @@ export function SetupSheet({
   onClose: () => void;
   today: ISODate;
 }) {
-  const base = getState().settings.base;
+  // A new user's main currency starts as the one their browser's language settings suggest.
+  const [base, setBase] = useState(() => getState().settings.base);
+  const fixed = getState().txns.length > 0;
+  useEffect(() => {
+    if (open) setBase(getState().settings.base);
+  }, [open]);
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [savings, setSavings] = useState('');
@@ -41,7 +47,7 @@ export function SetupSheet({
   const [payday, setPayday] = useState(1);
   const [wantTarget, setWantTarget] = useState(true);
   const [date, setDate] = useState(addMonths(cycleOf(today, 1).start, 18));
-  const [label, setLabel] = useState('Until graduation');
+  const [label, setLabel] = useState('Back to work');
   const [floor, setFloor] = useState('');
 
   const sav = fromInput(savings, base) ?? 0;
@@ -51,8 +57,8 @@ export function SetupSheet({
   const preview = (() => {
     if (!wantSalary || !sal || !sav) return null;
     const d: LedgerData = {
-      ...emptyData(),
-      settings: { ...emptyData().settings, cycleDay: payday },
+      ...emptyData(base),
+      settings: { ...emptyData(base).settings, cycleDay: payday },
       accounts: [
         {
           id: 's',
@@ -81,7 +87,7 @@ export function SetupSheet({
   const finish = () => {
     const s = uid('a');
     const c = uid('a');
-    apply(setSettings({ name: name.trim(), cycleDay: payday, onboarded: true, demo: false }));
+    apply(setSettings({ base, name: name.trim(), cycleDay: payday, onboarded: true, demo: false }));
     apply(
       addAccount({
         id: s,
@@ -167,6 +173,29 @@ export function SetupSheet({
             history later.
           </p>
           <Field
+            id="setup-base"
+            label="Main currency"
+            hint={
+              fixed
+                ? 'Fixed once you have transactions, so every report adds up.'
+                : "Suggested by your browser's language. Reports and the runway use it."
+            }
+          >
+            <select
+              id="setup-base"
+              class="select"
+              value={base}
+              disabled={fixed}
+              onChange={(e) => setBase((e.target as HTMLSelectElement).value)}
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.code} · {c.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field
             id="setup-savings"
             label="Savings today"
             hint="What you are living on: the money a monthly salary will come from."
@@ -238,7 +267,7 @@ export function SetupSheet({
             checked={wantTarget}
             onChange={setWantTarget}
             label="Plan toward a date"
-            hint="Graduation, a new job, the day income starts again."
+            hint="A new job, a launch, the day income starts again."
           />
           {wantTarget && (
             <>

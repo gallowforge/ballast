@@ -193,7 +193,7 @@ export default function PlanScreen() {
         ) : (
           <Empty
             title="No lines drawn yet."
-            body="Pick a category and a monthly amount, like 25 KD for eating out. Ballast keeps an eye on the pace for you."
+            body="Pick a category and a monthly amount for it, eating out for a start. Ballast keeps an eye on the pace for you."
           />
         )}
       </section>
@@ -780,7 +780,7 @@ function RecurringSheet({
             class="input"
             value={f.name}
             placeholder={
-              f.kind === 'expense' ? 'Phone, gym, streaming…' : 'Part-time job, allowance…'
+              f.kind === 'expense' ? 'Phone, gym, streaming…' : 'Contract work, a pension…'
             }
             onInput={(e) => set({ name: (e.target as HTMLInputElement).value })}
           />

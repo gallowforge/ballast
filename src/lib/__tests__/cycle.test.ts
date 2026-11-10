@@ -102,7 +102,8 @@ describe('this month', () => {
     });
     const posted = txn({ date: '2026-11-02', amount: 30_000, recurringId: 'gym' });
     const s = cycleSummary({ ...base, recurring: [r], txns: [...base.txns, posted] }, '2026-11-10');
-    // Everyday spending 50 KD against an even pace through 175 KD (205 minus the 30 KD bill).
+    // Everyday spending of 500.00 against an even pace through 1,750.00 (2,050.00 minus the
+    // 300.00 bill).
     expect(s.pace).toBe(50_000 - 58_333);
     expect(s.spent).toBe(80_000);
   });
@@ -122,7 +123,7 @@ describe('this month', () => {
 
   it('tracks pace against an even month', () => {
     const s = cycleSummary(base, '2026-11-10');
-    // 10 of 30 days gone: an even pace through 205 KD (salary plus the refund) is 68.333 KD.
+    // 10 of 30 days gone: an even pace through 2,050.00 (salary plus the refund) is 683.33.
     expect(s.pace).toBe(50_000 - 68_333);
   });
 

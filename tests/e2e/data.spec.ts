@@ -35,7 +35,7 @@ test('transactions export as CSV', async ({ page }) => {
   await page.getByRole('button', { name: /Export to CSV/ }).click();
   const csv = readFileSync((await (await download).path())!, 'utf8');
   expect(csv.split('\r\n')[0]).toBe(
-    'Date,Type,Account,To account,Payee,Category,Amount,Currency,Amount (KWD),Note',
+    'Date,Type,Account,To account,Payee,Category,Amount,Currency,Amount (USD),Note',
   );
 });
 

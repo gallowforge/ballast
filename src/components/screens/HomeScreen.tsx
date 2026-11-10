@@ -80,6 +80,7 @@ export default function HomeScreen() {
       <Welcome
         onSetup={() => setSetup(true)}
         today={today}
+        base={data.settings.base}
         setup={setup}
         closeSetup={() => setSetup(false)}
       />
@@ -368,11 +369,13 @@ function LedgerLine({
 function Welcome({
   onSetup,
   today,
+  base,
   setup,
   closeSetup,
 }: {
   onSetup: () => void;
   today: string;
+  base: string;
   setup: boolean;
   closeSetup: () => void;
 }) {
@@ -453,7 +456,7 @@ function Welcome({
           runOut={null}
           target={{ date: addMonths(today, 16), label: 'Your date' }}
           start={0}
-          code="KWD"
+          code={base}
           height={420}
         />
       </div>

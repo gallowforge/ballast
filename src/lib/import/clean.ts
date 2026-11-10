@@ -1,47 +1,69 @@
+import { CURRENCIES } from '../money/currency';
+
 /**
- * Turns raw statement text into a readable payee: "POS PURCHASE 4111XXXXXXXX1234 TALABAT KUWAIT KW
- * 08/11 14:32" becomes "Talabat". Conservative: when in doubt it keeps words.
+ * Turns raw statement text into a readable payee: "POS PURCHASE 4111XXXXXXXX1234 WHOLE FOODS
+ * MARKET AUSTIN TX 08/11 14:32" becomes "Whole Foods Market Austin". Conservative: when in doubt
+ * it keeps words.
  */
 const ACRONYMS = new Set([
   'ATM',
-  'KNPC',
-  'KNET',
   'POS',
-  'KFH',
-  'NBK',
-  'STC',
-  'IKEA',
-  'H&M',
   'USA',
   'UK',
+  'EU',
   'UAE',
+  'KSA',
+  'GCC',
+  'NYC',
+  'IKEA',
+  'H&M',
+  'AT&T',
+  'BP',
   'BBQ',
   'KFC',
   'TGI',
-  'HSBC',
-  'IBAN',
+  'AMC',
+  'CVS',
+  'HBO',
+  'BBC',
   'DHL',
   'UPS',
+  'USPS',
+  'TFL',
+  'NHS',
+  'HMRC',
+  'IRS',
+  'DMV',
+  'HSBC',
+  'IBAN',
   'PS',
   'TV',
   'ID',
-  'MOI',
-  'PACI',
-  'KSA',
+  'ADNOC',
+  'KNET',
+  'KNPC',
+  'KFH',
+  'NBK',
+  'STC',
   'AUB',
   'CBK',
-  'GCC',
+  'MOI',
+  'PACI',
 ]);
+
+// Codes of every supported currency, for amounts quoted in another currency inside the text.
+const CODES = CURRENCIES.map((c) => c.code).join('|');
 
 const LEADING = [
   /^(POS|ECOM|E-COM|E-COMMERCE|ONLINE|CONTACTLESS|APPLE ?PAY|GOOGLE ?PAY|SAMSUNG ?PAY)\b[\s:-]*/,
   /^(PURCHASE|PURCHASES|PAYMENT|PMT|PAY)\b[\s:-]*/,
+  /^(DIRECT DEBIT|STANDING ORDER|DEBIT ORDER|BILL PAYMENT)\b[\s:-]*/,
   /^(KNET|VISA|MASTERCARD|MASTER CARD|MC|DEBIT CARD|CREDIT CARD|CARD|DC|CC)\b[\s:-]*/,
   /^(TXN|TRANSACTION|TRN|TRAN|RETAIL)\b[\s:-]*/,
   /^(AT|TO|FROM)\s+/,
 ];
 const NOISE = [
-  /\b(?:USD|EUR|GBP|KWD|SAR|AED|QAR|BHD|OMR)\s*[\d.,]+/g, // a foreign amount quoted in the text
+  new RegExp(`\\b(?:${CODES})\\s*[\\d.,]+`, 'g'), // an amount quoted in another currency
   /\b\d{4,}[X*•]{2,}\d{2,6}\b/g, // masked card numbers
   /\b[X*•]{4,}\d{2,6}\b/g,
   /\b\d{2}[/.-]\d{2}(?:[/.-]\d{2,4})?\b/g, // dates
@@ -52,10 +74,11 @@ const NOISE = [
   /#\s*\d+/g,
 ];
 const TRAILING = [
-  /\b(KUWAIT CITY|KUWAIT|KWT|KW|STATE OF KUWAIT)\s*$/,
+  // A country printed in full after the merchant (two-letter codes are handled below).
+  /\b(UNITED STATES|UNITED KINGDOM|GREAT BRITAIN|UNITED ARAB EMIRATES|SAUDI ARABIA|STATE OF KUWAIT|KUWAIT CITY|KUWAIT|SINGAPORE|AUSTRALIA|CANADA|GERMANY|FRANCE|SPAIN|ITALY|PORTUGAL|NETHERLANDS|USA)\s*$/,
   /\b(W\.?L\.?L\.?|L\.?L\.?C\.?|K\.?S\.?C\.?C?|K\.?S\.?C\.?P\.?|INC\.?|LTD\.?|LIMITED|CO\.?|COMPANY|GMBH|S\.?A\.?|PLC)\s*$/,
   /\s+[A-Z]{2}$/, // a trailing country code ("GB", "US")
-  /\s+(KWD|USD|EUR|GBP|SAR|AED)\s*[\d.,]*$/,
+  new RegExp(`\\s+(${CODES})\\s*[\\d.,]*$`),
 ];
 
 export function titleCase(s: string): string {

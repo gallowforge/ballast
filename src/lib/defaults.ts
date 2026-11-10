@@ -1,4 +1,5 @@
 import { SCHEMA_VERSION, type Category, type LedgerData } from './model';
+import { FALLBACK_CURRENCY } from './money/locale';
 
 /** The starting categories. Ids are stable so import rules can point at them. */
 export const DEFAULT_CATEGORIES: Category[] = [
@@ -8,6 +9,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'coffee', name: 'Coffee', kind: 'expense', hue: 60, icon: 'coffee' },
   { id: 'transport', name: 'Transport', kind: 'expense', hue: 235, icon: 'car' },
   { id: 'fuel', name: 'Fuel', kind: 'expense', hue: 15, icon: 'fuel' },
+  { id: 'home', name: 'Rent & home', kind: 'expense', hue: 180, icon: 'house' },
   { id: 'bills', name: 'Phone & internet', kind: 'expense', hue: 205, icon: 'wifi' },
   { id: 'subscriptions', name: 'Subscriptions', kind: 'expense', hue: 290, icon: 'repeat' },
   { id: 'shopping', name: 'Shopping', kind: 'expense', hue: 330, icon: 'bag' },
@@ -21,16 +23,17 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'other', name: 'Other', kind: 'expense', hue: 85, icon: 'dots' },
   { id: 'salary', name: 'Salary', kind: 'income', hue: 160, icon: 'briefcase' },
   { id: 'freelance', name: 'Freelance', kind: 'income', hue: 175, icon: 'laptop' },
-  { id: 'allowance', name: 'Allowance', kind: 'income', hue: 150, icon: 'landmark' },
+  { id: 'allowance', name: 'Benefits', kind: 'income', hue: 150, icon: 'landmark' },
   { id: 'refunds', name: 'Refunds', kind: 'income', hue: 190, icon: 'undo' },
   { id: 'gifts-in', name: 'Gifts received', kind: 'income', hue: 340, icon: 'gift' },
   { id: 'other-income', name: 'Other income', kind: 'income', hue: 165, icon: 'plus' },
 ];
 
-export function emptyData(): LedgerData {
+/** A fresh, empty money life in `base`, the main currency (a new user's comes from their locale). */
+export function emptyData(base: string = FALLBACK_CURRENCY): LedgerData {
   return {
     version: SCHEMA_VERSION,
-    settings: { base: 'KWD', cycleDay: 1, name: '', onboarded: false, demo: false },
+    settings: { base, cycleDay: 1, name: '', onboarded: false, demo: false },
     accounts: [],
     categories: DEFAULT_CATEGORIES.map((c) => ({ ...c })),
     txns: [],

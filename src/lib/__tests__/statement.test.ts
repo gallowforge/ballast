@@ -10,7 +10,7 @@ describe('statement rows', () => {
     const s = parse([
       ['Date', 'Description', 'Debit', 'Credit', 'Balance'],
       ['01/11/2026', 'Opening balance', '', '', '1,000.000'],
-      ['02/11/2026', 'TALABAT', '4.250', '', '995.750'],
+      ['02/11/2026', 'UBER EATS', '4.250', '', '995.750'],
       ['03/11/2026', 'REFUND', '', '1.000', '996.750'],
       ['30/11/2026', 'Closing balance', '', '', '996.750'],
     ]);
@@ -72,10 +72,10 @@ describe('statement rows', () => {
     const s = parse([
       ['Date', 'Description', 'Debit', 'Credit', 'Balance'],
       ['02/11/2026', 'POS PURCHASE', '4.250', '', '995.750'],
-      ['', 'TALABAT KUWAIT', '', '', ''],
+      ['', 'UBER *EATS', '', '', ''],
       ['03/11/2026', 'ATM', '20.000', '', '975.750'],
     ]);
-    expect(s.rows[0]!.description).toBe('POS PURCHASE TALABAT KUWAIT');
+    expect(s.rows[0]!.description).toBe('POS PURCHASE UBER *EATS');
     expect(s.rows).toHaveLength(2);
   });
 

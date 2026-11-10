@@ -49,7 +49,7 @@ const CREDIT_WORDS =
   /\b(salary|payroll|deposit|refund|reversal|credit|transfer from|received|cash in|interest)\b/i;
 
 export interface ParseOptions {
-  /** Minor-unit digits of the statement currency (3 for KWD). */
+  /** Minor-unit digits of the statement currency (2 for USD, 3 for the dinars, 0 for JPY). */
   exp: number;
   /** Flip every sign (for exports that show spending as positive). */
   invert?: boolean;

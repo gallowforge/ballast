@@ -298,7 +298,7 @@ export function TxnSheet({ data, today }: Props) {
                 id="quick-add"
                 data-autofocus
                 class="input pl-10"
-                placeholder="3.750 talabat yesterday"
+                placeholder="4.50 coffee yesterday"
                 value={quick}
                 autoComplete="off"
                 onInput={(e) => applyQuick((e.target as HTMLInputElement).value)}

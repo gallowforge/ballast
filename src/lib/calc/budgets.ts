@@ -1,5 +1,6 @@
 import { addMonths, cycleOf, diffDays, type Cycle, type ISODate } from '../dates';
 import type { Minor } from '../money/money';
+import { exponent } from '../money/currency';
 import type { Budget, LedgerData } from '../model';
 import { spending } from './stats';
 
@@ -96,12 +97,15 @@ export function budgetTotals(data: LedgerData, today: ISODate): BudgetTotals {
   };
 }
 
-/** A suggested budget: the average of the last three full months, rounded up to a whole unit. */
+/**
+ * A suggested budget: the average of the last three full months, rounded up to a whole unit of the
+ * main currency (a whole dollar, euro or dinar).
+ */
 export function suggestBudget(
   data: LedgerData,
   categoryId: string,
   today: ISODate,
-  unit = 1000,
+  unit = 10 ** exponent(data.settings.base),
 ): Minor {
   const day = data.settings.cycleDay;
   let total = 0;

@@ -11,7 +11,11 @@ describe('header words', () => {
     ['Withdrawals', 'debit'],
     ['Credit', 'credit'],
     ['Deposits', 'credit'],
-    ['Amount (KWD)', 'amount'],
+    ['Amount (EUR)', 'amount'],
+    ['Amount USD', 'amount'],
+    ['Balance in GBP', 'balance'],
+    ['Debit KD', 'debit'],
+    ['Money in', 'credit'],
     ['Running Balance', 'balance'],
     ['Ref No.', 'reference'],
     ['Dr/Cr', 'type'],
@@ -39,7 +43,7 @@ describe('mapping', () => {
   it('maps a debit and credit layout from its header', () => {
     const m = detectMapping([
       ['Posting Date', 'Value Date', 'Description', 'Debit', 'Credit', 'Balance'],
-      ['02/11/2026', '02/11/2026', 'TALABAT', '4.250', '', '995.750'],
+      ['02/11/2026', '02/11/2026', 'UBER EATS', '4.250', '', '995.750'],
       ['25/11/2026', '25/11/2026', 'SALARY', '', '200.000', '1,195.750'],
     ]);
     expect(m.header).toBe(0);
@@ -57,8 +61,8 @@ describe('mapping', () => {
   });
   it('works out a headerless export from its values', () => {
     const m = detectMapping([
-      ['02/11/2026', 'TALABAT KUWAIT', '-4.250', '995.750'],
-      ['03/11/2026', 'LULU HYPERMARKET', '-12.300', '983.450'],
+      ['02/11/2026', 'UBER EATS AMSTERDAM', '-4.250', '995.750'],
+      ['03/11/2026', 'ALBERT HEIJN', '-12.300', '983.450'],
       ['15/11/2026', 'UPWORK ESCROW', '120.000', '1,103.450'],
     ]);
     expect(m.header).toBe(-1);

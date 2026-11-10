@@ -34,7 +34,7 @@ import { data, rec, savings, spending, txn, wallet } from './fixtures';
 const base = () =>
   data({
     accounts: [savings, spending, wallet],
-    rates: { USD: { rate: '0.3', on: '2026-11-01' } },
+    rates: { EUR: { rate: '1.1', on: '2026-11-01' } },
   });
 
 describe('transactions', () => {
@@ -42,25 +42,25 @@ describe('transactions', () => {
     const d = addTxn({
       date: '2026-11-02',
       kind: 'income',
-      accountId: 'usd',
+      accountId: 'eur',
       amount: 10_000,
       payee: 'Client',
       source: 'manual',
     })(base());
-    expect(d.txns[0]).toMatchObject({ amount: 10_000, base: 30_000 });
+    expect(d.txns[0]).toMatchObject({ amount: 10_000, base: 11_000 });
   });
   it('converts what a transfer receives in another currency', () => {
     const t = completeTxn(base(), {
       date: '2026-11-02',
       kind: 'transfer',
-      accountId: 'usd',
+      accountId: 'eur',
       toAccountId: 'sav',
       amount: 10_000,
       payee: 'Move',
       source: 'manual',
       categoryId: 'x',
     });
-    expect(t.toAmount).toBe(30_000);
+    expect(t.toAmount).toBe(11_000);
     expect(t.categoryId).toBeUndefined();
   });
   it('updates, recomputing the base when the amount changes', () => {
@@ -68,15 +68,15 @@ describe('transactions', () => {
       id: 'x',
       date: '2026-11-02',
       kind: 'expense',
-      accountId: 'usd',
+      accountId: 'eur',
       amount: 1_000,
       payee: 'A',
       source: 'manual',
     })(base());
     d = updateTxn('x', { amount: 2_000, payee: 'B' })(d);
-    expect(d.txns[0]).toMatchObject({ id: 'x', amount: 2_000, base: 6_000, payee: 'B' });
+    expect(d.txns[0]).toMatchObject({ id: 'x', amount: 2_000, base: 2_200, payee: 'B' });
     d = updateTxn('x', { note: 'n' })(d);
-    expect(d.txns[0]!.base).toBe(6_000);
+    expect(d.txns[0]!.base).toBe(2_200);
   });
   it('deletes and recategorises in bulk', () => {
     let d = addTxns([
@@ -128,12 +128,12 @@ describe('balances', () => {
           toAccountId: 'cur',
         }),
         txn({ date: '2026-11-02', amount: 5_000 }),
-        txn({ date: '2026-11-03', amount: 10_000, kind: 'income', accountId: 'usd', base: 30_000 }),
+        txn({ date: '2026-11-03', amount: 10_000, kind: 'income', accountId: 'eur', base: 11_000 }),
       ],
     };
-    expect(Object.fromEntries(balances(d))).toEqual({ sav: 2_800_000, cur: 195_000, usd: 10_000 });
+    expect(Object.fromEntries(balances(d))).toEqual({ sav: 2_800_000, cur: 195_000, eur: 10_000 });
     expect(balance(d, 'cur', '2026-11-01')).toBe(200_000);
-    expect(netWorth(d)).toEqual({ total: 2_800_000 + 195_000 + 30_000, missing: [] });
+    expect(netWorth(d)).toEqual({ total: 2_800_000 + 195_000 + 11_000, missing: [] });
   });
 });
 
@@ -143,7 +143,7 @@ describe('accounts, categories and plans', () => {
       id: 'new',
       name: 'Cash',
       role: 'other',
-      currency: 'KWD',
+      currency: 'USD',
       opening: 0,
       openedOn: '2026-11-01',
     })(base());
@@ -299,19 +299,19 @@ describe('catching up', () => {
     expect(second.posted).toBe(0);
     expect(second.data).toBe(first.data);
   });
-  it('pays a salary into a dollar account at the current rate', () => {
+  it('pays a salary into a euro account at the current rate', () => {
     const d = {
       ...base(),
       salary: {
         active: true,
-        amount: 30_000,
+        amount: 11_000,
         fromAccountId: 'sav',
-        toAccountId: 'usd',
+        toAccountId: 'eur',
         autoPost: true,
         startedOn: '2026-11-01',
       },
     };
     const t = catchUp(d, '2026-11-08').data.txns[0]!;
-    expect(t).toMatchObject({ kind: 'transfer', amount: 30_000, toAmount: 10_000 });
+    expect(t).toMatchObject({ kind: 'transfer', amount: 11_000, toAmount: 10_000 });
   });
 });

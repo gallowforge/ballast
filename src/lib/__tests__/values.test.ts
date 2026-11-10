@@ -50,8 +50,13 @@ describe('statement amounts', () => {
     ['12.500 DR', 3, '.', -12500, true],
     ['12.500 CR', 3, '.', 12500, true],
     ['12.500Cr', 3, '.', 12500, true],
+    ['USD 12.50', 2, '.', 1250, false],
+    ['12.50 EUR', 2, '.', 1250, false],
     ['KWD 12.500', 3, '.', 12500, false],
-    ['12.500 KD', 3, '.', 12500, false],
+    ['$1,234.56', 2, '.', 123456, false],
+    ['-$12.50', 2, '.', -1250, true],
+    ['(£12.50)', 2, '.', -1250, true],
+    ['€1.234,56', 2, ',', 123456, false],
     ['1.234,56', 2, ',', 123456, false],
     ['-1 234,56', 2, ',', -123456, true],
     ['+7.25', 2, '.', 725, true],
@@ -74,7 +79,10 @@ describe('statement amounts', () => {
     expect(looksLikeAmount('(12.500)')).toBe(true);
     expect(looksLikeAmount('12.500 CR')).toBe(true);
     expect(looksLikeAmount('08/11/2026')).toBe(false);
-    expect(looksLikeAmount('TALABAT')).toBe(false);
+    expect(looksLikeAmount('DELIVEROO')).toBe(false);
+    expect(looksLikeAmount('-$12.50')).toBe(true);
+    expect(looksLikeAmount('€1.234,56')).toBe(true);
+    expect(looksLikeAmount('$')).toBe(false);
     expect(looksLikeAmount('')).toBe(false);
   });
 });

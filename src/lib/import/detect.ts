@@ -1,3 +1,4 @@
+import { CURRENCIES } from '../money/currency';
 import {
   detectDateOrder,
   detectDecimal,
@@ -33,7 +34,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   ignore: 'Ignore',
 };
 
-/** Header words used by banks, NBK's layout first. Matched on whole normalised cell text. */
+/** Header words used by banks. Matched on whole normalised cell text. */
 const SYNONYMS: [Role, string[]][] = [
   ['valueDate', ['value date', 'val date', 'value dt']],
   [
@@ -99,18 +100,10 @@ const SYNONYMS: [Role, string[]][] = [
       'in',
     ],
   ],
-  ['amount', ['amount', 'transaction amount', 'value', 'amount kwd', 'amount kd', 'amt']],
+  ['amount', ['amount', 'transaction amount', 'value', 'amt']],
   [
     'balance',
-    [
-      'balance',
-      'running balance',
-      'available balance',
-      'ledger balance',
-      'balance kwd',
-      'balance kd',
-      'book balance',
-    ],
+    ['balance', 'running balance', 'available balance', 'ledger balance', 'book balance'],
   ],
   ['currency', ['currency', 'ccy', 'curr']],
   [
@@ -131,13 +124,22 @@ const SYNONYMS: [Role, string[]][] = [
   ['type', ['type', 'dr cr', 'debit credit', 'transaction type', 'cr dr', 'd c']],
 ];
 
+// A currency written into a heading ("Amount USD", "Balance in EUR", "Debit KD") says nothing
+// about the column's role: ISO codes, and the local abbreviations some banks print instead.
+const MONEY_WORDS = new RegExp(
+  `\\s+(?:in\\s+)?(?:${[...CURRENCIES.map((c) => c.code), 'KD', 'BD', 'QR', 'SR', 'DHS', 'RS']
+    .join('|')
+    .toLowerCase()})$`,
+);
+
 function normal(cell: string): string {
   return cell
     .toLowerCase()
     .replace(/\(.*?\)/g, ' ')
     .replace(/[^a-z\s]/g, ' ')
     .replace(/\s+/g, ' ')
-    .trim();
+    .trim()
+    .replace(MONEY_WORDS, '');
 }
 
 /** The role a header cell names, or null. */

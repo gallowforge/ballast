@@ -683,7 +683,7 @@
   stroke-linejoin: round;
 }
 
-/* Money: always the serif, tabular, the fils one step lighter. */
+/* Money: always the serif, tabular, the decimals one step lighter. */
 .money {
   white-space: nowrap;
   font-family: var(--font-serif);

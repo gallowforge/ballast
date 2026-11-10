@@ -13,6 +13,8 @@ export default defineConfig({
     trace: 'on-first-retry',
     // Deterministic geometry: no entrance animations while clicking.
     reducedMotion: 'reduce',
+    // A first visit takes its main currency from the browser language; pin it for every run.
+    locale: 'en-US',
     ...(process.env.PW_CHROMIUM_PATH
       ? { launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH } }
       : {}),

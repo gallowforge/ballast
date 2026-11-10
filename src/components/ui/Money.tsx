@@ -12,7 +12,7 @@ interface Props {
   class?: string;
 }
 
-/** An amount with the fils drawn lighter than the dinars, and the unit small. */
+/** An amount with the decimals drawn lighter than the whole units, and the unit small. */
 export function Money({
   value,
   code,

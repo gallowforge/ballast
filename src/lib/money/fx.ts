@@ -2,7 +2,7 @@ import { currency } from './currency';
 import type { Minor } from './money';
 
 /**
- * Exchange rates are kept as decimal strings ("0.30705" = 1 USD is 0.30705 KD) and applied with
+ * Exchange rates are kept as decimal strings ("0.9215" = 1 USD is 0.9215 EUR) and applied with
  * BigInt, so a conversion is exact up to the final rounding (half away from zero).
  */
 export interface Fraction {
@@ -43,7 +43,7 @@ export function convert(minor: Minor, from: string, to: string, rate: string): M
 }
 
 /**
- * The rate implied by two amounts (a statement that shows 12.99 USD charged as 3.988 KD), as a
+ * The rate implied by two amounts (a statement that shows 12.99 USD charged as 11.97 EUR), as a
  * decimal string with up to 6 decimals and no trailing zeros.
  */
 export function impliedRate(fromMinor: Minor, from: string, toMinor: Minor, to: string): string {

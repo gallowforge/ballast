@@ -4,13 +4,13 @@
 
 **The name.** Ballast is the weight low in a ship's hull that keeps it upright in rough water. Savings paid out as a steady salary do the same for a life between incomes. Until version 1.1 the app was called Ledger; the look keeps the account book it was born with.
 
-Everything on screen serves that sentence. Savings are a road receding to a horizon; each payday is a stretch of it; your target date is a brass flag at the roadside; the place the money runs out is where the road stops. The ground the road crosses is ruled like ledger paper, because the ledger is the other half of the idea: honest columns of figures, exact to the fils.
+Everything on screen serves that sentence. Savings are a road receding to a horizon; each payday is a stretch of it; your target date is a brass flag at the roadside; the place the money runs out is where the road stops. The ground the road crosses is ruled like ledger paper, because the ledger is the other half of the idea: honest columns of figures, exact to the last digit.
 
 ## Voice
 
 Calm, kind, honest. Ballast talks like a friend who is good with money and never makes you feel bad about it.
 
-- Say what is true, then what to do: "Eating out went 4.250 KD past its line. Next week can be lighter."
+- Say what is true, then what to do: "Eating out went 42.50 USD past its line. Next week can be lighter."
 - No alarm words, no exclamation marks, no blame. Spending is ink, not red; red-brown is kept for going over.
 - Name the person's situation, not the feature: "Your savings carry you to November 2028", not "Runway: 24 periods".
 - Empty states are a clean page, not an error: "A clean page. Add what you spend, or bring in a statement."
@@ -22,7 +22,7 @@ Two families, each with a job.
 - **Newsreader** (variable, optical sizes) for every figure and every heading. A book-and-newspaper serif: warm at display sizes, crisp at text sizes, with tabular lining figures so columns of money align on the decimal point.
 - **Atkinson Hyperlegible Next** for words in the interface. Designed for readers with low vision, which is the kindest thing a money app can do with its labels.
 
-Rules: money is always set in Newsreader with tabular figures; fils are the same size as dinars and one step lighter; labels above numbers are small capitals with letter-spacing; headings are sentence case and left-aligned; size jumps are 1:3 or more between a hero figure and its caption.
+Rules: money is always set in Newsreader with tabular figures; the decimals are the same size as the whole units and one step lighter; labels above numbers are small capitals with letter-spacing; headings are sentence case and left-aligned; size jumps are 1:3 or more between a hero figure and its caption.
 
 ## Colour (60 / 30 / 10)
 

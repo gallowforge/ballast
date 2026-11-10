@@ -46,7 +46,7 @@ export default function ImportScreen() {
   const [newAcct, setNewAcct] = useState({
     name: '',
     role: 'spending' as AccountRole,
-    currency: 'KWD',
+    currency: data.settings.base,
   });
   const [invert, setInvert] = useState(false);
   const [rows, setRows] = useState<ReviewRow[]>([]);
@@ -81,15 +81,16 @@ export default function ImportScreen() {
     setSource(src);
     const m = mappingFor(src);
     setMapping(m);
+    // A statement that does not say its currency is taken to be in your main one.
+    const cur = src.currency ?? data.settings.base;
     const match =
-      data.accounts.find(
-        (a) => !a.archived && a.role === 'spending' && a.currency === src.currency,
-      ) ?? data.accounts.find((a) => !a.archived && a.currency === src.currency);
+      data.accounts.find((a) => !a.archived && a.role === 'spending' && a.currency === cur) ??
+      data.accounts.find((a) => !a.archived && a.currency === cur);
     setAccountId(match?.id ?? NEW);
     setNewAcct({
       name: src.profile.id === 'nbk' ? 'NBK current account' : 'Current account',
       role: data.accounts.some((a) => a.role === 'spending') ? 'other' : 'spending',
-      currency: src.currency,
+      currency: cur,
     });
     setInvert(false);
     setStep('map');
@@ -302,8 +303,8 @@ export default function ImportScreen() {
             ) : (
               <>
                 <p class="text-muted mt-1">
-                  A PDF or CSV from your bank. National Bank of Kuwait statements are recognised;
-                  any bank works through column matching.
+                  A PDF or CSV from your bank. Common column layouts are recognised on their own,
+                  and any other works by matching its columns.
                 </p>
                 <label
                   class={`mt-5 grid cursor-pointer place-items-center gap-3 rounded-md border-2 border-dashed px-6 py-12 text-center transition ${drag ? 'border-gold bg-gold-soft' : 'border-line-strong hover:border-gold'}`}
@@ -433,8 +434,8 @@ export default function ImportScreen() {
                 Check the columns
               </h2>
               <p class="text-muted">
-                {source.profile.id === 'nbk'
-                  ? 'Recognised as a National Bank of Kuwait statement. '
+                {source.profile.id !== 'generic'
+                  ? `Recognised as a ${source.profile.name} statement. `
                   : ''}
                 {plural(source.table.length - Math.max(0, mapping.header + 1), 'row')} found in{' '}
                 {source.fileName}. The columns below were matched for you: fix any that look wrong.
@@ -461,7 +462,11 @@ export default function ImportScreen() {
                 <option value={NEW}>A new account…</option>
               </select>
             </Field>
-            <Field id="imp-dates" label="Dates are written" hint="Day first is the norm in Kuwait.">
+            <Field
+              id="imp-dates"
+              label="Dates are written"
+              hint="Worked out from the dates in the file."
+            >
               <select
                 id="imp-dates"
                 class="select"
@@ -794,7 +799,7 @@ function Review({
           />
           <span>
             {rec.checked && !rec.mismatched.length
-              ? `All ${plural(rec.checked, 'row')} match the statement's running balance, to the last ${exp === 3 ? 'fils' : 'cent'}.`
+              ? `All ${plural(rec.checked, 'row')} match the statement's running balance, to the last ${exp === 2 ? 'cent' : 'digit'}.`
               : rec.mismatched.length
                 ? `${plural(rec.mismatched.length, 'row')} do not follow the running balance (line ${rec.mismatched.slice(0, 5).join(', ')}${rec.mismatched.length > 5 ? '…' : ''}). Check the columns, or import anyway.`
                 : 'This statement has no running balance, so the rows could not be cross-checked.'}

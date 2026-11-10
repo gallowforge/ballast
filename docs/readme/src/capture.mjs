@@ -127,11 +127,12 @@ const SHOTS = [
 ];
 const rects = {};
 
-// The slider: up past the date, down to a short road, and back to where it started.
+// The slider (in cents): up until the road stops short of the date, down to a long road, and
+// back to where it started.
 const legs = [
-  [220_000, 290_000, 14],
-  [290_000, 160_000, 22],
-  [160_000, 220_000, 12],
+  [310_000, 390_000, 14],
+  [390_000, 230_000, 22],
+  [230_000, 310_000, 12],
 ];
 const VALUES = legs.flatMap(([a, z, n]) =>
   Array.from({ length: n }, (_, i) => {

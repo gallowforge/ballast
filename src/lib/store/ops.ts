@@ -265,7 +265,7 @@ export interface ImportMeta {
   from: ISODate;
   to: ISODate;
   closing?: Minor;
-  /** Set the account's opening balance so it matches the statement to the fils. */
+  /** Set the account's opening balance so it matches the statement exactly. */
   opening?: { amount: Minor; on: ISODate };
 }
 

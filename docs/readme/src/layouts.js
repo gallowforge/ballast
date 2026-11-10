@@ -362,9 +362,9 @@ const HERO = (ph) => ({
 // ---------- the numbers band ----------
 const FACTS = [
   ['0', 'accounts, servers or trackers'],
-  ['486', 'tests on every change'],
-  ['3', 'decimals in a dinar, kept exact'],
-  ['24', 'currencies, in whole-number maths'],
+  ['555', 'tests on every change'],
+  ['40', 'currencies, in whole-number maths'],
+  ['3', 'decimal places, kept exact'],
 ];
 const BAND = (ph) => {
   const css = ph ? [381, 300] : [840, 196];
@@ -551,7 +551,7 @@ const RUNWAY = {
 
 const IMPORT = {
   kick: 'Import',
-  head: 'A statement, checked to the fils',
+  head: 'A statement, checked to the cent',
   text: 'A PDF or CSV from your bank, read on your device and checked row by row against the running balance.',
   // the status is lifted from the phone, where it is short enough to read at this size
   left: { shift: [-170, -30], grow: 2.3 },

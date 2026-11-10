@@ -62,7 +62,7 @@ export default function SettingsScreen() {
   const [persisted, setPersisted] = useState<boolean | null>(null);
   const [usage, setUsage] = useState<string>('');
   const [install, setInstall] = useState<(Event & { prompt: () => Promise<void> }) | null>(null);
-  const [rateCode, setRateCode] = useState('USD');
+  const [rateChoice, setRateChoice] = useState('');
   const [rateValue, setRateValue] = useState('');
 
   useEffect(() => {
@@ -89,6 +89,11 @@ export default function SettingsScreen() {
 
   if (!ready) return <Skeleton class="h-[40rem] rounded-md" />;
   const base = data.settings.base;
+  // The rate form's currency: the one picked, else the first that is not the main currency.
+  const rateCode =
+    rateChoice && rateChoice !== base
+      ? rateChoice
+      : (CURRENCIES.find((c) => c.code !== base)?.code ?? 'EUR');
   const bal = balances(data);
   const usedCurrencies = [
     ...new Set(data.accounts.map((a) => a.currency).filter((c) => c !== base)),
@@ -286,7 +291,7 @@ export default function SettingsScreen() {
             class="select"
             aria-label="Currency"
             value={rateCode}
-            onChange={(e) => setRateCode((e.target as HTMLSelectElement).value)}
+            onChange={(e) => setRateChoice((e.target as HTMLSelectElement).value)}
           >
             {CURRENCIES.filter((c) => c.code !== base).map((c) => (
               <option key={c.code} value={c.code}>
@@ -639,7 +644,7 @@ function AccountSheet({
   const [f, setF] = useState({
     name: '',
     role: 'spending' as AccountRole,
-    currency: 'KWD',
+    currency: data.settings.base,
     opening: '',
     openedOn: today,
     archived: false,

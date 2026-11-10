@@ -1,8 +1,8 @@
 /**
- * Builds the synthetic sample statements used by the tests and by "Try a sample statement":
- * a two-page PDF in the posting-date / value-date / debit / credit / balance layout, the same
- * PDF locked with a password, and a CSV export of the same month. Every name and number is made
- * up. Requires qpdf for the locked copy.
+ * Builds the synthetic sample statements used by the tests and by "Try a sample statement": a
+ * month at a made-up "Example Bank" in US dollars, as a two-page PDF in the common posting-date /
+ * value-date / debit / credit / balance layout, the same PDF locked with a password, and a CSV
+ * export of the same month. Every name and number is made up. Requires qpdf for the locked copy.
  *
  *   node scripts/make-fixtures.mjs
  */
@@ -15,48 +15,51 @@ const PUB = 'public/samples';
 mkdirSync(OUT, { recursive: true });
 mkdirSync(PUB, { recursive: true });
 
-// A fixed sample month. [day, description lines, debit fils, credit fils]
+// A fixed sample month in US dollars. [day, description lines, debit cents, credit cents]
 const MONTH = { y: 2026, m: 10, name: 'October 2026' };
+const CURRENCY = 'USD';
 const ROWS = [
-  [1, ['TRANSFER FROM SAVINGS', 'OWN ACCOUNT 0021'], 0, 220_000],
-  [1, ['POS PURCHASE 4111XXXXXXXX2290', 'STARBUCKS AVENUES KUWAIT KW'], 1_750, 0],
-  [2, ['POS PURCHASE 4111XXXXXXXX2290', 'TALABAT GENERAL TRADING KW'], 4_250, 0],
-  [3, ['KNET PURCHASE GYM OXYGEN FITNESS'], 18_000, 0],
-  [3, ['POS PURCHASE LULU HYPERMARKET', 'AL RAI KUWAIT'], 14_380, 0],
-  [4, ['POS PURCHASE KNPC STATION 112'], 5_000, 0],
-  [5, ['POS PURCHASE CARIBOU COFFEE'], 1_500, 0],
-  [6, ['STC KUWAIT POSTPAID BILL'], 8_500, 0],
-  [7, ['POS PURCHASE TALABAT GENERAL TRADING KW'], 6_100, 0],
-  [8, ['ECOM PURCHASE AMAZON.COM USD 23.49', 'AMZN MKTP US'], 7_215, 0],
-  [9, ['SPOTIFY P2D4F9 STOCKHOLM SE'], 1_990, 0],
-  [10, ['POS PURCHASE THE SULTAN CENTER', 'SALMIYA'], 9_870, 0],
-  [11, ['ATM WITHDRAWAL 000117 HAWALLY'], 20_000, 0],
-  [12, ['POS PURCHASE SHAKE SHACK THE AVENUES'], 8_750, 0],
-  [13, ['POS PURCHASE STARBUCKS AVENUES KUWAIT KW'], 1_750, 0],
-  [14, ['REFUND XCITE ONLINE ORDER 55821'], 0, 12_500],
-  [15, ['NETFLIX.COM 866-579-7172'], 3_500, 0],
-  [15, ['POS PURCHASE OULA FUEL 31'], 5_250, 0],
-  [17, ['POS PURCHASE CARREFOUR AVENUES'], 17_640, 0],
-  [18, ['POS PURCHASE TALABAT GENERAL TRADING KW'], 3_900, 0],
-  [19, ['POS PURCHASE CINESCAPE 360 MALL'], 4_500, 0],
-  [20, ['UPWORK ESCROW INC TRANSFER', 'INWARD REMITTANCE USD 380.00'], 0, 116_698],
-  [21, ['APPLE.COM/BILL ITUNES.COM IE'], 990, 0],
-  [22, ['POS PURCHASE CARIBOU COFFEE'], 1_250, 0],
-  [23, ['POS PURCHASE KNPC STATION 112'], 4_750, 0],
-  [24, ['POS PURCHASE LULU HYPERMARKET', 'AL RAI KUWAIT'], 11_220, 0],
-  [25, ['POS PURCHASE CAREEM RIDE'], 2_350, 0],
-  [26, ['POS PURCHASE PHARMACY AL SHIFA'], 3_150, 0],
-  [27, ['POS PURCHASE TALABAT GENERAL TRADING KW'], 5_400, 0],
-  [28, ['POS PURCHASE STARBUCKS AVENUES KUWAIT KW'], 2_000, 0],
-  [29, ['SERVICE CHARGE ACCOUNT MAINTENANCE'], 1_000, 0],
-  [30, ['POS PURCHASE THE SULTAN CENTER', 'SALMIYA'], 8_430, 0],
-  [31, ['POS PURCHASE OULA FUEL 31'], 5_000, 0],
+  [1, ['TRANSFER FROM SAVINGS', 'OWN ACCOUNT 0021'], 0, 310_000],
+  [1, ['POS PURCHASE 4111XXXXXXXX2290', 'STARBUCKS CANAL STREET'], 545, 0],
+  [1, ['STANDING ORDER MAPLE COURT RENT'], 135_000, 0],
+  [2, ['POS PURCHASE 4111XXXXXXXX2290', 'UBER *EATS'], 2_480, 0],
+  [3, ['DIRECT DEBIT PULSE FITNESS'], 4_500, 0],
+  [3, ['POS PURCHASE ALDI', 'RIVERSIDE'], 8_642, 0],
+  [4, ['POS PURCHASE SHELL HARBOUR ROAD'], 4_730, 0],
+  [5, ['POS PURCHASE PRET A MANGER'], 620, 0],
+  [6, ['T-MOBILE POSTPAID BILL'], 3_000, 0],
+  [7, ['POS PURCHASE 4111XXXXXXXX2290', 'UBER *EATS'], 3_115, 0],
+  [8, ['ECOM PURCHASE ZALANDO SE EUR 39.95', 'BERLIN DE'], 4_639, 0],
+  [9, ['SPOTIFY P2D4F9 STOCKHOLM SE'], 1_199, 0],
+  [10, ['POS PURCHASE WHOLE FOODS MARKET', 'RIVERSIDE'], 11_268, 0],
+  [11, ['ATM WITHDRAWAL 000117 HIGH STREET'], 10_000, 0],
+  [12, ['POS PURCHASE SHAKE SHACK HARBOUR ROAD'], 2_874, 0],
+  [13, ['POS PURCHASE 4111XXXXXXXX2290', 'STARBUCKS CANAL STREET'], 595, 0],
+  [14, ['REFUND IKEA ONLINE ORDER 55821'], 0, 6_499],
+  [15, ['NETFLIX.COM 866-579-7172'], 1_549, 0],
+  [15, ['POS PURCHASE BP HIGH STREET'], 4_410, 0],
+  [17, ['POS PURCHASE LIDL', 'RIVERSIDE'], 7_935, 0],
+  [18, ['POS PURCHASE 4111XXXXXXXX2290', 'UBER *EATS'], 1_960, 0],
+  [18, ['DIRECT DEBIT CITY POWER ELECTRICITY'], 6_400, 0],
+  [19, ['POS PURCHASE PALACE CINEMA SCREEN 4'], 2_600, 0],
+  [20, ['WISE KESTREL STUDIO', 'EUR 400.00'], 0, 46_448],
+  [21, ['APPLE.COM/BILL ITUNES.COM'], 299, 0],
+  [22, ['POS PURCHASE BLUE BOTTLE COFFEE'], 650, 0],
+  [23, ['POS PURCHASE SHELL HARBOUR ROAD'], 5_185, 0],
+  [24, ['POS PURCHASE ALDI', 'RIVERSIDE'], 9_417, 0],
+  [25, ['UBER *TRIP HELP.UBER.COM'], 1_840, 0],
+  [26, ['POS PURCHASE CORNER PHARMACY'], 1_460, 0],
+  [27, ['POS PURCHASE 4111XXXXXXXX2290', 'UBER *EATS'], 2_735, 0],
+  [28, ['POS PURCHASE 4111XXXXXXXX2290', 'STARBUCKS CANAL STREET'], 495, 0],
+  [29, ['SERVICE CHARGE ACCOUNT MAINTENANCE'], 500, 0],
+  [30, ['POS PURCHASE WHOLE FOODS MARKET', 'RIVERSIDE'], 9_821, 0],
+  [31, ['POS PURCHASE BP HIGH STREET'], 4_275, 0],
 ];
-const OPENING = 46_320;
+const OPENING = 128_463;
 
-const fmt = (fils) => {
-  const s = String(fils).padStart(4, '0');
-  return `${s.slice(0, -3).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${s.slice(-3)}`;
+const fmt = (cents) => {
+  const s = String(cents).padStart(3, '0');
+  return `${s.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${s.slice(-2)}`;
 };
 const d2 = (n) => String(n).padStart(2, '0');
 const date = (day) => `${d2(day)}/${d2(MONTH.m)}/${MONTH.y}`;
@@ -68,18 +71,20 @@ const lines = ROWS.map(([day, desc, debit, credit]) => {
 });
 const closing = bal;
 
-// CSV export of the same month (one line per row, signed amount, balance).
+// CSV export of the same month (one line per row, money out, money in, balance). Amounts carry
+// thousands separators, so they are quoted.
+const money = (cents) => (cents ? `"${fmt(cents)}"` : '');
 const csv = [
   'Posting Date,Value Date,Description,Debit,Credit,Balance',
-  `01/${d2(MONTH.m)}/${MONTH.y},01/${d2(MONTH.m)}/${MONTH.y},Opening Balance,,,${fmt(OPENING)}`,
+  `01/${d2(MONTH.m)}/${MONTH.y},01/${d2(MONTH.m)}/${MONTH.y},Opening Balance,,,${money(OPENING)}`,
   ...lines.map((l) =>
     [
       date(l.day),
       date(l.day),
       `"${l.desc.join(' ')}"`,
-      l.debit ? fmt(l.debit) : '',
-      l.credit ? fmt(l.credit) : '',
-      `"${fmt(l.bal)}"`,
+      money(l.debit),
+      money(l.credit),
+      money(l.bal) || '"0.00"',
     ].join(','),
   ),
 ].join('\r\n');
@@ -94,7 +99,7 @@ const row = (l) => `<tr>
 const head = `<tr><th>Posting Date</th><th>Value Date</th><th>Description</th><th class="n">Debit</th><th class="n">Credit</th><th class="n">Balance</th></tr>`;
 const page = (rows, n, total, first) => `<section>
   <header><div class="bank">EXAMPLE BANK</div><div class="sub">Sample statement · synthetic data for testing</div></header>
-  ${first ? `<div class="meta"><div><b>Statement of Account</b></div><div>Account holder: Alex Example</div><div>Account: 0000 1111 2222 (Current)</div><div>Currency: KWD</div><div>Period: 01/${d2(MONTH.m)}/${MONTH.y} to 31/${d2(MONTH.m)}/${MONTH.y}</div></div>` : ''}
+  ${first ? `<div class="meta"><div><b>Statement of Account</b></div><div>Account holder: Alex Example</div><div>Account: 0000 1111 2222 (Current)</div><div>Currency: ${CURRENCY}</div><div>Period: 01/${d2(MONTH.m)}/${MONTH.y} to 31/${d2(MONTH.m)}/${MONTH.y}</div></div>` : ''}
   <table>${head}
   ${first ? `<tr><td>01/${d2(MONTH.m)}/${MONTH.y}</td><td></td><td>Opening Balance</td><td></td><td></td><td class="n">${fmt(OPENING)}</td></tr>` : ''}
   ${rows.map(row).join('')}
