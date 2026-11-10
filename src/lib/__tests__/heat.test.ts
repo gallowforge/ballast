@@ -3,6 +3,8 @@ import { HEAT, heatLevel } from '@/components/charts/Heatmap';
 
 describe('heatmap shades', () => {
   it('spreads days over four shades by the square root of their share', () => {
+    expect(heatLevel(0, 100)).toBe(0);
+    expect(heatLevel(-5, 100)).toBe(0);
     expect(heatLevel(1, 100)).toBe(0); // 0.1
     expect(heatLevel(9, 100)).toBe(1); // 0.3
     expect(heatLevel(36, 100)).toBe(2); // 0.6

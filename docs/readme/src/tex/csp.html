@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="term.css" />
 <body style="width:640px;height:476px">
   <!-- Real output: the policy the live site serves on every page, one directive per line. -->
-  <div class="l"><span class="p">~ $</span> <span class="c">curl -s https://gallowforge.github.io/ledger/home/ \</span></div>
+  <div class="l"><span class="p">~ $</span> <span class="c">curl -s https://gallowforge.github.io/ballast/home/ \</span></div>
   <div class="l"><span class="c">    | grep -oP 'Content-Security-Policy" content="\K[^"]*' \</span></div>
   <div class="l"><span class="c">    | sed 's/; /\n/g'</span></div>
   <div class="gap"></div>

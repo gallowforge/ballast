@@ -20,7 +20,7 @@ export const HEAT = [
 /** Which of the four shades a day gets: 0 for the lightest, by the square root of its share. */
 export function heatLevel(value: number, max: number): number {
   const r = Math.sqrt(Math.max(0, value) / Math.max(1, max));
-  return Math.min(HEAT.length - 1, Math.floor(r * HEAT.length - 1e-9));
+  return Math.max(0, Math.min(HEAT.length - 1, Math.floor(r * HEAT.length - 1e-9)));
 }
 
 /** Each day of the period as a square, darker the more was spent. */
