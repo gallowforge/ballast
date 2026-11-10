@@ -41,7 +41,7 @@ function greeting(name: string): string {
   return `${part}${name ? `, ${name}` : ''}.`;
 }
 
-/** The one sentence under today's figure, in Ledger's voice. */
+/** The one sentence under today's figure, in Ballast's voice. */
 function verdict(s: CycleSummary, base: string): string {
   if (s.runsOutOn)
     return `is yours today. At this pace the month runs dry on ${formatShort(s.runsOutOn)}; a lighter week puts it right.`;
@@ -116,7 +116,7 @@ export default function HomeScreen() {
               </p>
               <p class="serif text-muted mt-4 max-w-[34ch] text-[1.3rem] italic">
                 spent since {formatShort(s.cycle.start)}. Give yourself a salary or a few budgets,
-                and Ledger will say what is safe to spend each day.
+                and Ballast will say what is safe to spend each day.
               </p>
               <a href={url('plan/')} class="btn btn-primary mt-6">
                 Plan the month

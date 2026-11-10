@@ -11,11 +11,11 @@ export interface TxnPrefill {
 }
 
 export function openTxn(detail: { id?: string; prefill?: TxnPrefill } = {}): void {
-  window.dispatchEvent(new CustomEvent('ledger:txn', { detail }));
+  window.dispatchEvent(new CustomEvent('ballast:txn', { detail }));
 }
 
 export function openPalette(): void {
-  window.dispatchEvent(new CustomEvent('ledger:palette'));
+  window.dispatchEvent(new CustomEvent('ballast:palette'));
 }
 
 export type ToastTone = 'default' | 'good' | 'warn';
@@ -29,5 +29,5 @@ export interface ToastInput {
 
 export function toast(input: ToastInput | string): void {
   const detail = typeof input === 'string' ? { message: input } : input;
-  window.dispatchEvent(new CustomEvent('ledger:toast', { detail }));
+  window.dispatchEvent(new CustomEvent('ballast:toast', { detail }));
 }

@@ -5,8 +5,8 @@ export const GET: APIRoute = () =>
   new Response(
     JSON.stringify(
       {
-        name: 'Ledger',
-        short_name: 'Ledger',
+        name: 'Ballast',
+        short_name: 'Ballast',
         description: SITE.description,
         id: url(),
         start_url: url('home/'),

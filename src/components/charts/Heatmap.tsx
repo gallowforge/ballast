@@ -4,6 +4,25 @@ import { formatMoney } from '@/lib/money/money';
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+/**
+ * Four shades, as a share of ink mixed into the paper, each with the text colour that reads on it.
+ * The middle of the range is skipped on purpose: between about 40% and 65% neither ink nor paper
+ * text reaches 4.5:1 in one theme or the other. Measured (ink text / paper text): light 8.8, 6.2,
+ * 4.8, 8.0; dark 9.1, 5.8, 6.1, 9.4.
+ */
+export const HEAT = [
+  { mix: 14, text: 'var(--fg)' },
+  { mix: 30, text: 'var(--fg)' },
+  { mix: 68, text: 'var(--raised)' },
+  { mix: 86, text: 'var(--raised)' },
+] as const;
+
+/** Which of the four shades a day gets: 0 for the lightest, by the square root of its share. */
+export function heatLevel(value: number, max: number): number {
+  const r = Math.sqrt(Math.max(0, value) / Math.max(1, max));
+  return Math.min(HEAT.length - 1, Math.floor(r * HEAT.length - 1e-9));
+}
+
 /** Each day of the period as a square, darker the more was spent. */
 export function Heatmap({
   days,
@@ -42,15 +61,17 @@ export function Heatmap({
               title={`${formatShort(c.date)}: ${formatMoney(c.value, code)}`}
               aria-label={`${DAY_NAMES[weekday(c.date)]} ${formatShort(c.date)}: ${c.value ? formatMoney(c.value, code) : 'nothing spent'}`}
               class={`relative grid aspect-square place-items-center rounded-[3px] text-[11px] font-bold ${c.date > today ? 'border-line-strong border border-dashed' : ''} ${c.date === today ? 'ring-gold ring-2' : ''}`}
-              style={{
-                background:
-                  c.date > today
-                    ? 'transparent'
-                    : c.value
-                      ? `color-mix(in oklab, var(--fg) ${Math.round(10 + 78 * Math.sqrt(c.value / max))}%, var(--raised))`
-                      : 'var(--sunken)',
-                color: Math.sqrt(c.value / max) > 0.42 ? 'var(--raised)' : 'var(--fg)',
-              }}
+              style={
+                c.date > today || !c.value
+                  ? {
+                      background: c.date > today ? 'transparent' : 'var(--sunken)',
+                      color: 'var(--fg)',
+                    }
+                  : {
+                      background: `color-mix(in oklab, var(--fg) ${HEAT[heatLevel(c.value, max)]!.mix}%, var(--raised))`,
+                      color: HEAT[heatLevel(c.value, max)]!.text,
+                    }
+              }
             >
               {parts(c.date).d}
             </div>
@@ -64,13 +85,11 @@ export function Heatmap({
         aria-hidden="true"
       >
         Less
-        {[0.12, 0.35, 0.6, 0.9].map((o) => (
+        {HEAT.map((h) => (
           <span
-            key={o}
+            key={h.mix}
             class="size-3 rounded"
-            style={{
-              background: `color-mix(in oklab, var(--fg) ${Math.round(o * 88)}%, var(--raised))`,
-            }}
+            style={{ background: `color-mix(in oklab, var(--fg) ${h.mix}%, var(--raised))` }}
           />
         ))}
         More

@@ -274,7 +274,7 @@ export function DemoBanner() {
       class="border-gold flex flex-wrap items-baseline gap-x-4 gap-y-1 border-l-2 py-1 pl-4"
     >
       <p class="serif text-[1.05rem] italic">
-        This is Alex's ledger, and Alex is made up. Nothing here is real.
+        These are Alex's books, and Alex is made up. Nothing here is real.
       </p>
       <a href={url('settings/#data')} class="link text-sm">
         Start your own

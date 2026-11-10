@@ -1,4 +1,5 @@
 export type ThemeChoice = 'light' | 'dark' | 'system';
+// Kept from the app's first name, Ledger, so a theme chosen before the rename stays chosen.
 const KEY = 'ledger:theme';
 
 export function getTheme(): ThemeChoice {
@@ -28,5 +29,5 @@ export function setTheme(choice: ThemeChoice): void {
     /* private mode: still apply for this visit */
   }
   applyTheme(choice);
-  window.dispatchEvent(new CustomEvent('ledger:theme', { detail: choice }));
+  window.dispatchEvent(new CustomEvent('ballast:theme', { detail: choice }));
 }

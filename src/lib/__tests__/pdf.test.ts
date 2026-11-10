@@ -123,7 +123,7 @@ describe('the sample statement PDF, end to end', () => {
     await expect(
       extractItems(lib, file('sample-statement-locked.pdf'), 'wrong'),
     ).rejects.toBeInstanceOf(PdfPasswordError);
-    const { items } = await extractItems(lib, file('sample-statement-locked.pdf'), 'ledger-demo');
+    const { items } = await extractItems(lib, file('sample-statement-locked.pdf'), 'ballast-demo');
     expect(sourceFromPdf(items, 'x.pdf')!.table.length).toBeGreaterThan(expected.rows);
   });
 

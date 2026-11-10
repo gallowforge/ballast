@@ -1,12 +1,14 @@
-# Ledger: identity
+# Ballast: identity
 
 **The idea, in one sentence:** a calm runway: your money laid out as a road that ends on a date.
+
+**The name.** Ballast is the weight low in a ship's hull that keeps it upright in rough water. Savings paid out as a steady salary do the same for a life between incomes. Until version 1.1 the app was called Ledger; the look keeps the account book it was born with.
 
 Everything on screen serves that sentence. Savings are a road receding to a horizon; each payday is a stretch of it; your target date is a brass flag at the roadside; the place the money runs out is where the road stops. The ground the road crosses is ruled like ledger paper, because the ledger is the other half of the idea: honest columns of figures, exact to the fils.
 
 ## Voice
 
-Calm, kind, honest. Ledger talks like a friend who is good with money and never makes you feel bad about it.
+Calm, kind, honest. Ballast talks like a friend who is good with money and never makes you feel bad about it.
 
 - Say what is true, then what to do: "Eating out went 4.250 KD past its line. Next week can be lighter."
 - No alarm words, no exclamation marks, no blame. Spending is ink, not red; red-brown is kept for going over.

@@ -8,7 +8,7 @@ test('a backup exports, and restores after deleting everything', async ({ page }
   await page.getByRole('button', { name: /Export a backup/ }).click();
   const file = await (await download).path();
   const backup = JSON.parse(readFileSync(file!, 'utf8'));
-  expect(backup.app).toBe('ledger');
+  expect(backup.app).toBe('ballast');
   const count = backup.data.txns.length;
   expect(count).toBeGreaterThan(100);
 
@@ -46,7 +46,7 @@ test('a file that is not a backup is refused politely', async ({ page }) => {
     mimeType: 'application/json',
     buffer: Buffer.from('{"hello":1}'),
   });
-  await expect(page.getByRole('status')).toContainText('This file is not a Ledger backup.');
+  await expect(page.getByRole('status')).toContainText('This file is not a Ballast backup.');
 });
 
 test('the whole app works offline after the first visit', async ({ page, context }) => {

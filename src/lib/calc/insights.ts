@@ -293,7 +293,7 @@ export function insights(data: LedgerData, today: ISODate): Insight[] {
       tone: 'neutral',
       icon: 'tag',
       title: `${plural(loose, 'transaction')} need a category`,
-      body: 'Categories make your budgets and charts honest. One tap each; Ledger learns as you go.',
+      body: 'Categories make your budgets and charts honest. One tap each; Ballast learns as you go.',
       action: { kind: 'link', label: 'Sort them', href: 'activity/?filter=uncategorised' },
     });
   }

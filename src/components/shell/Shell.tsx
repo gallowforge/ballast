@@ -40,7 +40,7 @@ export default function Shell() {
       .then((reg) => {
         const offer = (w: ServiceWorker) =>
           toast({
-            message: 'A new version of Ledger is ready.',
+            message: 'A new version of Ballast is ready.',
             action: {
               label: 'Reload',
               run: () => (

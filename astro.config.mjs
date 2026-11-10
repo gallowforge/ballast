@@ -7,7 +7,7 @@ import { serviceWorker } from './scripts/sw-integration.mjs';
 
 /**
  * SITE_URL is the canonical public origin of the deployed site.
- * BASE_PATH is only needed under a sub-path (GitHub project pages: "/ledger/").
+ * BASE_PATH is only needed under a sub-path (GitHub project pages: "/ballast/").
  */
 const site = process.env.SITE_URL ?? 'https://gallowforge.github.io';
 const base = process.env.BASE_PATH ?? '/';

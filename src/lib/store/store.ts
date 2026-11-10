@@ -48,7 +48,7 @@ function persist() {
   saving = saving
     .then(() => persistence?.save(snapshot, at))
     .then(() => channel?.postMessage({ type: 'saved' }))
-    .catch((err) => console.error('Ledger could not save', err))
+    .catch((err) => console.error('Ballast could not save', err))
     .finally(() => inFlight--);
   return saving;
 }
@@ -73,7 +73,7 @@ export function start(p: Persistence, now: () => string = () => todayISO()): Pro
     ready = true;
     notify();
     if (typeof BroadcastChannel !== 'undefined') {
-      channel = new BroadcastChannel('ledger');
+      channel = new BroadcastChannel('ballast');
       channel.onmessage = async () => {
         // Another tab saved. A change of ours still being written wins; otherwise take theirs,
         // and forget undo steps that no longer describe what is on screen.

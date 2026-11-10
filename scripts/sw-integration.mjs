@@ -49,7 +49,7 @@ async function preload(root, files) {
 
 export function serviceWorker() {
   return {
-    name: 'ledger-postbuild',
+    name: 'ballast-postbuild',
     hooks: {
       'astro:build:done': async ({ dir, logger }) => {
         const root = fileURLToPath(dir);

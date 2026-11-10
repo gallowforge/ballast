@@ -19,8 +19,8 @@ export function Toaster() {
       if (Number.isFinite(ms))
         window.setTimeout(() => setItems((list) => list.filter((x) => x.id !== id)), ms);
     };
-    window.addEventListener('ledger:toast', on);
-    return () => window.removeEventListener('ledger:toast', on);
+    window.addEventListener('ballast:toast', on);
+    return () => window.removeEventListener('ballast:toast', on);
   }, []);
   const close = (id: number) => setItems((list) => list.filter((x) => x.id !== id));
   return (

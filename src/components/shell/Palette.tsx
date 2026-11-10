@@ -35,10 +35,10 @@ export function Palette({ data }: { data: LedgerData }) {
         onOpen();
       }
     };
-    window.addEventListener('ledger:palette', onOpen);
+    window.addEventListener('ballast:palette', onOpen);
     window.addEventListener('keydown', onKey);
     return () => {
-      window.removeEventListener('ledger:palette', onOpen);
+      window.removeEventListener('ballast:palette', onOpen);
       window.removeEventListener('keydown', onKey);
     };
   }, []);

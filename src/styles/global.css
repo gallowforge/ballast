@@ -5,7 +5,7 @@
 
 @theme {
   --font-sans:
-    'Ledger Figures', 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, -apple-system,
+    'Ballast Figures', 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, -apple-system,
     'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Newsreader', ui-serif, Georgia, 'Times New Roman', serif;
 
@@ -979,12 +979,12 @@ body:has(.sheet) .toast:not(:last-child) {
 }
 
 /* Long-form pages (how it works, privacy). */
-.prose-ledger {
+.prose-page {
   color: var(--muted);
   font-size: 1.0625rem;
   line-height: 1.7;
 }
-.prose-ledger h2 {
+.prose-page h2 {
   font-family: var(--font-serif);
   font-optical-sizing: auto;
   font-weight: 460;
@@ -994,48 +994,48 @@ body:has(.sheet) .toast:not(:last-child) {
   line-height: 1.15;
   margin: 3rem 0 0.75rem;
 }
-.prose-ledger h3 {
+.prose-page h3 {
   color: var(--fg);
   font-weight: 700;
   font-size: 1.05rem;
   margin: 1.75rem 0 0.4rem;
 }
-.prose-ledger p {
+.prose-page p {
   margin: 0.75rem 0;
 }
-.prose-ledger ul,
-.prose-ledger ol {
+.prose-page ul,
+.prose-page ol {
   margin: 0.75rem 0;
   padding-left: 1.25rem;
 }
-.prose-ledger ul {
+.prose-page ul {
   list-style: disc;
 }
-.prose-ledger li {
+.prose-page li {
   margin: 0.4rem 0;
 }
-.prose-ledger li::marker {
+.prose-page li::marker {
   color: var(--gold);
 }
-.prose-ledger strong {
+.prose-page strong {
   color: var(--fg);
   font-weight: 700;
 }
-.prose-ledger a {
+.prose-page a {
   color: var(--fg);
   font-weight: 700;
   text-decoration: underline;
   text-decoration-color: var(--gold);
   text-underline-offset: 3px;
 }
-.prose-ledger code {
+.prose-page code {
   font-size: 0.9em;
   padding: 0.1em 0.35em;
   border-radius: 3px;
   background: var(--sunken);
   color: var(--fg);
 }
-.prose-ledger .formula {
+.prose-page .formula {
   margin: 1.25rem 0;
   padding: 1rem 1.25rem 1rem 1.5rem;
   border-left: 3px solid var(--gold);

@@ -37,7 +37,7 @@
 /* Every figure, even inside interface text, is set in Newsreader: digits only, layered in front
    of the interface face. Money reads in one hand everywhere. */
 @font-face {
-  font-family: 'Ledger Figures';
+  font-family: 'Ballast Figures';
   font-style: normal;
   font-display: swap;
   font-weight: 200 800;

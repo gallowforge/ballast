@@ -7,7 +7,9 @@ import { isRate } from './money/fx';
 import { toCSV } from './import/csv';
 import { SCHEMA_VERSION, type AccountRole, type LedgerData, type Txn } from './model';
 
-export const BACKUP_APP = 'ledger';
+export const BACKUP_APP = 'ballast';
+/** Backups written before the app was renamed from Ledger carry this name; they read the same. */
+const LEGACY_APP = 'ledger';
 
 export interface Backup {
   app: typeof BACKUP_APP;
@@ -27,7 +29,7 @@ export function backupJSON(data: LedgerData, now = new Date()): string {
 }
 
 export function backupFileName(date = today()): string {
-  return `ledger-backup-${date}.json`;
+  return `ballast-backup-${date}.json`;
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> =>
@@ -295,20 +297,20 @@ export type BackupResult =
   | { ok: true; data: LedgerData; dropped: number; exportedAt?: string }
   | { ok: false; error: string };
 
-/** Reads a backup file. Refuses anything that is not a Ledger backup, or from a newer version. */
+/** Reads a backup file. Refuses anything that is not a Ballast backup, or from a newer version. */
 export function parseBackup(text: string): BackupResult {
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    return { ok: false, error: 'This file is not valid JSON, so it cannot be a Ledger backup.' };
+    return { ok: false, error: 'This file is not valid JSON, so it cannot be a Ballast backup.' };
   }
-  if (!isObj(raw) || raw.app !== BACKUP_APP || !isObj(raw.data))
-    return { ok: false, error: 'This file is not a Ledger backup.' };
+  if (!isObj(raw) || (raw.app !== BACKUP_APP && raw.app !== LEGACY_APP) || !isObj(raw.data))
+    return { ok: false, error: 'This file is not a Ballast backup.' };
   if (typeof raw.format === 'number' && raw.format > SCHEMA_VERSION)
     return {
       ok: false,
-      error: 'This backup comes from a newer version of Ledger. Update the app, then try again.',
+      error: 'This backup comes from a newer version of Ballast. Update the app, then try again.',
     };
   const { data, dropped } = sanitize(raw.data);
   return {

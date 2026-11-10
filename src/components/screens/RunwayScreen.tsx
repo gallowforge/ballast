@@ -48,7 +48,7 @@ export default function RunwayScreen() {
         level={1}
         icon="runway"
         title="No road to draw yet"
-        body="Tell Ledger what you have saved and what you pay yourself, and it will lay out how far that carries you."
+        body="Tell Ballast what you have saved and what you pay yourself, and it will lay out how far that carries you."
       >
         <a class="btn btn-primary btn-sm" href={url('home/')}>
           Start in a minute
@@ -271,7 +271,7 @@ export default function RunwayScreen() {
           ) : (
             <p class="text-muted mt-4 max-w-md">
               Graduation, a new job, the month income starts again. Pick the day your savings have
-              to reach, and Ledger tells you what salary gets you there.
+              to reach, and Ballast tells you what salary gets you there.
             </p>
           )}
         </section>
@@ -396,7 +396,7 @@ function TargetSheet({
       open={open}
       onClose={onClose}
       title="A date to reach"
-      description="Ledger checks your savings reach this day without dipping below the cushion you keep."
+      description="Ballast checks your savings reach this day without dipping below the cushion you keep."
       footer={
         <>
           {t && (

@@ -41,7 +41,7 @@ const og = new URL(url('og.png'), Astro.site);
     <link rel="manifest" href={url('manifest.webmanifest')} />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Ledger" />
+    <meta name="apple-mobile-web-app-title" content="Ballast" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -53,7 +53,7 @@ const og = new URL(url('og.png'), Astro.site);
         const apply = () => {
           let t = null;
           try {
-            t = localStorage.getItem('ledger:theme');
+            t = localStorage.getItem('ledger:theme'); // the stored name predates the rename to Ballast
           } catch {}
           const dark =
             t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);

@@ -57,7 +57,7 @@ test('unknown pages get the 404 page', async ({ page }) => {
 
 test('the manifest makes it installable', async ({ request }) => {
   const m = await (await request.get('manifest.webmanifest')).json();
-  expect(m).toMatchObject({ name: 'Ledger', display: 'standalone' });
+  expect(m).toMatchObject({ name: 'Ballast', display: 'standalone' });
   expect(m.icons.map((i: { sizes: string }) => i.sizes)).toEqual(
     expect.arrayContaining(['192x192', '512x512']),
   );

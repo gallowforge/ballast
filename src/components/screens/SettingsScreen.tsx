@@ -248,8 +248,8 @@ export default function SettingsScreen() {
           Exchange rates
         </h2>
         <p class="text-muted text-sm">
-          Ledger never fetches rates (it makes no network calls). Enter what your bank used; amounts
-          already recorded keep the value they had.
+          Ballast never fetches rates (it makes no network calls). Enter what your bank used;
+          amounts already recorded keep the value they had.
         </p>
         <div class="divide mt-4">
           {Object.entries(data.rates).map(([code, r]) => (
@@ -357,7 +357,7 @@ export default function SettingsScreen() {
             id="rules-title"
             class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]"
           >
-            What Ledger has learned
+            What Ballast has learned
           </h2>
           <p class="text-muted text-sm">
             When you recategorise an imported transaction, the merchant is remembered for next time.
@@ -420,7 +420,7 @@ export default function SettingsScreen() {
             type="button"
             class="btn btn-soft h-auto flex-col items-start gap-1 rounded-md p-4 text-left whitespace-normal"
             onClick={() =>
-              download(`ledger-transactions-${today}.csv`, transactionsCSV(data), 'text/csv')
+              download(`ballast-transactions-${today}.csv`, transactionsCSV(data), 'text/csv')
             }
             disabled={!data.txns.length}
           >
@@ -433,7 +433,7 @@ export default function SettingsScreen() {
           <label class="btn btn-soft h-auto cursor-pointer flex-col items-start gap-1 rounded-md p-4 text-left whitespace-normal">
             <Icon name="upload" size={20} class="text-gold-ink" />
             <span class="font-bold">Restore a backup</span>
-            <span class="text-subtle text-xs font-medium">From a Ledger JSON file</span>
+            <span class="text-subtle text-xs font-medium">From a Ballast JSON file</span>
             <input
               type="file"
               accept=".json,application/json"
@@ -478,7 +478,7 @@ export default function SettingsScreen() {
           id="inst-title"
           class="serif border-fg mb-2 border-b-2 pb-2 text-[1.55rem] leading-tight font-[480]"
         >
-          Install Ledger
+          Install Ballast
         </h2>
         <p class="text-muted text-sm">
           It opens in its own window and works with no connection at all.
@@ -506,7 +506,7 @@ export default function SettingsScreen() {
           </ul>
         )}
         <p class="text-subtle mt-4 text-xs">
-          Ledger {SITE.version} ·{' '}
+          Ballast {SITE.version} ·{' '}
           <a class="link" href={url('privacy/')}>
             Privacy
           </a>{' '}

@@ -105,7 +105,7 @@ export default function ImportScreen() {
         const src = sourceFromPdf(items, name);
         if (!src)
           throw new Error(
-            'Ledger read this PDF but could not find a table of transactions in it. If your bank offers a CSV export, that will work.',
+            'Ballast read this PDF but could not find a table of transactions in it. If your bank offers a CSV export, that will work.',
           );
         setPassword('');
         begin(src);
@@ -124,7 +124,7 @@ export default function ImportScreen() {
       else
         setError(
           (e as Error).message ||
-            'Ledger could not read this file. Is it a statement in PDF or CSV form?',
+            'Ballast could not read this file. Is it a statement in PDF or CSV form?',
         );
     } finally {
       setBusy(false);
@@ -367,7 +367,7 @@ export default function ImportScreen() {
             <p class="caps text-gold-ink">Read here, never uploaded</p>
             <ul class="text-muted mt-3 grid gap-3 text-[0.95rem]">
               <li>
-                The file is read in this tab. Ledger has no server, and its security policy blocks
+                The file is read in this tab. Ballast has no server, and its security policy blocks
                 every connection to one.
               </li>
               <li>
@@ -829,7 +829,7 @@ function Review({
                 {formatShort(statement.from)}
               </span>
               <span class="text-subtle block">
-                The statement's opening balance, so your balance in Ledger matches the bank. Leave
+                The statement's opening balance, so your balance in Ballast matches the bank. Leave
                 unticked if the account already has older history here.
               </span>
             </span>

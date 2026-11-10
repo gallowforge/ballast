@@ -89,8 +89,8 @@ export function TxnSheet({ data, today }: Props) {
       setTried(false);
       setOpen(true);
     };
-    window.addEventListener('ledger:txn', on);
-    return () => window.removeEventListener('ledger:txn', on);
+    window.addEventListener('ballast:txn', on);
+    return () => window.removeEventListener('ballast:txn', on);
   }, [data, today]);
 
   const set = (patch: Partial<Form>) => setForm((f) => ({ ...f, ...patch }));

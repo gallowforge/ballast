@@ -50,7 +50,7 @@ test('a locked PDF asks for its password, and a wrong one is refused', async ({ 
   await page.getByLabel('Statement password').fill('wrong');
   await page.getByRole('button', { name: 'Open', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('did not open');
-  await page.getByLabel('Statement password').fill('ledger-demo');
+  await page.getByLabel('Statement password').fill('ballast-demo');
   await page.getByRole('button', { name: 'Open', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Check the columns' })).toBeVisible();
 });

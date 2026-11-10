@@ -124,13 +124,22 @@ describe('backups', () => {
     }
   });
 
+  it('reads a backup written before the rename from Ledger', () => {
+    const d = full();
+    const old = JSON.parse(backupJSON(d));
+    old.app = 'ledger';
+    const back = parseBackup(JSON.stringify(old));
+    expect(back.ok).toBe(true);
+    if (back.ok) expect(back.data).toEqual(d);
+  });
+
   it('names the file with the date', () =>
-    expect(backupFileName('2026-11-08')).toBe('ledger-backup-2026-11-08.json'));
+    expect(backupFileName('2026-11-08')).toBe('ballast-backup-2026-11-08.json'));
 
   it.each([
     ['not json', 'not valid JSON'],
-    ['{"hello":1}', 'not a Ledger backup'],
-    ['{"app":"ledger","format":99,"data":{}}', 'newer version'],
+    ['{"hello":1}', 'not a Ballast backup'],
+    ['{"app":"ballast","format":99,"data":{}}', 'newer version'],
   ])('refuses %j', (text, msg) => {
     const r = parseBackup(text);
     expect(r.ok).toBe(false);

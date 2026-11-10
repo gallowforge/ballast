@@ -18,6 +18,8 @@ interface Stamped {
   data: unknown;
 }
 
+// The stored names keep the app's first name, Ledger, so data saved before the rename to Ballast
+// is found as it was. They are never shown; changing them would only add a migration.
 const DB = 'ledger';
 const STORE = 'kv';
 const KEY = 'data';

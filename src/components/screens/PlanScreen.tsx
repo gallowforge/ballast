@@ -170,7 +170,7 @@ export default function PlanScreen() {
         <p class="text-subtle mt-2 text-sm">
           {data.budgets.length
             ? `${formatMoney(totals.spent, base)} spent of ${formatMoney(totals.budgeted, base)} this month.${totals.unbudgeted ? ` Another ${formatMoney(totals.unbudgeted, base)} went on things with no line.` : ''} The brass tick is where an even pace would be today.`
-            : 'A line for the things that drift. Ledger suggests one from your last three months.'}
+            : 'A line for the things that drift. Ballast suggests one from your last three months.'}
         </p>
         {states.length ? (
           <div class="mt-2 grid gap-x-12 md:grid-cols-2">
@@ -193,7 +193,7 @@ export default function PlanScreen() {
         ) : (
           <Empty
             title="No lines drawn yet."
-            body="Pick a category and a monthly amount, like 25 KD for eating out. Ledger keeps an eye on the pace for you."
+            body="Pick a category and a monthly amount, like 25 KD for eating out. Ballast keeps an eye on the pace for you."
           />
         )}
       </section>
@@ -503,7 +503,7 @@ function SalarySheet({
             checked={auto}
             onChange={setAuto}
             label="Move it automatically"
-            hint="Ledger records the transfer on payday. Turn off if you move it yourself and import the statement."
+            hint="Ballast records the transfer on payday. Turn off if you move it yourself and import the statement."
           />
           {salary && (
             <Switch

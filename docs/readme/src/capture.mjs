@@ -1,6 +1,6 @@
 /**
  * Fresh captures of the real app for the README's Glass scenes, in the dark theme and the light one.
- * Everything comes from Ledger's own demo data (Alex, who is made up), on the live site by default.
+ * Everything comes from Ballast's own demo data (Alex, who is made up), on the live site by default.
  *
  *   node docs/readme/src/capture.mjs                    # every screen, both themes
  *   ORIGIN=http://localhost:4173 node docs/readme/src/capture.mjs   # against a local build
@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = resolve(HERE, '../../..');
-const ORIGIN = (process.env.ORIGIN ?? 'https://gallowforge.github.io/ledger').replace(/\/$/, '');
+const ORIGIN = (process.env.ORIGIN ?? 'https://gallowforge.github.io/ballast').replace(/\/$/, '');
 const OUT = resolve(HERE, '../.raw/shots');
 const ONLY = process.argv[2];
 mkdirSync(OUT, { recursive: true });

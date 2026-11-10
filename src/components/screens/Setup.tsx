@@ -197,7 +197,7 @@ export function SetupSheet({
             checked={wantSalary}
             onChange={setWantSalary}
             label="Pay myself a monthly salary"
-            hint="On payday Ledger moves it from savings to spending, and plans the month around it."
+            hint="On payday Ballast moves it from savings to spending, and plans the month around it."
           />
           {wantSalary && (
             <>

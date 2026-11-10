@@ -1,9 +1,9 @@
 {
-  "name": "ledger",
-  "version": "1.0.0",
+  "name": "ballast",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
-  "description": "Ledger: an offline-first money app. Pay yourself a salary from your savings, see your runway, import bank statements on the device.",
+  "description": "Ballast: an offline-first money app. Pay yourself a salary from your savings, see your runway, import bank statements on the device.",
   "license": "MIT",
   "author": "Ali Husain",
   "scripts": {

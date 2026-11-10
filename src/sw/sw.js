@@ -1,9 +1,9 @@
-/* Ledger service worker. Every built file is precached on install, so the whole app works
+/* Ballast service worker. Every built file is precached on install, so the whole app works
    offline from the first visit. Pages and assets are served from the cache first; a new deploy
    installs in the background and takes over when the page asks (the "Update ready" prompt). */
 const VERSION = '__VERSION__';
 const PRECACHE = [/* __PRECACHE__ */];
-const CACHE = `ledger-${VERSION}`;
+const CACHE = `ballast-${VERSION}`;
 const scope = self.registration.scope;
 const OFFLINE = new URL('offline/', scope).href;
 
@@ -32,7 +32,10 @@ self.addEventListener('activate', (event) => {
       .keys()
       .then((keys) =>
         Promise.all(
-          keys.filter((k) => k.startsWith('ledger-') && k !== CACHE).map((k) => caches.delete(k)),
+          keys
+            // ledger-: caches from before the rename to Ballast
+            .filter((k) => (k.startsWith('ballast-') || k.startsWith('ledger-')) && k !== CACHE)
+            .map((k) => caches.delete(k)),
         ),
       )
       .then(() => self.clients.claim()),

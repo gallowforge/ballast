@@ -138,8 +138,8 @@ await browser.close();
 copyFileSync(`${OUT}/sample-statement.pdf`, `${PUB}/sample-statement.pdf`);
 execFileSync('qpdf', [
   '--encrypt',
-  'ledger-demo',
-  'ledger-demo',
+  'ballast-demo',
+  'ballast-demo',
   '256',
   '--',
   `${OUT}/sample-statement.pdf`,

@@ -1,6 +1,6 @@
 # Third-party notices
 
-Ledger ships the following open-source work inside its build.
+Ballast ships the following open-source work inside its build.
 
 | Component                                                                               | Use                                        | Licence                   |
 | --------------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------- |

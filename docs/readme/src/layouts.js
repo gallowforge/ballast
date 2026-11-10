@@ -1,4 +1,4 @@
-// Glass scenes for Ledger's README: the real app, captured by capture.mjs, as frosted-glass
+// Glass scenes for Ballast's README: the real app, captured by capture.mjs, as frosted-glass
 // windows floating in light. One spatial grammar for every scene, the same as the profile's:
 // copy sits flush on the page colour, the windows float beside it, and the one detail that
 // matters is lifted out of its window toward the viewer.
@@ -336,7 +336,7 @@ const HERO = (ph) => ({
   },
   type: ph
     ? [
-        T('name', 'Ledger', 190.5, 30, { fontSize: '54px' }, 'center'),
+        T('name', 'Ballast', 190.5, 30, { fontSize: '54px' }, 'center'),
         T(
           'line',
           'Turns your savings into<br>a monthly salary that lasts.',
@@ -347,7 +347,7 @@ const HERO = (ph) => ({
         ),
       ]
     : [
-        T('name', 'Ledger', 420, 30, { fontSize: '66px' }, 'center'),
+        T('name', 'Ballast', 420, 30, { fontSize: '66px' }, 'center'),
         T(
           'line',
           'Turns your savings into a monthly salary that lasts.',
@@ -641,7 +641,7 @@ const INSIGHTS = {
 const PRIVACY = {
   kick: 'Privacy',
   head: 'Yours alone, on your device',
-  text: 'No account, no server, no analytics. Every page tells the browser that Ledger may talk only to itself.',
+  text: 'No account, no server, no analytics. Every page tells the browser that Ballast may talk only to itself.',
   win(n, ph) {
     const t = th(n),
       S = spot(this, ph);
@@ -724,7 +724,7 @@ const SOCIAL = {
     ];
   },
   type: [
-    T('name', 'Ledger', 38, 112, { fontSize: '52px' }),
+    T('name', 'Ballast', 38, 112, { fontSize: '52px' }),
     T('line', 'Turns your savings into a monthly salary that lasts.', 40, 180, {
       fontSize: '16.5px',
       whiteSpace: 'normal',

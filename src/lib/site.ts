@@ -1,15 +1,15 @@
 export const SITE = {
-  name: 'Ledger',
+  name: 'Ballast',
   tagline: 'Pay yourself a salary that lasts.',
   description:
-    'Ledger is a private money app that works offline. Pay yourself a monthly salary from your savings, see how long they last, set budgets, and import bank statements on your device. No account, no tracking.',
-  repo: 'https://github.com/gallowforge/ledger',
-  version: '1.0.0',
+    'Ballast is a private money app that works offline. Pay yourself a monthly salary from your savings, see how long they last, set budgets, and import bank statements on your device. No account, no tracking.',
+  repo: 'https://github.com/gallowforge/ballast',
+  version: '1.1.0',
 };
 
 const BASE = (import.meta.env?.BASE_URL ?? '/').replace(/\/?$/, '/');
 
-/** A path inside the app, respecting the deploy sub-path ("home/" → "/ledger/home/"). */
+/** A path inside the app, respecting the deploy sub-path ("home/" → "/ballast/home/"). */
 export function url(path = ''): string {
   return BASE + path.replace(/^\//, '');
 }

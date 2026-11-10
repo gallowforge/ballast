@@ -1,5 +1,5 @@
 /**
- * A believable, entirely made-up money life for trying Ledger: "Alex", a student living on a
+ * A believable, entirely made-up money life for trying Ballast: "Alex", a student living on a
  * monthly salary drawn from savings, with some freelance income in dollars. Everything is relative
  * to today and generated from a fixed seed, so it is the same on every device and never stale.
  */

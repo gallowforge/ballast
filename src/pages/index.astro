@@ -27,7 +27,7 @@ const lines = statement.rows.slice(1, 8);
 const rec = statement.reconciliation;
 ---
 
-<Base description="Ledger is a calm, private money app. Pay yourself a monthly salary from your savings, see how far it carries you, and read bank statements on your own device.">
+<Base description="Ballast is a calm, private money app. Pay yourself a monthly salary from your savings, see how far it carries you, and read bank statements on your own device.">
   <SiteHeader />
   <main id="main">
     <section class="mx-auto max-w-6xl px-5 pt-14 sm:px-8 lg:pt-24">
@@ -42,13 +42,13 @@ const rec = statement.reconciliation;
         style="animation-delay: 120ms"
       >
         <p class="serif max-w-[42ch] text-[1.35rem] leading-snug text-muted italic">
-          Ledger turns your savings into a monthly salary, tells you what is safe to spend today,
+          Ballast turns your savings into a monthly salary, tells you what is safe to spend today,
           and draws how far the money carries you. Your bank statements are read on your own device,
           and nothing ever leaves it.
         </p>
         <div class="flex flex-wrap items-center gap-5">
           <a href={url('home/')} class="btn btn-primary">
-            Open Ledger
+            Open Ballast
           </a>
           <a href={url('home/?demo=1')} class="link">
             Look around with made-up money
@@ -117,7 +117,7 @@ const rec = statement.reconciliation;
           A month you can read in one number.
         </h2>
         <p class="mt-5 max-w-[46ch] text-[1.05rem] text-muted">
-          On payday Ledger moves your salary from savings to spending. It keeps the bills still to
+          On payday Ballast moves your salary from savings to spending. It keeps the bills still to
           come aside, divides what is left by the days left, and gives you the answer: what you can
           spend today and still finish the month calmly.
         </p>
@@ -190,7 +190,7 @@ const rec = statement.reconciliation;
             Drop in a PDF or CSV. National Bank of Kuwait statements are recognised and
             password-protected PDFs open right here; any other bank works by matching columns. Then
             each line’s balance has to follow from the one before. When they all do, nothing was
-            misread, and Ledger says so.
+            misread, and Ballast says so.
           </p>
           <p class="serif mt-6 text-[1.25rem] text-good italic">
             All {rec.checked} lines of the sample statement agree, to the last fils.
@@ -205,7 +205,7 @@ const rec = statement.reconciliation;
           role="region"
           aria-label="Statement excerpt, scrolls sideways on small screens"
         >
-          <div role="table" aria-label="An excerpt of the sample statement, as Ledger reads it">
+          <div role="table" aria-label="An excerpt of the sample statement, as Ballast reads it">
             <div
               role="row"
               class="caps grid grid-cols-[3.2rem_1fr_6rem_6.5rem] gap-3 border-b border-line-strong pb-2 text-[0.68rem]"
@@ -250,8 +250,8 @@ const rec = statement.reconciliation;
             ))}
           </div>
           <p class="pt-3 text-xs text-subtle">
-            From a made-up statement shipped with Ledger. Card numbers and terminal codes are tidied
-            away automatically.
+            From a made-up statement shipped with Ballast. Card numbers and terminal codes are
+            tidied away automatically.
           </p>
         </div>
       </div>
@@ -272,7 +272,7 @@ const rec = statement.reconciliation;
           It cannot phone home.
         </h2>
         <p class="mt-5 max-w-[46ch] text-[1.05rem] text-muted">
-          Every page carries one line that tells the browser Ledger may only talk to itself. There
+          Every page carries one line that tells the browser Ballast may only talk to itself. There
           is no account to make, no server holding your money, no analytics and no exchange-rate
           service. Once you have opened it, it works with no connection at all.
         </p>
@@ -282,7 +282,7 @@ const rec = statement.reconciliation;
       </div>
       <div class="lg:pt-24">
         <div class="border-b-2 border-fg pb-2">
-          <span class="serif text-[1.45rem] font-[480]">An honest ledger</span>
+          <span class="serif text-[1.45rem] font-[480]">What it asks of you</span>
         </div>
         <dl>
           <div class="flex items-baseline justify-between border-b border-line py-3">
@@ -314,8 +314,8 @@ const rec = statement.reconciliation;
         Made for living on savings.
       </h2>
       <p class="mt-4 max-w-[52ch] text-[1.05rem] text-muted">
-        Most money apps assume a paycheck and a bank login. Ledger starts from what you have and the
-        date you need it to reach.
+        Most money apps assume a paycheck and a bank login. Ballast starts from what you have and
+        the date you need it to reach.
       </p>
       <div
         class="mt-10 overflow-x-auto"
@@ -324,11 +324,11 @@ const rec = statement.reconciliation;
         aria-label="Comparison, scrolls sideways on small screens"
       >
         <table class="w-full min-w-[34rem] text-left">
-          <caption class="sr-only">Ledger compared with typical money apps</caption>
+          <caption class="sr-only">Ballast compared with typical money apps</caption>
           <thead>
             <tr class="caps border-b-2 border-fg text-[0.7rem]">
               <th class="py-2 pr-4 font-bold"></th>
-              <th class="py-2 pr-4 font-bold text-fg">Ledger</th>
+              <th class="py-2 pr-4 font-bold text-fg">Ballast</th>
               <th class="py-2 font-bold">Typical apps</th>
             </tr>
           </thead>
@@ -368,7 +368,7 @@ const rec = statement.reconciliation;
         </div>
         <div class="flex flex-wrap items-center gap-5">
           <a href={url('home/')} class="btn btn-primary">
-            Open Ledger
+            Open Ballast
           </a>
           <a href={url('about/')} class="link">
             How it works

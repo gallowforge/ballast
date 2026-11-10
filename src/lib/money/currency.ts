@@ -1,5 +1,5 @@
 /**
- * ISO 4217 currencies Ledger knows, with their minor-unit exponent. Amounts are always stored as
+ * ISO 4217 currencies Ballast knows, with their minor-unit exponent. Amounts are always stored as
  * integers of the minor unit (fils for the Kuwaiti dinar: 1 KD = 1,000 fils), never as floats.
  */
 export interface Currency {
