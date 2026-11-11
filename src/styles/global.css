@@ -899,9 +899,10 @@ html:not([data-books]) [data-add] {
 /* An open sheet locks the page, which leaves the scrollbar's gutter empty and, on paper, bright
    beside the dimmed page. The gutter shows the root's colour, so the root takes the dimmed one,
    at the backdrop's pace, and the body keeps the page's. (On the night ledger the two are the
-   same colour.) */
+   same colour.) The page's colour comes first in the mix: the build falls back to the first
+   colour for browsers without color-mix, and there the gutter simply stays as it was. */
 html:has(.backdrop) {
-  background: color-mix(in srgb, rgb(18 29 24) 42%, var(--bg));
+  background: color-mix(in srgb, var(--bg) 58%, rgb(18 29 24));
   transition: background-color 0.2s ease-out;
 }
 html:has(.backdrop) body {
