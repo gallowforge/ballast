@@ -49,7 +49,13 @@ describe('quick add', () => {
   });
   it('reads a symbol written apart from the amount', () => {
     expect(q('€ 12 lunch')).toMatchObject({ amount: 1200, currency: 'EUR', payee: 'Lunch' });
-    expect(q('kd 3.5 snacks', inBase('KWD'))).toMatchObject({ amount: 3500, payee: 'Snacks' });
+    expect(q('$ 3.5 snacks', inBase('AUD'))).toMatchObject({
+      amount: 350,
+      currency: undefined,
+      payee: 'Snacks',
+    });
+    // A word that is not a currency stays a word: only symbols and ISO codes name one.
+    expect(q('3.5 xx snacks')).toMatchObject({ amount: 350, payee: 'Xx Snacks' });
   });
   it('drops a word naming the main currency', () => {
     expect(q('2.5 usd snacks')).toMatchObject({
@@ -57,7 +63,7 @@ describe('quick add', () => {
       payee: 'Snacks',
       currency: undefined,
     });
-    expect(q('2.5 kd snacks', inBase('KWD'))).toMatchObject({ amount: 2500, payee: 'Snacks' });
+    expect(q('2.5 jod snacks', inBase('JOD'))).toMatchObject({ amount: 2500, payee: 'Snacks' });
   });
   it('keeps letters stuck to a number that are not a currency as words', () =>
     expect(q('15 lunch 2pm')).toMatchObject({ amount: 1500, payee: 'Lunch 2pm' }));
@@ -71,7 +77,7 @@ describe('quick add', () => {
     expect(q('8 blue door')).toMatchObject({ payee: 'Blue Door', categoryId: 'eating-out' }));
   it('rounds extra decimals to the currency', () => {
     expect(q('1.23456 x')!.amount).toBe(123);
-    expect(q('1.23456 x', inBase('KWD'))!.amount).toBe(1235);
+    expect(q('1.23456 x', inBase('OMR'))!.amount).toBe(1235);
   });
   it('leaves out a category this money life does not have', () => {
     const without = data({ categories: emptyData().categories.filter((c) => c.id !== 'home') });

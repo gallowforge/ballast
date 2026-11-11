@@ -3,13 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { findDuplicates, fingerprint, withOccurrence } from '../import/dedupe';
 import {
   buildReview,
+  detectCurrency,
   hasHistoryBefore,
   mappingFor,
   readStatement,
   sourceFromCSV,
   summarize,
 } from '../import/importer';
-import { detectCurrency, detectProfile } from '../import/profiles';
 import { applyImport, undoImport } from '../store/ops';
 import { balance } from '../ledger';
 import { data, savings, spending, txn } from './fixtures';
@@ -17,20 +17,21 @@ import { data, savings, spending, txn } from './fixtures';
 const csv = readFileSync('tests/fixtures/sample-statement.csv', 'utf8');
 const expected = JSON.parse(readFileSync('tests/fixtures/sample-statement.json', 'utf8'));
 
-describe('bank profiles', () => {
-  it('recognises a known bank layout from the statement text', () => {
-    expect(detectProfile('National Bank of Kuwait\nStatement of Account')).toMatchObject({
-      id: 'nbk',
-      currency: 'KWD',
-    });
-    expect(detectProfile('www.nbk.com').id).toBe('nbk');
-    expect(detectProfile('Example Bank').id).toBe('generic');
-    expect(detectProfile('Example Bank').currency).toBeUndefined();
+describe('what a statement says about itself', () => {
+  it('reads every statement the same way, whatever bank its banner names', () => {
+    const plain = sourceFromCSV(csv, 'sample-statement.csv');
+    const named = sourceFromCSV(`Example Bank\nStatement of account\n${csv}`, 'named.csv');
+    expect(named.currency).toBeUndefined();
+    expect(mappingFor(named).columns).toEqual(mappingFor(plain).columns);
+    const [a, b] = [plain, named].map((s) => readStatement(s, mappingFor(s), 'USD'));
+    const lines = (s: typeof a) => s!.rows.map((r) => [r.date, r.amount, r.description]);
+    expect(lines(b)).toEqual(lines(a));
+    expect(b!.reconciliation).toEqual(a!.reconciliation);
   });
   it('reads the statement currency, and leaves it unknown when the text does not say', () => {
-    expect(detectCurrency('Account currency: EUR', 'USD')).toBe('EUR');
+    expect(detectCurrency('Account currency: EUR')).toBe('EUR');
     expect(detectCurrency('Currency: GBP')).toBe('GBP');
-    expect(detectCurrency('nothing here', 'KWD')).toBe('KWD');
+    expect(detectCurrency('Statement currency JPY')).toBe('JPY');
     expect(detectCurrency('nothing here')).toBeUndefined();
     // Three letters that are not a currency Ballast knows are not taken for one.
     expect(detectCurrency('Currency: ALL accounts')).toBeUndefined();

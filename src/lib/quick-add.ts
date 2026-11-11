@@ -40,8 +40,6 @@ function currencyWord(word: string, base: string): string | undefined {
       return 'INR';
     case '₩':
       return 'KRW';
-    case 'kd':
-      return 'KWD';
   }
   const code = word.toUpperCase();
   return /^[A-Z]{3}$/.test(code) && isCurrency(code) ? code : undefined;
@@ -63,8 +61,8 @@ export function parseQuickAdd(text: string, data: LedgerData, today: ISODate): Q
   const base = data.settings.base;
   for (const raw of tokens) {
     const t = raw.toLowerCase();
-    // A currency symbol on its own before the amount ("$ 12 lunch", "kd 3.5 snacks").
-    if (amountText === null && !code && /^([$€£¥₹₩]|kd)$/.test(t)) {
+    // A currency symbol on its own before the amount ("$ 12 lunch", "€ 3.50 snacks").
+    if (amountText === null && !code && /^[$€£¥₹₩]$/.test(t)) {
       code = currencyWord(t, base);
       continue;
     }

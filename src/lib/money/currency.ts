@@ -5,7 +5,7 @@
  */
 export interface Currency {
   code: string;
-  /** Digits after the decimal point: 2 for USD, 3 for KWD, 0 for JPY. */
+  /** Digits after the decimal point: 2 for USD, 3 for the dinars, 0 for JPY. */
   exp: number;
   name: string;
   /** Short label shown after amounts: the ISO code. */

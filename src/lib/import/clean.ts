@@ -40,15 +40,7 @@ const ACRONYMS = new Set([
   'TV',
   'ID',
   'ADNOC',
-  'KNET',
-  'KNPC',
-  'KFH',
-  'NBK',
   'STC',
-  'AUB',
-  'CBK',
-  'MOI',
-  'PACI',
 ]);
 
 // Codes of every supported currency, for amounts quoted in another currency inside the text.
@@ -58,7 +50,10 @@ const LEADING = [
   /^(POS|ECOM|E-COM|E-COMMERCE|ONLINE|CONTACTLESS|APPLE ?PAY|GOOGLE ?PAY|SAMSUNG ?PAY)\b[\s:-]*/,
   /^(PURCHASE|PURCHASES|PAYMENT|PMT|PAY)\b[\s:-]*/,
   /^(DIRECT DEBIT|STANDING ORDER|DEBIT ORDER|BILL PAYMENT)\b[\s:-]*/,
-  /^(KNET|VISA|MASTERCARD|MASTER CARD|MC|DEBIT CARD|CREDIT CARD|CARD|DC|CC)\b[\s:-]*/,
+  // The card network a line may open with: the worldwide ones, then national networks whose
+  // names are no shop's name (so "Maestro Pizza" keeps its first word).
+  /^(VISA|MASTERCARD|MASTER CARD|MC|UNIONPAY|BANCONTACT|DANKORT|EFTPOS|GIROCARD|INTERAC|KNET|RUPAY)\b[\s:-]*/,
+  /^(DEBIT CARD|CREDIT CARD|CARD|DC|CC)\b[\s:-]*/,
   /^(TXN|TRANSACTION|TRN|TRAN|RETAIL)\b[\s:-]*/,
   /^(AT|TO|FROM)\s+/,
 ];
@@ -75,8 +70,10 @@ const NOISE = [
 ];
 const TRAILING = [
   // A country printed in full after the merchant (two-letter codes are handled below).
-  /\b(UNITED STATES|UNITED KINGDOM|GREAT BRITAIN|UNITED ARAB EMIRATES|SAUDI ARABIA|STATE OF KUWAIT|KUWAIT CITY|KUWAIT|SINGAPORE|AUSTRALIA|CANADA|GERMANY|FRANCE|SPAIN|ITALY|PORTUGAL|NETHERLANDS|USA)\s*$/,
-  /\b(W\.?L\.?L\.?|L\.?L\.?C\.?|K\.?S\.?C\.?C?|K\.?S\.?C\.?P\.?|INC\.?|LTD\.?|LIMITED|CO\.?|COMPANY|GMBH|S\.?A\.?|PLC)\s*$/,
+  /\b(AUSTRALIA|CANADA|FRANCE|GERMANY|GREAT BRITAIN|ITALY|KUWAIT|NETHERLANDS|PORTUGAL|SAUDI ARABIA|SINGAPORE|SPAIN|UNITED ARAB EMIRATES|UNITED KINGDOM|UNITED STATES|USA)\s*$/,
+  // The company's legal form: Inc, Ltd, GmbH, S.A., W.L.L., and a joint-stock company in its
+  // national spellings (J.S.C., P.J.S.C. and the like, closed or public).
+  /\b(W\.?L\.?L\.?|L\.?L\.?C\.?|(?:P\.?J\.?|[BJKPQ]\.?)S\.?C\.?[CP]?\.?|INC\.?|LTD\.?|LIMITED|CO\.?|COMPANY|GMBH|S\.?A\.?|PLC)\s*$/,
   /\s+[A-Z]{2}$/, // a trailing country code ("GB", "US")
   new RegExp(`\\s+(${CODES})\\s*[\\d.,]*$`),
 ];

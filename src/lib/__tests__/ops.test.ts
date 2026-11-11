@@ -248,7 +248,7 @@ describe('learning from a correction', () => {
       ...base(),
       txns: [
         txn({ id: 'a', date: '2026-11-01', amount: 1, payee: 'Blue Door Bakery' }),
-        txn({ id: 'b', date: '2026-11-03', amount: 2, payee: 'BLUE DOOR BAKERY KW' }),
+        txn({ id: 'b', date: '2026-11-03', amount: 2, payee: 'BLUE DOOR BAKERY NL' }),
         txn({ id: 'c', date: '2026-11-03', amount: 2, payee: 'Other' }),
       ],
     };

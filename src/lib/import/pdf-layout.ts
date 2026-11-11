@@ -247,7 +247,7 @@ function clusterTable(lines: readonly Line[]): string[][] | null {
   return out;
 }
 
-/** All the text of the first page, for recognising the bank. */
+/** All the text of the first page, for what the statement says about itself (its currency). */
 export function pageText(items: readonly TextItem[], page = 1): string {
   return groupLines(items.filter((i) => i.page === page))
     .map((l) => l.cells.map((c) => c.text).join(' '))

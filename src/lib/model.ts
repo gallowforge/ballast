@@ -119,6 +119,8 @@ export interface ImportBatch {
   id: string;
   at: number;
   kind: 'pdf' | 'csv';
+  /** How the statement was read. Every statement is read the same way, so new imports say
+   *  'generic'; the field stays so that data and backups keep their shape. */
   profile: string;
   fileName: string;
   accountId: string;

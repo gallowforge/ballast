@@ -1,5 +1,5 @@
 import type { ISODate } from '../dates';
-import { currency } from '../money/currency';
+import { currency, isCurrency } from '../money/currency';
 import type { LedgerData, Txn, TxnKind } from '../model';
 import { categorize } from './categorize';
 import { parseCSV } from './csv';
@@ -7,16 +7,25 @@ import { findDuplicates, fingerprint, withOccurrence, type Duplicate } from './d
 import { detectMapping, type Mapping } from './detect';
 import { FILE_MESSAGES, StatementFileError, decodeText } from './file';
 import { groupLines, linesToTable, pageText, type TextItem } from './pdf-layout';
-import { detectCurrency, detectProfile, type Profile } from './profiles';
 import { parseStatement, type ParsedStatement } from './statement';
 
 export interface Source {
   kind: 'csv' | 'pdf';
   fileName: string;
   table: string[][];
-  profile: Profile;
-  /** Statement currency as the file states it (or as its bank implies); unknown otherwise. */
+  /** Statement currency as the file states it; unknown otherwise. */
   currency?: string;
+}
+
+/**
+ * The statement currency when the text names one ("Currency: EUR", "Account currency USD").
+ * Unknown otherwise, and the statement is then taken to be in your main currency. Every statement
+ * is read the same way: nothing depends on which bank printed it.
+ */
+export function detectCurrency(text: string): string | undefined {
+  const m = /\b(?:currency|ccy)\b[\s:]*([A-Z]{3})\b/i.exec(text);
+  const code = m?.[1]!.toUpperCase();
+  return code && isCurrency(code) ? code : undefined;
 }
 
 export function sourceFromCSV(text: string, fileName: string): Source {
@@ -25,14 +34,7 @@ export function sourceFromCSV(text: string, fileName: string): Source {
     .slice(0, 12)
     .map((r) => r.join(' '))
     .join('\n');
-  const profile = detectProfile(head);
-  return {
-    kind: 'csv',
-    fileName,
-    table,
-    profile,
-    currency: detectCurrency(head, profile.currency),
-  };
+  return { kind: 'csv', fileName, table, currency: detectCurrency(head) };
 }
 
 /**
@@ -48,17 +50,9 @@ export function sourceFromText(bytes: Uint8Array, fileName: string): Source {
 }
 
 export function sourceFromPdf(items: readonly TextItem[], fileName: string): Source | null {
-  const text = pageText(items, 1);
-  const profile = detectProfile(text);
   const table = linesToTable(groupLines(items));
   if (!table) return null;
-  return {
-    kind: 'pdf',
-    fileName,
-    table,
-    profile,
-    currency: detectCurrency(text, profile.currency),
-  };
+  return { kind: 'pdf', fileName, table, currency: detectCurrency(pageText(items, 1)) };
 }
 
 export function mappingFor(source: Source): Mapping {

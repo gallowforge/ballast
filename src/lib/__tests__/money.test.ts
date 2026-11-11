@@ -24,12 +24,19 @@ describe('currencies', () => {
       expect(c.label).toBe(c.code);
       expect([0, 2, 3]).toContain(c.exp);
     }
+    // The currencies kept to three decimals, all of them.
+    expect(CURRENCIES.filter((c) => c.exp === 3).map((c) => c.code)).toEqual([
+      'BHD',
+      'JOD',
+      'KWD',
+      'OMR',
+    ]);
   });
   it.each([
     ['USD', 2],
     ['EUR', 2],
-    ['KWD', 3],
     ['BHD', 3],
+    ['OMR', 3],
     ['JPY', 0],
     ['VND', 0],
   ])('%s has %i decimals', (code, exp) => expect(exponent(code)).toBe(exp));
@@ -63,7 +70,7 @@ describe('parseMinor', () => {
 describe('parseAmountInput', () => {
   it('accepts a positive amount in the currency', () => {
     expect(parseAmountInput('4.50', 'USD')).toBe(450);
-    expect(parseAmountInput('4.750', 'KWD')).toBe(4750);
+    expect(parseAmountInput('4.750', 'BHD')).toBe(4750);
   });
   it.each(['0', '-1', '0.000', 'x', '1.234', ''])('rejects %j for USD', (s) =>
     expect(parseAmountInput(s, 'USD')).toBeNull(),
@@ -89,7 +96,7 @@ describe('formatting', () => {
   });
   it('labels amounts with the currency code', () => {
     expect(formatMoney(1250, 'USD')).toBe('12.50 USD');
-    expect(formatMoney(12500, 'KWD')).toBe('12.500 KWD');
+    expect(formatMoney(12500, 'JOD')).toBe('12.500 JOD');
   });
   it('splits an amount for typography', () => {
     expect(moneyParts(-123456, 'EUR')).toEqual({
@@ -110,13 +117,13 @@ describe('formatting', () => {
     [-250_000, '−2.5k'],
   ])('compacts %i cents to %s', (minor, out) => expect(formatCompact(minor, 'USD')).toBe(out));
   it('compacts by the currency’s own decimals', () => {
-    expect(formatCompact(1_200_000, 'KWD')).toBe('1.2k');
+    expect(formatCompact(1_200_000, 'OMR')).toBe('1.2k');
     expect(formatCompact(1_200, 'JPY')).toBe('1.2k');
   });
   it('rounds headlines to whole units', () => {
     expect(formatRounded(123450, 'USD')).toBe('1,235 USD');
     expect(formatRounded(-150, 'USD')).toBe('−2 USD');
-    expect(formatRounded(1234500, 'KWD')).toBe('1,235 KWD');
+    expect(formatRounded(1234500, 'BHD')).toBe('1,235 BHD');
   });
 });
 
@@ -146,9 +153,9 @@ describe('exchange rates', () => {
     expect(convert(1299, 'EUR', 'USD', '1.0855')).toBe(1410);
   });
   it('converts across exponents, to three decimals and to none', () => {
-    // 12.99 USD × 0.30705 = 3.9885795 KWD → 3.989 KWD
-    expect(convert(1299, 'USD', 'KWD', '0.30705')).toBe(3989);
-    expect(convert(1000, 'KWD', 'JPY', '490.5')).toBe(491);
+    // 12.99 USD × 0.38497 = 5.0007603 OMR → 5.001 OMR
+    expect(convert(1299, 'USD', 'OMR', '0.38497')).toBe(5001);
+    expect(convert(1000, 'BHD', 'JPY', '390.5')).toBe(391);
   });
   it('keeps negative amounts symmetric', () =>
     expect(convert(-1299, 'EUR', 'USD', '1.0855')).toBe(-1410));
@@ -158,7 +165,7 @@ describe('exchange rates', () => {
   it('works out the rate a statement implies', () => {
     expect(impliedRate(1299, 'EUR', 1410, 'USD')).toBe('1.08545');
     expect(impliedRate(10000, 'EUR', 10855, 'USD')).toBe('1.0855');
-    expect(impliedRate(1299, 'USD', 3989, 'KWD')).toBe('0.307082');
+    expect(impliedRate(1299, 'USD', 5001, 'OMR')).toBe('0.384988');
     expect(impliedRate(0, 'EUR', 10, 'USD')).toBe('0');
   });
 });

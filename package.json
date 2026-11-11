@@ -1,6 +1,6 @@
 {
   "name": "ballast",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "type": "module",
   "description": "Ballast: an offline-first money app. Pay yourself a salary from your savings, see your runway, import bank statements on the device.",

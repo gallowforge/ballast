@@ -29,7 +29,7 @@ describe('a main currency from the browser language', () => {
     [['hi-IN'], 'INR'],
     [['sv-SE'], 'SEK'],
     [['ar-AE'], 'AED'],
-    [['ar-KW'], 'KWD'],
+    [['ar-EG'], 'EGP'],
     [['zh-Hant-TW'], 'TWD'],
     [['sr-Latn-ME'], 'EUR'],
   ])('%j → %s', (locales, code) => expect(currencyForLocales(locales)).toBe(code));

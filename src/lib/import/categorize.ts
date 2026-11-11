@@ -63,10 +63,8 @@ export const KNOWN: Known[] = [
   { re: /\bCOLES\b/, payee: 'Coles', categoryId: 'groceries' },
   { re: /\bCARREFOUR\b/, payee: 'Carrefour', categoryId: 'groceries' },
   { re: /\bLULU\b/, payee: 'Lulu Hypermarket', categoryId: 'groceries' },
-  { re: /\bSULTAN CENT(ER|RE)\b|\bTSC\b/, payee: 'The Sultan Center', categoryId: 'groceries' },
   { re: /\bGEANT\b/, payee: 'Geant', categoryId: 'groceries' },
-  { re: /\bCITY ?CENT(ER|RE)\b/, payee: 'City Centre', categoryId: 'groceries' },
-  { re: /\b(CO-?OP|COOPERATIVE|JAMEIA|JAMEYA)\b/, categoryId: 'groceries' },
+  { re: /\b(CO-?OP|COOPERATIVE)\b/, categoryId: 'groceries' },
   { re: /\bSUPERMARKET|HYPERMARKET|GROCER/, categoryId: 'groceries' },
   // Fuel.
   { re: /\bSHELL\b/, payee: 'Shell', categoryId: 'fuel' },
@@ -78,9 +76,6 @@ export const KNOWN: Known[] = [
   { re: /\bTOTAL ?ENERGIES\b/, payee: 'TotalEnergies', categoryId: 'fuel' },
   { re: /\bCIRCLE K\b/, payee: 'Circle K', categoryId: 'fuel' },
   { re: /\bADNOC\b/, payee: 'ADNOC', categoryId: 'fuel' },
-  { re: /\bKNPC\b/, payee: 'KNPC', categoryId: 'fuel' },
-  { re: /\bOULA\b/, payee: 'Oula', categoryId: 'fuel' },
-  { re: /\bAL ?SOOR\b/, payee: 'Alsoor', categoryId: 'fuel' },
   { re: /\bFUEL|PETROL|GAS STATION\b/, categoryId: 'fuel' },
   // Getting around.
   { re: /\bUBER\b/, payee: 'Uber', categoryId: 'transport' },
@@ -100,7 +95,7 @@ export const KNOWN: Known[] = [
   { re: /\bETISALAT\b/, payee: 'e&', categoryId: 'bills' },
   { re: /\bZAIN\b/, payee: 'Zain', categoryId: 'bills' },
   { re: /\bOOREDOO\b/, payee: 'Ooredoo', categoryId: 'bills' },
-  { re: /\bSTC\b|\bVIVA\b/, payee: 'stc', categoryId: 'bills' },
+  { re: /\bSTC\b/, payee: 'stc', categoryId: 'bills' },
   // Subscriptions, before the shops some of them belong to ("AMAZON PRIME").
   { re: /\bNETFLIX\b/, payee: 'Netflix', categoryId: 'subscriptions' },
   { re: /\bSPOTIFY\b/, payee: 'Spotify', categoryId: 'subscriptions' },
@@ -126,7 +121,7 @@ export const KNOWN: Known[] = [
   // Going out and games.
   { re: /\b(PLAYSTATION|PSN\b|STEAM|XBOX|NINTENDO)/, categoryId: 'fun' },
   {
-    re: /\b(CINEMAS?|AMC|ODEON|CINEWORLD|REGAL|VUE|PATHE|CINESCAPE|VOX|GRAND CINEMAS)\b/,
+    re: /\b(CINEMAS?|AMC|ODEON|CINEWORLD|REGAL|VUE|PATHE|VOX|GRAND CINEMAS)\b/,
     categoryId: 'fun',
   },
   { re: /\bTICKETMASTER|EVENTBRITE\b/, categoryId: 'fun' },
@@ -142,8 +137,6 @@ export const KNOWN: Known[] = [
   { re: /\bBEST BUY\b/, payee: 'Best Buy', categoryId: 'shopping' },
   { re: /\bMEDIA ?MARKT\b/, payee: 'MediaMarkt', categoryId: 'shopping' },
   { re: /\bNOON\b/, payee: 'noon', categoryId: 'shopping' },
-  { re: /\bXCITE\b/, payee: 'Xcite', categoryId: 'shopping' },
-  { re: /\bEUREKA\b/, payee: 'Eureka', categoryId: 'shopping' },
   {
     re: /\b(ZARA|H&M|H & M|UNIQLO|PRIMARK|MANGO|NIKE|ADIDAS|DECATHLON|CENTREPOINT|CENTERPOINT|MAX FASHION)\b/,
     categoryId: 'shopping',
@@ -156,7 +149,7 @@ export const KNOWN: Known[] = [
   { re: /\bGYM|FITNESS|OXYGEN|GOLD'?S\b/, categoryId: 'health' },
   // Travel.
   {
-    re: /\bAIRWAYS|AIRLINES?|RYANAIR|EASYJET|LUFTHANSA|EMIRATES|QATAR AIR|JAZEERA|FLYDUBAI|BOOKING\.COM|AIRBNB|HOTEL|HOSTEL|EXPEDIA|TRAINLINE|AMTRAK\b/,
+    re: /\bAIRWAYS|AIRLINES?|RYANAIR|EASYJET|LUFTHANSA|EMIRATES|QATAR AIR|FLYDUBAI|BOOKING\.COM|AIRBNB|HOTEL|HOSTEL|EXPEDIA|TRAINLINE|AMTRAK\b/,
     categoryId: 'travel',
   },
   // Learning.

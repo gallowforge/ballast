@@ -132,7 +132,7 @@ src/
   lib/calc/       money month, salary and safe-to-spend, budgets, recurring, runway,
                   insights and subscription detection, statistics (all with tests)
   lib/import/     CSV, statement values, column detection, PDF layout, reconciliation,
-                  payee cleanup, categories, duplicates, bank profiles
+                  payee cleanup, categories, duplicates
   lib/store/      pure operations, IndexedDB persistence, undo
   lib/            dates, backups, demo data, quick add, icons
   components/     Preact screens, charts (the road, runway staircase, burn-down,

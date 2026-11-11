@@ -19,7 +19,10 @@ describe('payee cleanup', () => {
     ['APPLE PAY BLUE BOTTLE COFFEE 08/11 14:32', 'Blue Bottle Coffee'],
     ['CONTACTLESS PRET A MANGER LONDON GB', 'Pret A Manger London'],
     ['ACME TRADING GMBH', 'Acme Trading'],
-    ['POS PURCHASE LULU HYPERMARKET AL RAI KUWAIT', 'Lulu Hypermarket Al Rai'],
+    [
+      'EFTPOS PURCHASE NORTHGATE HYPERMARKET WEST QUAY AUSTRALIA',
+      'Northgate Hypermarket West Quay',
+    ],
     ['12345678', '12345678'],
     ['', 'Unknown'],
   ])('%j → %j', (raw, out) => expect(cleanPayee(raw)).toBe(out));
@@ -49,8 +52,8 @@ describe('categories from statement text', () => {
     ['STEAMGAMES.COM 4259522985', 'out', 'fun', 'Steamgames.com'],
     ['CVS/PHARMACY #0412', 'out', 'health', 'CVS/Pharmacy'],
     ['MSFT *XBOX GAME PASS', 'out', 'subscriptions', 'Microsoft'],
-    ['POS PURCHASE KNPC STATION 112', 'out', 'fuel', 'KNPC'],
-    ['POS PURCHASE TALABAT GENERAL TRADING KW', 'out', 'delivery', 'Talabat'],
+    ['DIRECT DEBIT HARBOUR ELECTRICITY CO P.J.S.C.', 'out', 'home', 'Harbour Electricity'],
+    ['POS PURCHASE TALABAT GENERAL TRADING', 'out', 'delivery', 'Talabat'],
     ['ATM WITHDRAWAL 000117', 'out', 'cash', 'Cash withdrawal'],
     ['SERVICE CHARGE ACCOUNT MAINTENANCE', 'out', 'fees', 'Service Charge Account Maintenance'],
     ['MONTHLY SALARY ACME', 'in', 'salary', 'Salary'],
@@ -81,11 +84,42 @@ describe('categories from statement text', () => {
     expect(categorize('ATM DEPOSIT', 'in', []).categoryId).toBeUndefined();
     expect(categorize('RENT FROM TENANT', 'in', []).categoryId).toBeUndefined();
   });
-  it('leaves the unknown uncategorised with a tidy name', () =>
-    expect(categorize('POS PURCHASE BLUE DOOR', 'out', [])).toEqual({
-      payee: 'Blue Door',
-      transfer: false,
-    }));
+  it('leaves the unknown uncategorised with a tidy name', () => {
+    const tidy = { payee: 'Blue Door', transfer: false };
+    expect(categorize('POS PURCHASE BLUE DOOR', 'out', [])).toEqual(tidy);
+    // Whichever card network the line opens with, with or without the kind of card after it.
+    for (const network of [
+      'VISA',
+      'MASTERCARD',
+      'UNIONPAY',
+      'BANCONTACT',
+      'DANKORT',
+      'EFTPOS',
+      'GIROCARD',
+      'INTERAC',
+      'KNET',
+      'RUPAY',
+    ]) {
+      expect(categorize(`${network} POS PURCHASE BLUE DOOR`, 'out', [])).toEqual(tidy);
+      expect(categorize(`${network} DEBIT CARD BLUE DOOR`, 'out', [])).toEqual(tidy);
+    }
+    // Whatever legal form the company's name ends with.
+    for (const form of [
+      'INC',
+      'LTD.',
+      'GMBH',
+      'W.L.L',
+      'JSC',
+      'P.J.S.C.',
+      'B.S.C',
+      'K.S.C.C',
+      'QSC',
+    ])
+      expect(categorize(`POS PURCHASE BLUE DOOR ${form}`, 'out', [])).toEqual(tidy);
+    // A network's name is only dropped when it is the whole word, and a shop may share one.
+    expect(categorize('POS PURCHASE MAESTRO BAKERY', 'out', []).payee).toBe('Maestro Bakery');
+    expect(categorize('INTERACTIVE BLUE DOOR', 'out', []).payee).toBe('Interactive Blue Door');
+  });
   it('makes rule keys from the first two words', () =>
     expect(ruleKey('POS PURCHASE UBER *EATS AMSTERDAM NL')).toBe('UBER EATS'));
 });

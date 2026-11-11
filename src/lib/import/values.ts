@@ -114,7 +114,7 @@ const SYMBOLS = /[$€£¥₹₩₺₱฿₫₦]/g;
 
 /**
  * Reads a statement amount into signed minor units: 1,234.567 · 1.234,56 · (12.500) · -12.5 ·
- * 12.50- · 12.50 DR · 12.50 CR · USD 12.50 · 12.500 KWD · -$12.50 · €1.234,56. Extra decimals
+ * 12.50- · 12.50 DR · 12.50 CR · USD 12.50 · 12.500 BHD · -$12.50 · €1.234,56. Extra decimals
  * round half up.
  */
 export function parseAmount(

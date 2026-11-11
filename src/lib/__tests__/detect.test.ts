@@ -14,7 +14,7 @@ describe('header words', () => {
     ['Amount (EUR)', 'amount'],
     ['Amount USD', 'amount'],
     ['Balance in GBP', 'balance'],
-    ['Debit KD', 'debit'],
+    ['Debit Rs', 'debit'],
     ['Money in', 'credit'],
     ['Running Balance', 'balance'],
     ['Ref No.', 'reference'],
@@ -51,6 +51,14 @@ describe('mapping', () => {
     expect(m.dateOrder).toBe('dmy');
     expect(m.decimal).toBe('.');
     expect(mappingProblems(m)).toEqual([]);
+    // A currency in the headings changes nothing, as an ISO code or a bank's local abbreviation.
+    for (const unit of ['EUR', 'BD', 'DHS', 'KD', 'QR', 'RS', 'SR'])
+      expect(
+        detectMapping([
+          ['Posting Date', 'Description', `Debit ${unit}`, `Credit ${unit}`, `Balance in ${unit}`],
+          ['02/11/2026', 'UBER EATS', '4.250', '', '995.750'],
+        ]).columns,
+      ).toEqual(['date', 'description', 'debit', 'credit', 'balance']);
   });
   it('uses the value date when it is the only date', () => {
     const m = detectMapping([

@@ -114,7 +114,7 @@ export default function ImportScreen() {
       data.accounts.find((a) => !a.archived && a.currency === cur);
     setAccountId(match?.id ?? NEW);
     setNewAcct({
-      name: src.profile.id === 'nbk' ? 'NBK current account' : 'Current account',
+      name: 'Current account',
       role: data.accounts.some((a) => a.role === 'spending') ? 'other' : 'spending',
       currency: cur,
     });
@@ -203,7 +203,7 @@ export default function ImportScreen() {
         : undefined;
     const { op, id } = applyImport(fixed, {
       kind: source.kind,
-      profile: source.profile.id,
+      profile: 'generic',
       fileName: source.fileName,
       accountId: target,
       from: statement.from ?? today,
@@ -450,9 +450,6 @@ export default function ImportScreen() {
                 Check the columns
               </h2>
               <p class="text-muted">
-                {source.profile.id !== 'generic'
-                  ? `Recognised as a ${source.profile.name} statement. `
-                  : ''}
                 {plural(source.table.length - Math.max(0, mapping.header + 1), 'row')} found in{' '}
                 {source.fileName}. The columns below were matched for you: fix any that look wrong.
               </p>

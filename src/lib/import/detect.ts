@@ -124,10 +124,10 @@ const SYNONYMS: [Role, string[]][] = [
   ['type', ['type', 'dr cr', 'debit credit', 'transaction type', 'cr dr', 'd c']],
 ];
 
-// A currency written into a heading ("Amount USD", "Balance in EUR", "Debit KD") says nothing
+// A currency written into a heading ("Amount USD", "Balance in EUR", "Debit Rs") says nothing
 // about the column's role: ISO codes, and the local abbreviations some banks print instead.
 const MONEY_WORDS = new RegExp(
-  `\\s+(?:in\\s+)?(?:${[...CURRENCIES.map((c) => c.code), 'KD', 'BD', 'QR', 'SR', 'DHS', 'RS']
+  `\\s+(?:in\\s+)?(?:${[...CURRENCIES.map((c) => c.code), 'BD', 'DHS', 'KD', 'QR', 'RS', 'SR']
     .join('|')
     .toLowerCase()})$`,
 );
