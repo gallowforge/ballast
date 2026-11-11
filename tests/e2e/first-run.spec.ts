@@ -3,9 +3,23 @@ import { open } from './helpers';
 
 test.use({ locale: 'en-US' });
 
-test('a new person sets up in three steps and sees their month', async ({ page }) => {
+test('a new person sets up in three steps and sees their month', async ({ page, isMobile }) => {
   await open(page, 'home/');
   await expect(page.getByRole('heading', { name: /A calm place/ })).toBeVisible();
+  if (!isMobile) {
+    // Welcome's road (wide screens only): the flag's label stays in the picture, beside or above
+    // its flag, never drawn back across the road.
+    const label = await page
+      .locator('[data-road]:visible svg')
+      .evaluate(async (svg: SVGSVGElement) => {
+        await document.fonts.ready;
+        const text = svg.querySelector<SVGTextElement>('[data-flag] text')!.getBBox();
+        const pole = svg.querySelector<SVGLineElement>('[data-flag] line')!.x1.baseVal.value;
+        return { left: text.x, right: text.x + text.width, pole, width: svg.viewBox.baseVal.width };
+      });
+    expect(label.left).toBeGreaterThanOrEqual(label.pole - 1);
+    expect(label.right).toBeLessThanOrEqual(label.width);
+  }
   await page.getByRole('button', { name: /Set up in a minute/ }).click();
 
   const sheet = page.getByRole('dialog', { name: 'Your money' });

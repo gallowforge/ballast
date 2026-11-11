@@ -35,6 +35,18 @@ interface Props {
 const K = 1;
 const depth = (u: number) => (1 - u) / (1 + K * u);
 
+/** A generous width, in px, for words set in the 17 px italic of the flag's label: figures run
+ *  to about 10, capitals to 14 and small letters to 8; other scripts and symbols count a full em. */
+const labelWidth = (s: string) =>
+  [...s].reduce((w, c) => {
+    if (/\p{M}/u.test(c)) return w;
+    if (/[\s·.,:;'’]/.test(c)) return w + 4.4;
+    if (/\d/.test(c)) return w + 10.4;
+    if (/[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}]/u.test(c))
+      return w + (/\p{Lu}/u.test(c) ? 14 : 8);
+    return w + (c.charCodeAt(0) < 128 ? 11 : 18);
+  }, 0);
+
 /**
  * Your savings drawn as a road to the horizon. The ground is ruled like ledger paper, one line a
  * year (fainter ones each quarter); the road stops where the money does; your date is a brass
@@ -144,7 +156,16 @@ export function RoadView({
           h: Math.max(16, 54 * depth(tU) + 10),
         }
       : null;
-  const flagLeft = flag ? flag.x > W - 210 : false;
+  // The flag's label sits to its right on one line. Where that would run past the edge, it goes
+  // above the flag on two lines, the name and then the date, pulled back inside the view rather
+  // than to the left, across the road.
+  const when = target ? formatShort(target.date) : '';
+  const above = (() => {
+    if (!flag || !target) return null;
+    if (flag.x + 30 + labelWidth(`${target.label} · ${when}`) <= W - 2) return null;
+    const fits = flag.x + Math.max(labelWidth(target.label), labelWidth(when)) <= W - 2;
+    return { x: fits ? flag.x : W - 2, anchor: fits ? 'start' : 'end', y: flag.y - flag.h - 27 };
+  })();
   const ended = runOut && shownEnd < 0.999;
   // A road that runs past the horizon still says where it ends, so it never looks endless.
   const beyond = runOut && diffDays(today, runOut) > total;
@@ -259,9 +280,9 @@ export function RoadView({
             />
             {!compact && (
               <text
-                x={flagLeft ? flag.x - 10 : flag.x + 30}
-                y={flag.y - flag.h + 10}
-                text-anchor={flagLeft ? 'end' : 'start'}
+                x={above ? above.x : flag.x + 30}
+                y={above ? above.y : flag.y - flag.h + 10}
+                text-anchor={above ? above.anchor : 'start'}
                 class="halo"
                 style={{
                   fill: 'var(--gold-ink)',
@@ -270,7 +291,18 @@ export function RoadView({
                 }}
                 font-size="17"
               >
-                {target.label} · {formatShort(target.date)}
+                {above ? (
+                  <>
+                    <tspan x={above.x}>{target.label}</tspan>
+                    <tspan x={above.x} dy="20">
+                      {when}
+                    </tspan>
+                  </>
+                ) : (
+                  <>
+                    {target.label} · {when}
+                  </>
+                )}
               </text>
             )}
           </g>

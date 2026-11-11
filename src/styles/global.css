@@ -896,6 +896,17 @@ html:not([data-books]) [data-add] {
   background: rgb(18 29 24 / 0.42);
   animation: fade 0.2s ease-out;
 }
+/* An open sheet locks the page, which leaves the scrollbar's gutter empty and, on paper, bright
+   beside the dimmed page. The gutter shows the root's colour, so the root takes the dimmed one,
+   at the backdrop's pace, and the body keeps the page's. (On the night ledger the two are the
+   same colour.) */
+html:has(.backdrop) {
+  background: color-mix(in srgb, rgb(18 29 24) 42%, var(--bg));
+  transition: background-color 0.2s ease-out;
+}
+html:has(.backdrop) body {
+  background: var(--bg);
+}
 .sheet {
   position: fixed;
   z-index: 61;
